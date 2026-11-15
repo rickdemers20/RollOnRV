@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="RollOnRV" />
-<link rel="stylesheet" href="styles.css?v=47" />
+<link rel="stylesheet" href="styles.css?v=48" />
 <script>try{var _t=localStorage.getItem("rollonrv-theme");if(_t==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
 </head>
 <body>
@@ -67,7 +67,7 @@
       <div class="rig-art" id="home-rig-art" aria-hidden="true"></div>
       <div class="btnrow home-photo-row" style="justify-content:flex-start">
         <button class="btn small ghost" id="home-rig-photo-btn" type="button">📷 Add a photo of your rig</button>
-        <a class="btn small ghost" id="home-guide-link" href="https://rickdemers.com/rollonrv-guide/" target="_blank" rel="noopener">📖 How to use this app</a>
+        <button class="btn small ghost" id="home-guide-link" type="button">📖 How to use this app</button>
       </div>
     </div>
     <div class="searchbar"><input type="search" id="home-search" placeholder="🔍 Search tasks…" autocomplete="off" /></div>
@@ -277,6 +277,77 @@
     </div>
   </section>
 
+  <!-- Guide: the whole how-to, inside the app — no website, no Safari. -->
+  <section class="screen" id="screen-guide">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>How to use this app</h1>
+      <p>Your rig's logbook. Every job, in order.</p>
+      <div class="btnrow" style="justify-content:flex-start;margin-top:.6rem">
+        <button class="btn small ghost" id="guide-back-btn" type="button">← Back to the logbook</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="hand">1.</span> Set up your rig</h2>
+      <p>When the app opens, tell it about your rig: the type (Class A, Class C, travel trailer…), year, make and model, the odometer reading, and generator hours. Tap the picture on the Home screen to add a photo of your rig — it stays on your phone.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">2.</span> Start with the usual jobs</h2>
+      <p>Most rigs need the same jobs. In the Logbook, tap <b>＋ Add a task</b>, then <b>Or start with the usual jobs</b>. Tap <b>Add</b> on the ones that fit yours — engine oil, generator oil, roof seals, house batteries, tire pressures, water heater, smoke &amp; CO detectors, slide seals. Each one comes with its rhythm already set.</p>
+      <p class="tip">No list to import? Tap <b>Fit the jobs to my rig</b> at the top of that list and answer seven quick questions — roof, water heater, fridge, generator, slides, suspension, and fuel (gas or diesel, motorhomes only). The list then only shows the jobs your rig actually has. Not sure is always a fine answer.</p>
+      <p class="tip">Engine and generator jobs only show for motorhomes (Class A, B, or C). A travel trailer never sees them.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">3.</span> Add a task of your own</h2>
+      <p>Tap <b>＋ Add a task</b> in the Logbook. Give it a name, a category, and a rhythm — every so many months, miles, or generator hours — and when it's due. A job with no rhythm stays open until you log it once.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">4.</span> Fix a task</h2>
+      <p>Tap any task to open it, then <b>Edit task</b>. Change the words, the rhythm, or when it's due. What you've already done stays in the book — the last-done date is history, and it never changes here. If a task has had its day, <b>Delete task</b> takes it out. If a job belongs to a shop, tick <b>Leave it to the pro</b> when you add it and write down which shop — the due date is the appointment date, and the shop's name rides along with the job.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">5.</span> Log a job when it's done</h2>
+      <p>Tap <b>＋ Log a job</b>. The photo starts the entry — snap the receipt, the part label, or the odometer. Write what was done, what it cost, the odometer, and the generator hours. If the job is tied to a task, the name fills itself in, and the task's next due date moves ahead on its own.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">6.</span> Checklists, before the wheels turn</h2>
+      <p>On the Home screen, <b>Start the walk-around</b> runs the Before You Roll list. Check each line as you go. Your own items carry a small ✎ — tap the words to rename them. Print a list to mark it with a pen: <b>🖨 Print what's due</b> in the Logbook, or the print button on a checklist. When you're done, snap a photo of the finished sheet — or the work itself. It rides along with the run, date-stamped with the day it was taken, and it's what you show for a warranty claim.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">7.</span> Parts to get</h2>
+      <p>On a task, tap <b>＋ Add a part for this job</b> — name it, add the part number if you have it, and how many. Or add supplies with no job at all. When you've got it, tap <b>Not got yet</b> and mark what you paid. That money lands in What she's cost, and it's never counted twice when the job gets logged.</p>
+      <p class="tip">Print the list to take to the counter, or download it. The list stays in the app either way.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">8.</span> Tires</h2>
+      <p>Each tire carries its DOT code — the last four digits on the sidewall are the week, then the year. 3222 means week 32 of 2022. The app flags tires at 5, 7, and 10 years old, and keeps your front and rear pressures on file.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">9.</span> What she's cost</h2>
+      <p>Home shows what you've spent this year, and the Logbook keeps the cost of every job. Cost per mile comes from the miles you've driven and the money in the book.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">10.</span> Your book stays yours</h2>
+      <p>Everything in RollOnRV lives on your phone. Nothing is sent anywhere, and there's no account to sign into. In the web preview, the book lives in the browser you opened it in — open it in Safari and it's there; open it in another app's browser and it starts empty.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">11.</span> Little things</h2>
+      <p>Search your tasks from the Home screen. The Logbook sorts by due soonest, by system, or by name — whichever you picked, it remembers. <b>🌙 Night mode</b> is there if you want it, on every screen; light is the default.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">12.</span> Your pros</h2>
+      <p>The shops and techs you trust live in <b>My pros</b> (More → My pros). Name, what they do, phone, town — that's the whole card. Tick <b>Leave it to the pro</b> on a task and pick one, and the number rides along with the job — tap it to call them when the job comes due. If it's a shop you haven't saved yet, add them right from the task and they join the list. Change a number once in My pros and every job that points at them shows the new one. If you ever delete a pro, the jobs keep the name but the number goes with them.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">13.</span> Fuel — what she drinks</h2>
+      <p>Every fill-up: the date, the odometer, how many gallons, and what you paid. The app works out the price a gallon and your real MPG — the miles that fill-up covered over its own gallons. Fill the tank each time and the math stays honest. A fill-up moves the odometer forward too, same as logging a job does. Fuel money stays its own line — it never lands in "What she's cost", which is maintenance money. Export the fuel log from More any time.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">14.</span> Trips — where she's been</h2>
+      <p>Plan a trip: where to, when you leave and come back, the campground and what it cost, and the odometer out and home. The trip's total works itself out — the campground plus every fill-up dated inside the trip, so the number is the budget number, not a guess. That's the trip to plan the next one from.</p>
+    </div>
+  </section>
+
   <nav id="tabbar" aria-label="Sections">
     <div class="tabs">
       <button class="tab" data-screen="home"><span class="ico">⌂</span>Home</button>
@@ -295,6 +366,6 @@
      stylesheet hides the app itself, so only this page comes out -->
 <div id="print-sheet" aria-hidden="true"></div>
 
-<script src="app.js?v=47"></script>
+<script src="app.js?v=48"></script>
 </body>
 </html>

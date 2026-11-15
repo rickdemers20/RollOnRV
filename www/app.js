@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "47";
+  var APP_VERSION = "48";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -169,22 +169,6 @@
         rig.photo = small; save(); renderHome(); toast("That's the one — your rig's photo is on the home screen.");
       });
     });
-  }
-  function openGuide(e) {
-    /* The guide lives on the website. In the installed app a plain link
-       throws the reader out to Safari (Nov 15); open it in the in-app
-       browser sheet instead, with a Done button back to the book. On the
-       web preview the link behaves as a normal new tab. */
-    if (isNative) {
-      try {
-        var Browser = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser;
-        if (Browser && Browser.open) {
-          if (e) e.preventDefault();
-          Browser.open({ url: "https://rickdemers.com/rollonrv-guide/" });
-          return;
-        }
-      } catch (err) {}
-    }
   }
   function newTask(o) {
     return {
@@ -2489,7 +2473,8 @@
     $("#home-start-checklist").addEventListener("click", function () { showScreen("checklists"); openChecklistRun("pretrip"); });
     $("#home-rig-art").addEventListener("click", pickRigPhoto);
     $("#home-rig-photo-btn").addEventListener("click", pickRigPhoto);
-    $("#home-guide-link").addEventListener("click", openGuide);
+    $("#home-guide-link").addEventListener("click", function () { showScreen("guide"); });
+    $("#guide-back-btn").addEventListener("click", function () { showScreen("home"); });
     $("#home-pick-checklist").addEventListener("click", function () { showScreen("checklists"); });
     $("#home-update-miles").addEventListener("click", openMilesSheet);
     $("#home-log-job").addEventListener("click", function () { openLogSheet(null, null); });

@@ -407,7 +407,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 14. night mode toggle ---- */
   console.log("== 14. night mode ==");
   check("theme defaults to light", R.currentTheme() === "light" && !doc.documentElement.hasAttribute("data-theme"));
-  check("a night button sits at the top of every screen", doc.querySelectorAll(".theme-btn").length === 10);
+  check("a night button sits at the top of every screen", doc.querySelectorAll(".theme-btn").length === 11);
   check("each night button is on its own line above the title", Array.from(doc.querySelectorAll(".theme-btn")).every((b) => b.parentElement.firstElementChild === b));
   check("the night button is never parked over a title", !/\.theme-btn\{[^}]*position:\s*absolute/.test(css));
   check("night mode button starts as Night mode", doc.querySelector(".theme-btn").textContent.includes("Night mode"));
@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 47"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 48"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -805,14 +805,14 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("a travel trailer sees seven usual jobs, no engine work", doc.querySelectorAll("[data-add-starter]").length === 7 && !doc.querySelector("#sheet-host").textContent.includes("Engine oil"));
   R.activeRig().type = "Class C"; R.save(); R.renderHome();
 
-  /* ---- 33. the guide link sits with the photo button, same size ---- */
-  console.log("== 33. guide link on Home ==");
+  /* ---- 33. the guide button sits with the photo button, same size ---- */
+  console.log("== 33. guide button on Home ==");
   R.showScreen("home"); await sleep(20);
-  const guideLink = doc.querySelector('#screen-home .screen-head a[href*="rollonrv-guide"]');
-  check("Home carries the guide link up top", !!guideLink);
-  check("the guide link matches the Change photo button", guideLink && guideLink.classList.contains("btn") && guideLink.classList.contains("small") && guideLink.classList.contains("ghost"));
-  check("the guide link sits next to the photo button", guideLink && guideLink.parentElement === doc.querySelector("#home-rig-photo-btn").parentElement);
-  check("the guide link opens in a new tab", guideLink && guideLink.getAttribute("target") === "_blank");
+  const guideLink = doc.querySelector("#home-guide-link");
+  check("Home carries the guide button up top", !!guideLink);
+  check("the guide button matches the Change photo button", guideLink && guideLink.classList.contains("btn") && guideLink.classList.contains("small") && guideLink.classList.contains("ghost"));
+  check("the guide button sits next to the photo button", guideLink && guideLink.parentElement === doc.querySelector("#home-rig-photo-btn").parentElement);
+  check("the guide button is a button, not a link out", guideLink && guideLink.tagName === "BUTTON" && !guideLink.getAttribute("href"));
   check("the old pill at the bottom is gone", !doc.querySelector('#screen-home a.pill[href*="rollonrv-guide"]'));
 
   /* ---- 34. five rig questions fit the usual jobs to the rig ---- */
@@ -853,7 +853,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   console.log("== 35. matching pills, full-width rig picture ==");
   R.showScreen("home"); await sleep(20);
   const photoBtn = doc.querySelector("#home-rig-photo-btn");
-  const guideBtn = doc.querySelector('#screen-home .screen-head a[href*="rollonrv-guide"]');
+  const guideBtn = doc.querySelector("#home-guide-link");
   check("both pills share one row", photoBtn && guideBtn && photoBtn.parentElement === guideBtn.parentElement && photoBtn.parentElement.classList.contains("home-photo-row"));
   check("the row splits fifty-fifty", /\.home-photo-row \.btn\{[^}]*flex:1 1 0/.test(css));
   check("buttons and links share one line height", /\.btn\{[^}]*line-height:1\.35/.test(css));
@@ -1158,16 +1158,21 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   await sleep(50);
   check("a failed native camera call keeps the photo callback pending for the fallback picker", inputClicked && R2.photoPendingSet());
 
-  /* ---- 45. the guide opens inside the app, not in Safari ---- */
-  console.log("== 45. guide opens in-app ==");
-  // Same native boot as section 43: tapping "How to use this app" used to
-  // throw the reader out to Safari (Nov 15). It must open the in-app
-  // browser sheet instead.
-  let browserOpened = null;
-  win2.Capacitor.Plugins.Browser = { open: function (opts) { browserOpened = opts && opts.url; return Promise.resolve(); } };
-  doc2.querySelector("#home-guide-link").dispatchEvent(new win2.MouseEvent("click", { bubbles: true, cancelable: true }));
+  /* ---- 45. the guide is a page inside the app ---- */
+  console.log("== 45. guide is in-app ==");
+  // Nov 15: the guide used to be a web link (then an in-app browser sheet
+  // via a plugin that never answered on the phone) — either way it showed
+  // rickdemers.com. Now it's a screen inside the app: a button, not a
+  // link, so there is nowhere for it to leave to.
+  check("the guide button is a button, not a link", doc.querySelector("#home-guide-link").tagName === "BUTTON" && !doc.querySelector("#home-guide-link").getAttribute("href"));
+  R.showScreen("home"); await sleep(20);
+  doc.querySelector("#home-guide-link").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
-  check("the guide opens in the in-app browser sheet", browserOpened === "https://rickdemers.com/rollonrv-guide/");
+  check("tapping How to use this app opens the guide screen", doc.querySelector("#screen-guide").classList.contains("active"));
+  check("the in-app guide carries all 14 steps", doc.querySelectorAll("#screen-guide .card").length === 14);
+  doc.querySelector("#guide-back-btn").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  await sleep(20);
+  check("the guide's Back button returns to Home", doc.querySelector("#screen-home").classList.contains("active"));
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);
