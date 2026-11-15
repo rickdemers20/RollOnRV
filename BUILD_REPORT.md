@@ -351,6 +351,10 @@ Still needed (browser work):
 - Add Rick (rickdemers@hotmail.com) as a TestFlight tester for RollOnRV.
 - App is version 1.0, build 1 — the first TestFlight upload will be build 1. TestFlight only; do NOT submit for App Store review (Bible app Build 6 4.3 thread still open).
 
+## Build 43 — duplicate jobs cleaned up (Nov 15, 2026)
+
+Rick approved the fix. The plan export had been imported twice, doubling every job to 349; marking one copy done left its twin overdue, so the same job kept coming back. Two changes: (a) import now skips a row whose cleaned title + category already exist for the rig, and counts it as skipped (the import status line already shows the skip count); (b) a one-time cleanup runs when the book loads — it merges exact duplicates (same rig, title, category), keeps the copy with the most work behind it (logs first, then latest done, then latest due), and re-points the dropped copy's logs and parts at the copy that stays, so nothing written up is lost. Same title in a different category is a different job and stays. His book should drop from 349 to 175 (174 imported + 1 starter) the first time v43 loads. Suite section 8c: 6 new checks; the re-import test now expects the new behaviour. Suite now **349 passed, 0 failed**.
+
 ## Build 42 — back buttons on every page (Nov 15, 2026)
 
 Rick kept reaching for the browser back button in the Safari preview — which leaves the app, since a single-page app has no history to go back through — and the small "‹ Home" buttons at the top of Parts / My pros / Fuel / Trips were too easy to miss. His way back had been the fixed tab bar at the bottom. Every off-tab screen now has a full-width "‹ Back to Home" button at the bottom of its content too (Parts, My pros, Fuel, Trips); the small top buttons stay. Tab screens (Home, Logbook, Checklists, Tires, More) navigate by the tab bar and need none. Suite section 23: 6 new checks (bottom buttons exist on all four screens; Parts and Trips bottom buttons return Home). Suite now **343 passed, 0 failed**.
