@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 56"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 57"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1226,6 +1226,31 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   var sheetSub = doc.querySelector("#sheet-host .sheet > p.muted");
   check("the instructions sit below the title row, full-width", !!sheetSub && sheetSub.textContent.includes("Something the rig needs") && !sheetHeadEl.contains(sheetSub));
   check("no sheet header pulls the button up over the text", !appJs.includes("margin:-2.4rem"));
+  click(doc.querySelector('[data-close]')); await sleep(20);
+
+  /* ---- 51. a sheet stays put when you make a choice ---- */
+  console.log("== 51. sheet scroll stays put ==");
+  // Every tap in the rig questions re-draws the sheet, and the sheet
+  // used to jump to the bottom (Nov 15: "the page jumps to the bottom
+  // every time you make a choice"). jsdom clamps scrollTop to 0 (no
+  // layout), so back it with a WeakMap to prove the position is
+  // carried across the re-draw.
+  var scrollStore = new WeakMap();
+  Object.defineProperty(window.HTMLElement.prototype, "scrollTop", {
+    configurable: true,
+    get: function () { return scrollStore.get(this) || 0; },
+    set: function (v) { scrollStore.set(this, v); }
+  });
+  R.activeRig().type = "Class C"; R.save();
+  R.showScreen("logbook"); await sleep(20);
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  click(doc.querySelector("#at-starters")); await sleep(20);
+  click(doc.querySelector("#st-fit")); await sleep(20);
+  check("the rig questions sheet is open", !!doc.querySelector(".sheet-head") && doc.querySelector(".sheet-head h2").textContent.includes("What does your rig have"));
+  var qSheet = doc.querySelector(".sheet");
+  qSheet.scrollTop = 150;
+  click(doc.querySelector('[data-eq="fuel"][data-val="gas"]')); await sleep(20);
+  check("the sheet stays where you were after a choice", doc.querySelector(".sheet").scrollTop === 150);
   click(doc.querySelector('[data-close]')); await sleep(20);
 
   /* ---- 47. double-tap never zooms the screen ---- */

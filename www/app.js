@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "56";
+  var APP_VERSION = "57";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -1746,8 +1746,19 @@
   var sheetHost = null;
   function openSheet(html) {
     sheetHost = $("#sheet-host");
+    /* A sheet that re-draws itself after a tap (the rig questions, the
+       usual-jobs list) used to jump — the old sheet was destroyed and
+       the new one opened wherever the browser put it (Nov 15: "the page
+       jumps to the bottom every time you make a choice"). Keep the
+       scroll when it is the same sheet coming back; a new sheet still
+       opens at the top. */
+    var oldSheet = sheetHost.querySelector(".sheet");
+    var oldTop = oldSheet ? oldSheet.scrollTop : 0;
+    var oldHead = oldSheet ? (oldSheet.querySelector("h2") || {}).textContent : "";
     sheetHost.innerHTML = '<div class="sheet-backdrop"><div class="sheet" role="dialog">' + html + "</div></div>";
     sheetHost.hidden = false;
+    var newSheet = sheetHost.querySelector(".sheet");
+    if (oldHead && newSheet && (newSheet.querySelector("h2") || {}).textContent === oldHead) newSheet.scrollTop = oldTop;
     $(".sheet-backdrop", sheetHost).addEventListener("click", function (e) {
       if (e.target.classList.contains("sheet-backdrop")) closeSheet();
     });

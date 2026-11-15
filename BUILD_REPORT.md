@@ -463,6 +463,14 @@ Rick, in the installed app: "Close button cover instructions" — on the "Add a 
 
 TestFlight build 13: version stays 1.0; build number goes 12 → 13 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).
 
+TestFlight build 13 outcome (Nov 15, 2026): pushed as commit 1688b225; workflow run 43766850260 SUCCESS (381 tests pass; `bunx cap sync ios` found 3 Capacitor plugins for iOS). Transporter: "UPLOAD SUCCEEDED with no errors" 22:05:17 UTC. Build 13 (id 57ba652a-effb-4e65-a7e9-75213afcb464) registered in App Store Connect, processingState VALID (already VALID at first check), uploaded 22:05:54 UTC, expires 2027-02-13, min iOS 15.0. BuildUpload record COMPLETE with no errors and no warnings — the ITMS-90683 failure did not recur. No Apple mail about build 13 yet (inbox + junk checked ~22:07 UTC; newest RollOnRV mail is the build 12 "now available to test" from 22:00 UTC). Still needed (browser step): answer export compliance for build 13 and assign it to the Internal Testers group — a new build needs compliance answered again.
+
 ## TestFlight build 12 outcome (Nov 15, 2026)
 
 Pushed as commit `b5e95d8a` (v55, print at 80%). Workflow run 43765929182 SUCCESS — 377 tests pass, 0 failed; `** BUILD SUCCEEDED **`; "UPLOAD SUCCEEDED with no errors" at 21:54:50 UTC. App Store Connect: build 12 (id `80e6a079-7981-4b09-a7e3-330a441f48ab`) processingState VALID, uploaded 2026-11-15 21:55:32 UTC, expires 2027-02-13; buildUpload state COMPLETE, errors [] — the ITMS-90683 failure did not recur. Builds 1–12 all VALID. (Compliance + Internal Testers assignment is a separate browser step.)
+
+## Build 57 — a sheet holds its scroll when you tap a choice (Nov 15, 2026)
+
+Rick, in the installed app: "the page jumps to the bottom every time you make a choice kinda annoying" — and it happened on every sheet, not just the questions. Root cause: `openSheet` destroyed the scrollable `.sheet` element on every re-draw, so the scroll position was uncontrolled. Fix (v57): `openSheet` now reads the old sheet's scrollTop and heading before replacing it, and restores the scrollTop when the same sheet (same h2) comes back; a genuinely new sheet still opens at the top. Suite section 51: checks that re-drawing the questions sheet keeps its scroll, and that opening a different sheet starts at the top. Suite now **383 passed, 0 failed**.
+
+TestFlight build 14: version stays 1.0; build number goes 13 → 14 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).
