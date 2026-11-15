@@ -59,11 +59,12 @@ h1,h2,h3{ font-weight:600; line-height:1.15; }
 #app{ max-width:640px; margin:0 auto; min-height:100vh; }
 .screen{ display:none; padding:0 1rem 1.5rem; }
 .screen.active{ display:block; }
-.screen-head{ padding:1.4rem .2rem .6rem; }
+.screen-head{ padding:calc(1.4rem + env(safe-area-inset-top, 0px)) .2rem .6rem; }
 /* The night button gets its own line above the title — parked at the
    top-right it sat on top of "The Logbook 2026". It can never cover
-   a title from its own line. */
-.theme-btn{ display:block; margin-left:auto; margin-bottom:.3rem; }
+   a title from its own line. The safe-area inset keeps it clear of the
+   iPhone Dynamic Island, where it was half-hidden and hard to tap (Nov 15). */
+.theme-btn{ display:block; margin-left:auto; margin-bottom:.3rem; min-height:44px; }
 .screen-head h1{ font-size:1.9rem; margin:0; }
 .screen-head h1 .hand{ color:var(--red); font-size:1.15em; }
 .screen-head p{ margin:.35rem 0 0; color:var(--ink-soft); }

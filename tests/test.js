@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 43"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 45"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1110,6 +1110,44 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the download opens in a new tab", !!doc.querySelector('a[target="_blank"][download="rollonrv-parts.html"]'));
   check("tapping Download does not navigate the app away", doc.location.href === locBefore);
   check("the app is still on the Parts screen", doc.querySelector("#screen-parts").classList.contains("active"));
+
+  /* ---- 43. native camera failure falls back to the file picker ---- */
+  console.log("== 43. native photo fallback ==");
+  // A second boot with a mocked native Capacitor: the Camera call rejects,
+  // which used to swallow the tap entirely (Nov 15, TestFlight — the rig
+  // photo button looked dead). The file picker must open instead; a user
+  // cancel stays silent.
+  const dom2 = new JSDOM(html, { url: "http://localhost/", runScripts: "outside-only", pretendToBeVisual: true });
+  const win2 = dom2.window;
+  win2.confirm = () => true;
+  win2.scrollTo = () => {};
+  win2.Capacitor = {
+    isNativePlatform: () => true,
+    Plugins: { Camera: { getPhoto: () => Promise.reject(new Error("plugin boom")) } },
+  };
+  win2.eval(appJs);
+  await sleep(50);
+  const doc2 = win2.document;
+  const R2 = win2.RollOnRV;
+  check("native boot exposes test hooks", !!R2);
+  doc2.querySelector("#su-year").value = "2021";
+  doc2.querySelector("#su-make").value = "Test Make";
+  doc2.querySelector("#su-model").value = "Test Model 123";
+  doc2.querySelector("#setup-form").dispatchEvent(new win2.Event("submit", { bubbles: true, cancelable: true }));
+  await sleep(50);
+  R2.showScreen("home"); await sleep(20);
+  const input2 = doc2.querySelector("#photo-input");
+  let inputClicked = false;
+  input2.click = function () { inputClicked = true; };
+  doc2.querySelector("#home-rig-photo-btn").dispatchEvent(new win2.MouseEvent("click", { bubbles: true }));
+  await sleep(50);
+  check("native camera failure falls back to the file picker", inputClicked);
+  // A user cancel must NOT pop the picker up after them.
+  win2.Capacitor.Plugins.Camera.getPhoto = () => Promise.reject(new Error("User cancelled photos app"));
+  inputClicked = false;
+  doc2.querySelector("#home-rig-photo-btn").dispatchEvent(new win2.MouseEvent("click", { bubbles: true }));
+  await sleep(50);
+  check("a user cancel stays silent (no fallback picker)", !inputClicked);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

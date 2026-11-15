@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "43";
+  var APP_VERSION = "45";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -1758,6 +1758,11 @@
     try { return (localStorage.getItem(KEY) || "").length + bytes < STORE_SOFT_LIMIT; } catch (e) { return true; }
   }
   var photoPending = null; // function(dataUrl)
+  function openPhotoInput() {
+    var input = $("#photo-input");
+    input.value = "";
+    input.click();
+  }
   function requestPhoto(cb) {
     photoPending = cb;
     if (isNative) {
@@ -1766,14 +1771,24 @@
         if (Camera && Camera.getPhoto) {
           Camera.getPhoto({ quality: 80, allowEditing: false, resultType: "dataUrl", source: "prompt" })
             .then(function (r) { var f = photoPending; photoPending = null; if (f && r && r.dataUrl) f(r.dataUrl); })
-            .catch(function () { photoPending = null; });
+            .catch(function (err) {
+              /* The native camera call can fail (plugin not answering, no
+                 permission, anything else) — and a failed call used to swallow
+                 the tap entirely, so the button looked dead (Nov 15, TestFlight:
+                 "Add photo of your rig won't open"). Fall back to the file
+                 picker so a photo is always reachable. A user cancel is the one
+                 case that stays silent: they already said no. */
+              photoPending = null;
+              var msg = "";
+              try { msg = String((err && err.message) || err || ""); } catch (e) {}
+              if (/cancel/i.test(msg)) return;
+              openPhotoInput();
+            });
           return;
         }
       } catch (e) {}
     }
-    var input = $("#photo-input");
-    input.value = "";
-    input.click();
+    openPhotoInput();
   }
 
   /* ---------------- local reminders (native only) --------------------------- */
