@@ -311,15 +311,15 @@ a.pill{ color:var(--ink); text-decoration:none; margin-left:0; }
   /* The book prints light, whatever the screen theme is. */
   body{ background:#fff !important; }
   #app, #sheet-host, #photo-input{ display:none !important; }
-  #print-sheet{ display:block; color:#111; background:#fff; font-family:var(--sans); font-size:11pt; }
-  .print-head h1{ font-family:var(--serif); font-size:20pt; margin:0 0 .2rem; }
+  #print-sheet{ display:block; color:#111; background:#fff; font-family:var(--sans); font-size:10pt; }
+  .print-head h1{ font-family:var(--serif); font-size:17pt; margin:0 0 .2rem; }
   .print-head p{ color:#555; margin:0 0 1rem; }
-  .print-group{ font-family:var(--serif); font-weight:700; font-size:13pt; margin:1rem 0 .2rem; }
+  .print-group{ font-family:var(--serif); font-weight:700; font-size:11pt; margin:1rem 0 .2rem; }
   .print-item{ display:flex; gap:.6rem; align-items:flex-start; padding:.4rem 0; border-bottom:1px solid #ccc; break-inside:avoid; }
   .print-box{ flex:none; width:1.05rem; height:1.05rem; border:1.5px solid #111; border-radius:2px; text-align:center; line-height:1.05rem; font-weight:700; margin-top:.1rem; }
   .print-label{ font-weight:600; display:block; }
-  .print-sub{ color:#555; font-size:9.5pt; display:block; }
+  .print-sub{ color:#555; font-size:9pt; display:block; }
   .print-note-line{ border-bottom:1px solid #ccc; height:1.6rem; }
-  .print-foot{ margin-top:1.4rem; color:#555; font-size:10pt; }
+  .print-foot{ margin-top:1.4rem; color:#555; font-size:9pt; }
   .print-foot p{ margin:.3rem 0; }
 }

@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 51"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 52"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1179,6 +1179,18 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const printHtml = fs.readFileSync(path.join(ROOT, "www", "print.html"), "utf8");
   check("print page reads the sheet from the link's hash", printHtml.includes("decodeURIComponent") && printHtml.includes("location.hash"));
   check("print page has its own Print button", printHtml.includes('id="print-btn"') && printHtml.includes("window.print()"));
+
+  /* ---- 48. printed sheet reads a little smaller (Nov 15) ---- */
+  console.log("== 48. print font size ==");
+  // Rick: the printed sheet's type was "a-little big". Both copies of the
+  // print styles — the app's @media print rules and the print page's
+  // inline rules — must shrink together.
+  check("print body type is 10pt in the app styles", css.includes("#print-sheet{ display:block; color:#111; background:#fff; font-family:var(--sans); font-size:10pt; }"));
+  check("print title is 17pt in the app styles", css.includes(".print-head h1{ font-family:var(--serif); font-size:17pt;"));
+  check("print group headings are 11pt in the app styles", css.includes(".print-group{ font-family:var(--serif); font-weight:700; font-size:11pt;"));
+  check("print body type is 10pt on the print page", printHtml.includes("font-size:10pt;padding:16px;"));
+  check("print title is 17pt on the print page", printHtml.includes(".print-head h1{font-family:Georgia,\"Times New Roman\",serif;font-size:17pt;"));
+  check("print group headings are 11pt on the print page", printHtml.includes(".print-group{font-family:Georgia,\"Times New Roman\",serif;font-weight:700;font-size:11pt;"));
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");
