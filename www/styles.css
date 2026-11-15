@@ -162,6 +162,10 @@ a.pill{ color:var(--ink); text-decoration:none; margin-left:0; }
 .btn.ghost{ background:transparent; color:var(--red); border:2px solid var(--red); }
 .btn.block{ display:block; width:100%; }
 .btn.small{ padding:.45rem .8rem; font-size:.9rem; }
+/* A little smaller than .small, same look — the Home Parts/Fuel/Trips
+   pills (Nov 15: Rick wanted them smaller than the photo/guide pills,
+   but the same red-outline pill). */
+.btn.tiny{ padding:.28rem .6rem; font-size:.8rem; }
 .btn:disabled{ opacity:.5; }
 .btnrow{ display:flex; gap:.6rem; margin-top:1rem; flex-wrap:wrap; }
 

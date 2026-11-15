@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 57"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 58"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1252,6 +1252,24 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector('[data-eq="fuel"][data-val="gas"]')); await sleep(20);
   check("the sheet stays where you were after a choice", doc.querySelector(".sheet").scrollTop === 150);
   click(doc.querySelector('[data-close]')); await sleep(20);
+
+  /* ---- 52. Parts, Fuel and Trips open with pill buttons ---- */
+  console.log("== 52. home pills ==");
+  // The three "Open..." lines on Home used to be plain muted text;
+  // now they are pill buttons like Change photo / How to use this app
+  // (Nov 15: same .btn.small.ghost, same words, same destination) —
+  // a little smaller (.tiny), same look.
+  R.showScreen("home"); await sleep(20);
+  ["home-parts-more", "home-fuel-more", "home-trips-more"].forEach(function (id) {
+    var el = doc.querySelector("#" + id);
+    check(id + " is a pill button", !!el && el.tagName === "BUTTON" && el.classList.contains("btn") && el.classList.contains("small") && el.classList.contains("ghost"));
+    check(id + " is a little smaller than the photo pills", !!el && el.classList.contains("tiny"));
+    check(id + " still says where it goes", !!el && el.textContent.trim().length > 0);
+  });
+  check("the fuel pill still says Open the fuel log", doc.querySelector("#home-fuel-more").textContent.includes("Open the fuel log"));
+  click(doc.querySelector("#home-fuel-more")); await sleep(20);
+  check("tapping the fuel pill opens the fuel screen", !!doc.querySelector("#screen-fuel.active"));
+  R.showScreen("home"); await sleep(20);
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");
