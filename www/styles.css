@@ -309,7 +309,10 @@ a.pill{ color:var(--ink); text-decoration:none; margin-left:0; }
 #print-sheet{ display:none; }
 @media print{
   /* The book prints light, whatever the screen theme is. */
-  body{ background:#fff !important; }
+  /* The sheet prints at 80% (Nov 15): Safari's print dialog won't let a
+     page preset its Scale, so the sheet scales itself — same result on
+     paper, no fiddling in the dialog. */
+  body{ background:#fff !important; zoom:0.8; }
   #app, #sheet-host, #photo-input{ display:none !important; }
   #print-sheet{ display:block; color:#111; background:#fff; font-family:var(--sans); font-size:10pt; }
   .print-head h1{ font-family:var(--serif); font-size:17pt; margin:0 0 .2rem; }

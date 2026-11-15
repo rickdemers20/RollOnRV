@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "54";
+  var APP_VERSION = "55";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;

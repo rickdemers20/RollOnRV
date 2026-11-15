@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 54"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 55"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1204,6 +1204,13 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("print body type is 10pt on the print page", printHtml.includes("font-size:10pt;padding:16px;"));
   check("print title is 17pt on the print page", printHtml.includes(".print-head h1{font-family:Georgia,\"Times New Roman\",serif;font-size:17pt;"));
   check("print group headings are 11pt on the print page", printHtml.includes(".print-group{font-family:Georgia,\"Times New Roman\",serif;font-weight:700;font-size:11pt;"));
+
+  /* ---- 49. the sheet prints at 80% ---- */
+  console.log("== 49. print scale ==");
+  // Safari's print dialog won't let a page preset its Scale, so the
+  // sheet scales itself to 80% — same result on paper.
+  check("the app's print rules scale the sheet to 80%", css.includes("body{ background:#fff !important; zoom:0.8; }"));
+  check("the print page scales the sheet to 80%", printHtml.includes("body{zoom:0.8;}"));
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");

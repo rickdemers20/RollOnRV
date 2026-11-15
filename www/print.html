@@ -23,7 +23,8 @@
   .print-note-line{border-bottom:1px solid #ccc;height:1.6rem;}
   .print-foot{margin-top:1.4rem;color:#555;font-size:9pt;}
   .print-foot p{margin:.3rem 0;}
-  @media print{.print-hint,.print-btn{display:none !important;}}
+  /* Print at 80%: Safari won't let a page preset the dialog's Scale, so the sheet scales itself. */
+  @media print{.print-hint,.print-btn{display:none !important;}body{zoom:0.8;}}
 </style>
 </head>
 <body>
