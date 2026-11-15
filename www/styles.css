@@ -1,0 +1,322 @@
+/* RollOnRV v1 — The Rig Logbook.
+   Warm paper-logbook feel: cream pages, handwriting headings, DONE stamps.
+   Quiet, personal, no dashboard noise. Tokens match the approved mockups. */
+@import url("fonts/fonts-local.css");
+
+:root{
+  --bg:#ece7db;
+  --bg-panel:#f7f3e8;
+  --bg-page:#fffdf4;
+  --ink:#22304a;
+  --ink-soft:#55617a;
+  --line:#d5cbb2;
+  --line-soft:#e2d8bd;
+  --red:#b3372c;
+  --red-soft:rgba(179,55,44,.75);
+  --green:#3e7a4e;
+  --amber:#a96f14;
+  --card-shadow:0 1px 2px rgba(34,48,74,.08),0 10px 30px rgba(34,48,74,.10);
+  --serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --hand:"Caveat", "Snell Roundhand", "Bradley Hand", cursive;
+  --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+/* Night mode is opt-in — a button, like the Bible study — never automatic.
+   Light is the default; the phone's dark mode does not flip the book. */
+[data-theme="dark"]{
+  --bg:#121826;
+  --bg-panel:#1b2334;
+  --bg-page:#1e2637;
+  --ink:#ece5d3;
+  --ink-soft:#a9b2c4;
+  --line:#333f58;
+  --line-soft:#2a3449;
+  --card-shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+}
+/* Secondary buttons use --ink as their fill, and --ink turns cream in
+   dark mode — with white text that was white-on-cream and unreadable.
+   Dark navy fill, cream text instead. */
+[data-theme="dark"] .btn.secondary{ background:#333f58; color:#ece5d3; }
+/* The add-item row hardcodes a white field; in dark mode it follows the page. */
+[data-theme="dark"] .add-custom input{ background:var(--bg-page); }
+*{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--serif); font-size:1.06rem; line-height:1.55;
+  padding-bottom:4.6rem; /* room for the bottom tab bar */
+}
+button, input, select, textarea{ font:inherit; color:inherit; }
+button{ cursor:pointer; }
+a{ color:var(--red); }
+h1,h2,h3{ font-weight:600; line-height:1.15; }
+.hand{ font-family:var(--hand); }
+.sans{ font-family:var(--sans); }
+.muted{ color:var(--ink-soft); }
+.small{ font-size:.9rem; }
+.money{ font-variant-numeric:tabular-nums; }
+
+/* ---------- app shell ---------- */
+#app{ max-width:640px; margin:0 auto; min-height:100vh; }
+.screen{ display:none; padding:0 1rem 1.5rem; }
+.screen.active{ display:block; }
+.screen-head{ padding:1.4rem .2rem .6rem; }
+/* The night button gets its own line above the title — parked at the
+   top-right it sat on top of "The Logbook 2026". It can never cover
+   a title from its own line. */
+.theme-btn{ display:block; margin-left:auto; margin-bottom:.3rem; }
+.screen-head h1{ font-size:1.9rem; margin:0; }
+.screen-head h1 .hand{ color:var(--red); font-size:1.15em; }
+.screen-head p{ margin:.35rem 0 0; color:var(--ink-soft); }
+
+/* ---------- logbook page ---------- */
+.page{
+  background:var(--bg-page);
+  border:1px solid var(--line);
+  border-radius:6px;
+  box-shadow:var(--card-shadow);
+  padding:1.1rem 1.2rem;
+  margin-top:1rem;
+  position:relative;
+}
+.page.ruled{
+  background-image:repeating-linear-gradient(transparent 0 1.9rem, var(--line-soft) 1.9rem 1.91rem);
+}
+.page .margin-line{
+  position:absolute; top:0; bottom:0; left:2.6rem; width:2px; background:rgba(179,55,44,.35);
+}
+.page-head{
+  font-family:var(--hand); font-size:1.7rem; font-weight:700; color:var(--red);
+  border-bottom:2px solid var(--line); padding-bottom:.2rem; margin-bottom:.6rem;
+}
+
+/* ---------- cards & rows ---------- */
+.card{
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:12px;
+  padding:1rem 1.1rem; margin-top:1rem; box-shadow:var(--card-shadow);
+}
+.card h2{ margin:0 0 .3rem; font-size:1.25rem; }
+.card-head{ display:flex; justify-content:space-between; align-items:baseline; gap:.6rem; margin:0 0 .3rem; }
+.card-head h2{ margin:0; }
+.card-head .custom-del{ padding:0 .2rem; }
+.card h2 .hand{ color:var(--red); }
+.row{
+  display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap;
+  padding:.65rem 0; border-bottom:1px solid var(--line-soft);
+}
+.row:last-child{ border-bottom:none; }
+/* The title keeps a real minimum width: a long due pill drops to its own
+   line instead of squeezing the title to a sliver and running into it. */
+.row .grow{ flex:1 1 10rem; min-width:10rem; }
+.row .title{ font-weight:600; }
+.row .sub{ color:var(--ink-soft); font-size:.92rem; }
+.dot{ width:.6rem; height:.6rem; border-radius:50%; flex:none; display:inline-block; }
+.dot.red{ background:var(--red); } .dot.amber{ background:var(--amber); } .dot.green{ background:var(--green); }
+.pill{
+  font-family:var(--sans); font-size:.78rem; font-weight:700; white-space:nowrap;
+  padding:.2rem .6rem; border-radius:999px; border:1px solid var(--line);
+  background:var(--bg-page); margin-left:auto;
+}
+a.pill{ color:var(--ink); text-decoration:none; margin-left:0; }
+.pill.red{ color:var(--red); border-color:var(--red); }
+.pill.amber{ color:var(--amber); border-color:var(--amber); }
+.pill.green{ color:var(--green); border-color:var(--green); }
+
+/* ---------- DONE stamp ---------- */
+.stamp{
+  font-family:var(--sans); font-weight:800; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--red); border:3px solid var(--red); border-radius:8px;
+  padding:.15rem .6rem; display:inline-block; transform:rotate(-6deg);
+  opacity:.85; font-size:.95rem; line-height:1.2; text-align:center;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='120' height='60' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='120' height='60' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.stamp.big{ font-size:1.5rem; padding:.3rem 1rem; border-width:4px; }
+.stamp.pop{ animation:stamp-in .28s ease-out; }
+@keyframes stamp-in{
+  0%{ transform:rotate(-6deg) scale(2.4); opacity:0; }
+  60%{ transform:rotate(-6deg) scale(.92); opacity:.95; }
+  100%{ transform:rotate(-6deg) scale(1); opacity:.85; }
+}
+
+/* ---------- rig silhouette ---------- */
+.rig-art{ color:var(--red); margin:.5rem 0 0; }
+.rig-art svg{ width:100%; max-width:100%; height:auto; display:block; }
+.rig-art--sm svg{ max-width:190px; }
+#home-rig-art{ cursor:pointer; }
+/* The two buttons under the rig photo share the row fifty-fifty, so the
+   pills come out the same size — same height, same width. */
+.home-photo-row .btn{ flex:1 1 0; }
+.rig-photo{ width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid var(--line); }
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; line-height:1.35;
+  font-family:var(--sans); font-weight:700; font-size:1rem;
+  background:var(--red); color:#fff; border:none; border-radius:10px;
+  padding:.7rem 1.2rem; text-decoration:none; text-align:center;
+}
+.btn.secondary{ background:var(--ink); }
+.btn.ghost{ background:transparent; color:var(--red); border:2px solid var(--red); }
+.btn.block{ display:block; width:100%; }
+.btn.small{ padding:.45rem .8rem; font-size:.9rem; }
+.btn:disabled{ opacity:.5; }
+.btnrow{ display:flex; gap:.6rem; margin-top:1rem; flex-wrap:wrap; }
+
+/* ---------- search ---------- */
+.searchbar{ padding:0 .2rem; margin-top:.8rem; }
+.searchbar input{
+  width:100%; padding:.6rem .7rem; border:1px solid var(--line); border-radius:8px;
+  background:var(--bg-page); color:var(--ink); font-family:var(--sans); font-size:1rem;
+}
+.searchbar input::placeholder{ color:var(--ink-soft); }
+#home-search-results .card{ margin-top:.8rem; }
+
+/* ---------- logbook sort ---------- */
+.sortrow{ display:flex; gap:.5rem; align-items:center; margin:.2rem 0 .8rem; flex-wrap:wrap; }
+.group-head{ font-family:var(--serif); font-weight:700; font-size:1.05rem; margin:1rem 0 .2rem; }
+
+/* ---------- forms ---------- */
+.field{ margin-top:.9rem; }
+.field label{ display:block; font-family:var(--sans); font-weight:700; font-size:.85rem; margin-bottom:.25rem; }
+.field input, .field select, .field textarea{
+  width:100%; padding:.6rem .7rem; border:1px solid var(--line); border-radius:8px;
+  background:var(--bg-page);
+}
+.field textarea{ min-height:4.5rem; resize:vertical; }
+.field .hint{ font-size:.85rem; color:var(--ink-soft); margin-top:.2rem; }
+.fieldrow{ display:flex; gap:.7rem; }
+.fieldrow .field{ flex:1; }
+
+/* ---------- bottom tab bar ---------- */
+#tabbar{
+  position:fixed; left:0; right:0; bottom:0; z-index:20;
+  background:var(--bg-panel); border-top:2px solid var(--line);
+  display:flex; justify-content:center; padding-bottom:env(safe-area-inset-bottom);
+}
+#tabbar .tabs{ display:flex; width:100%; max-width:640px; }
+.tab{
+  flex:1; background:none; border:none; padding:.55rem 0 .6rem;
+  font-family:var(--sans); font-size:.72rem; font-weight:700; color:var(--ink-soft);
+  display:flex; flex-direction:column; align-items:center; gap:.1rem;
+}
+.tab .ico{ font-size:1.25rem; line-height:1; }
+.tab.active{ color:var(--red); }
+
+/* ---------- checklist ---------- */
+.check-group{ font-family:var(--hand); font-size:1.5rem; font-weight:700; color:var(--red); margin:1.1rem 0 .2rem; }
+.check-group.heading-edit{ background:none; border:0; padding:0; text-align:left; width:100%; cursor:pointer; }
+.check-item{
+  display:flex; align-items:flex-start; gap:.8rem; width:100%;
+  background:none; border:none; border-bottom:1px solid var(--line-soft);
+  padding:.8rem .1rem; text-align:left; font-size:1.05rem;
+}
+.check-item .box{
+  flex:none; width:1.6rem; height:1.6rem; border:2px solid var(--ink-soft);
+  border-radius:6px; margin-top:.1rem; display:flex; align-items:center; justify-content:center;
+  font-family:var(--hand); font-size:1.5rem; font-weight:700; color:var(--red); line-height:1;
+}
+.check-item button.box{ background:none; padding:0; cursor:pointer; }
+.check-item .label{ flex:1; }
+.check-item.done .box{ border-color:var(--red); }
+.check-item.done .label{ text-decoration:line-through; color:var(--ink-soft); }
+.check-item .psi{ font-family:var(--sans); font-size:.82rem; color:var(--ink-soft); }
+.check-item .label[data-edit-custom]{ cursor:pointer; }
+.edit-hint{ color:var(--ink-soft); font-size:.8rem; }
+.custom-row{ display:flex; align-items:flex-start; gap:.4rem; }
+.custom-row .check-item{ flex:1; }
+.custom-del{
+  flex:none; background:none; border:none; color:var(--ink-soft);
+  font-size:1.4rem; line-height:1; padding:.8rem .2rem; cursor:pointer;
+}
+.custom-del.armed{
+  color:var(--red); font-family:var(--sans); font-size:.85rem; font-weight:700;
+}
+.custom-group-head{ display:flex; align-items:baseline; justify-content:space-between; gap:.6rem; margin:1.1rem 0 .2rem; }
+.custom-group-head .check-group{ margin:0; }
+.custom-group-head .custom-del{ padding:.1rem .2rem; }
+.add-custom{ display:flex; gap:.6rem; margin-top:1.1rem; }
+.add-custom input{
+  flex:1; min-width:0; font-size:1rem; padding:.65rem .8rem;
+  border:1.5px solid var(--line); border-radius:10px; background:#fff; color:var(--ink);
+}
+.progress{
+  height:.55rem; background:var(--line-soft); border-radius:999px; overflow:hidden; margin-top:.4rem;
+}
+.progress > div{ height:100%; background:var(--red); border-radius:999px; transition:width .25s ease; }
+
+/* ---------- logbook entries ---------- */
+.entry{ padding:.7rem 0; border-bottom:1px solid var(--line-soft); cursor:pointer; }
+.entry:last-child{ border-bottom:none; }
+.entry .date{ font-family:var(--hand); font-size:1.3rem; font-weight:700; color:var(--red); }
+.entry .job{ font-weight:600; }
+.entry .meta{ color:var(--ink-soft); font-size:.92rem; }
+.entry .cost{ font-weight:700; white-space:nowrap; }
+.thumbs{ display:flex; gap:.5rem; margin-top:.5rem; flex-wrap:wrap; }
+.thumbs img, .thumbs .thumb{
+  width:4.4rem; height:4.4rem; object-fit:cover; border-radius:8px;
+  border:1px solid var(--line); background:var(--bg-panel);
+}
+.photo-btn{
+  display:flex; align-items:center; justify-content:center; gap:.5rem;
+  width:100%; padding:.9rem; border:2px dashed var(--line); border-radius:10px;
+  background:var(--bg-panel); font-family:var(--sans); font-weight:700; color:var(--ink);
+}
+.parts-table{ width:100%; border-collapse:collapse; margin-top:.5rem; }
+.parts-table td{ padding:.35rem 0; border-bottom:1px solid var(--line-soft); }
+.parts-table td:last-child{ text-align:right; font-weight:700; white-space:nowrap; }
+.parts-table tr.total td{ border-top:2px solid var(--line); border-bottom:none; font-size:1.1rem; }
+
+/* ---------- tires ---------- */
+.tire-bar{ height:.6rem; background:var(--line-soft); border-radius:999px; overflow:hidden; margin:.4rem 0 .2rem; }
+.tire-bar > div{ height:100%; border-radius:999px; }
+.tire-bar > div.green{ background:var(--green); }
+.tire-bar > div.amber{ background:var(--amber); }
+.tire-bar > div.red{ background:var(--red); }
+.age{ font-size:1.6rem; font-weight:600; line-height:1.1; }
+
+/* ---------- costs ---------- */
+.big-number{ font-size:2.4rem; font-weight:600; line-height:1.05; }
+.bar-row{ display:flex; align-items:center; gap:.7rem; margin-top:.55rem; }
+.bar-row .lbl{ width:8.5rem; font-size:.95rem; }
+.bar-row .bar{ flex:1; height:.7rem; background:var(--line-soft); border-radius:999px; overflow:hidden; }
+.bar-row .bar > div{ height:100%; background:var(--ink); }
+.bar-row .amt{ width:4.5rem; text-align:right; font-weight:700; white-space:nowrap; }
+
+/* ---------- sheet / modal ---------- */
+.sheet-backdrop{
+  position:fixed; inset:0; background:rgba(18,24,38,.55); z-index:30;
+  display:flex; align-items:flex-end; justify-content:center;
+}
+.sheet{
+  background:var(--bg-page); width:100%; max-width:640px; max-height:88vh; overflow-y:auto;
+  border-radius:16px 16px 0 0; padding:1.2rem 1.2rem 2rem; border-top:3px solid var(--red);
+}
+.sheet h2{ margin-top:0; }
+.sheet h2 .hand{ color:var(--red); }
+[hidden]{ display:none !important; }
+.empty{ text-align:center; color:var(--ink-soft); padding:2rem 1rem; }
+.empty .hand{ font-size:1.8rem; color:var(--red); display:block; }
+.toast{
+  position:fixed; left:50%; bottom:5.2rem; transform:translateX(-50%);
+  background:var(--ink); color:var(--bg-page); font-family:var(--sans); font-weight:700;
+  padding:.6rem 1.1rem; border-radius:999px; z-index:40; box-shadow:var(--card-shadow);
+}
+
+/* ---------- Printing: a paper page from the book ---------- */
+#print-sheet{ display:none; }
+@media print{
+  /* The book prints light, whatever the screen theme is. */
+  body{ background:#fff !important; }
+  #app, #sheet-host, #photo-input{ display:none !important; }
+  #print-sheet{ display:block; color:#111; background:#fff; font-family:var(--sans); font-size:11pt; }
+  .print-head h1{ font-family:var(--serif); font-size:20pt; margin:0 0 .2rem; }
+  .print-head p{ color:#555; margin:0 0 1rem; }
+  .print-group{ font-family:var(--serif); font-weight:700; font-size:13pt; margin:1rem 0 .2rem; }
+  .print-item{ display:flex; gap:.6rem; align-items:flex-start; padding:.4rem 0; border-bottom:1px solid #ccc; break-inside:avoid; }
+  .print-box{ flex:none; width:1.05rem; height:1.05rem; border:1.5px solid #111; border-radius:2px; text-align:center; line-height:1.05rem; font-weight:700; margin-top:.1rem; }
+  .print-label{ font-weight:600; display:block; }
+  .print-sub{ color:#555; font-size:9.5pt; display:block; }
+  .print-note-line{ border-bottom:1px solid #ccc; height:1.6rem; }
+  .print-foot{ margin-top:1.4rem; color:#555; font-size:10pt; }
+  .print-foot p{ margin:.3rem 0; }
+}

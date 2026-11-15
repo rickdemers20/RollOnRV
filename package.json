@@ -1,0 +1,26 @@
+{
+  "name": "rollonrv",
+  "version": "1.0.0",
+  "description": "RollOnRV — your rig's logbook. RV maintenance, checklists, tire age, and costs. Local-first, offline, no account.",
+  "private": true,
+  "scripts": {
+    "test": "node tests/test.js",
+    "sync": "npx cap sync",
+    "serve": "npx --yes serve -l 4173 www"
+  },
+  "author": "Rick Demers",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/camera": "^8.0.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/local-notifications": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "jsdom": "^26.0.0"
+  }
+}

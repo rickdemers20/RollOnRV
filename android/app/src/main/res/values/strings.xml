@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RollOnRV</string>
+    <string name="title_activity_main">RollOnRV</string>
+    <string name="package_name">com.rickdemers.rollonrv</string>
+    <string name="custom_url_scheme">com.rickdemers.rollonrv</string>
+</resources>

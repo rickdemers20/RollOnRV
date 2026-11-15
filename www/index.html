@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>RollOnRV — Your Rig's Logbook</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#22304a" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="RollOnRV" />
+<link rel="stylesheet" href="styles.css?v=33" />
+<script>try{var _t=localStorage.getItem("rollonrv-theme");if(_t==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
+</head>
+<body>
+<div id="app">
+
+  <!-- First-run setup: the app ships empty. Add your rig, or bring a list. -->
+  <section class="screen" id="screen-setup">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>RollOnRV <span class="hand">— your rig's logbook</span></h1>
+      <p>A plain book for your rig: what was done, what it cost, what's due next. No account, no cloud — it lives on your phone.</p>
+    </div>
+    <div class="page">
+      <div class="page-head">Your rig</div>
+      <form id="setup-form">
+        <div class="fieldrow">
+          <div class="field"><label for="su-year">Year</label><input id="su-year" inputmode="numeric" placeholder="e.g. 2019" /></div>
+          <div class="field"><label for="su-make">Make</label><input id="su-make" placeholder="e.g. Tiffin" /></div>
+        </div>
+        <div class="fieldrow">
+          <div class="field"><label for="su-model">Model</label><input id="su-model" placeholder="e.g. Allegro 34PA" /></div>
+          <div class="field"><label for="su-type">Type</label>
+            <select id="su-type">
+              <option>Class A</option><option>Class B</option><option>Class C</option>
+              <option>Travel trailer</option><option>Fifth wheel</option><option>Truck camper</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="rig-art rig-art--sm" id="setup-type-art" aria-hidden="true"></div>
+        <div class="field"><label for="su-nick">Nickname (optional)</label><input id="su-nick" placeholder="e.g. Home on wheels" /></div>
+        <div class="fieldrow">
+          <div class="field"><label for="su-miles">Odometer (miles)</label><input id="su-miles" inputmode="decimal" placeholder="0" /></div>
+          <div class="field"><label for="su-gen">Generator hours</label><input id="su-gen" inputmode="decimal" placeholder="0" /></div>
+        </div>
+        <div class="fieldrow">
+          <div class="field"><label for="su-psi-f">Tire pressure — front (PSI)</label><input id="su-psi-f" inputmode="numeric" placeholder="e.g. 90" /></div>
+          <div class="field"><label for="su-psi-r">Tire pressure — rear (PSI)</label><input id="su-psi-r" inputmode="numeric" placeholder="e.g. 85" /></div>
+        </div>
+        <p class="small muted">Your tire pressures ride along on the pre-trip checklist, so they're where you need them.</p>
+        <div class="btnrow"><button class="btn block" type="submit">Open the logbook</button></div>
+      </form>
+      <div class="btnrow">
+        <button class="btn ghost block" id="setup-import-btn" type="button">Bring a list instead — import a CSV</button>
+      </div>
+      <p class="small muted" style="margin-top:1rem">Already keeping a list in a spreadsheet? Import it — tasks, due dates, mileage, and generator hours come across. You can add your rig right after.</p>
+    </div>
+  </section>
+
+  <!-- Home: trip-ready first -->
+  <section class="screen" id="screen-home">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>The Logbook <span class="hand" id="home-year"></span></h1>
+      <p id="home-rig-line"></p>
+      <div class="rig-art" id="home-rig-art" aria-hidden="true"></div>
+      <div class="btnrow home-photo-row" style="justify-content:flex-start">
+        <button class="btn small ghost" id="home-rig-photo-btn" type="button">📷 Add a photo of your rig</button>
+        <a class="btn small ghost" href="https://rickdemers.com/rollonrv-guide/" target="_blank" rel="noopener">📖 How to use this app</a>
+      </div>
+    </div>
+    <div class="searchbar"><input type="search" id="home-search" placeholder="🔍 Search tasks…" autocomplete="off" /></div>
+    <div id="home-search-results"></div>
+    <div class="card" id="home-trip-card">
+      <h2>Rolling out soon? <span class="hand">— check the rig</span></h2>
+      <p class="muted" id="home-trip-sub">One walk-around before the wheels turn.</p>
+      <div class="btnrow">
+        <button class="btn" id="home-start-checklist">Start the walk-around</button>
+        <button class="btn ghost" id="home-pick-checklist">All checklists</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Next up <span class="hand">— three at a time</span></h2>
+      <p class="muted">Overdue safety first, then overdue, then soonest. The rest waits in the logbook.</p>
+      <div id="home-nextup"></div>
+      <p class="small muted" id="home-nextup-more" style="cursor:pointer"></p>
+    </div>
+    <div class="card">
+      <h2>Parts to get <span class="hand">— for the jobs</span></h2>
+      <div id="home-parts"></div>
+      <p class="small muted" id="home-parts-more" style="cursor:pointer"></p>
+    </div>
+    <div class="card">
+      <h2>Fuel <span class="hand">— what she drinks</span></h2>
+      <div id="home-fuel"></div>
+      <p class="small muted" id="home-fuel-more" style="cursor:pointer"></p>
+    </div>
+    <div class="card">
+      <h2>Trips <span class="hand">— where she's been</span></h2>
+      <div id="home-trips"></div>
+      <p class="small muted" id="home-trips-more" style="cursor:pointer"></p>
+    </div>
+    <div class="card">
+      <h2>Your rig, your numbers</h2>
+      <div id="home-numbers"></div>
+      <div class="btnrow">
+        <button class="btn small secondary" id="home-update-miles">Update odometer &amp; hours</button>
+        <button class="btn small ghost" id="home-log-job">＋ Log a job</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Spent this year</h2>
+      <div id="home-spent"></div>
+    </div>
+  </section>
+
+  <!-- Logbook -->
+  <section class="screen" id="screen-logbook">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>The Logbook <span class="hand">— every job, in order</span></h1>
+      <p>Tap a line to read the whole story. Tap <b>Log a job</b> and the camera opens first — the photo starts the entry.</p>
+    </div>
+    <div class="btnrow" style="padding:0 .2rem">
+      <button class="btn" id="log-add-btn">＋ Log a job</button>
+      <button class="btn secondary" id="log-add-task-btn">＋ Add a task</button>
+      <button class="btn secondary" id="log-print-btn">🖨 Print what's due</button>
+    </div>
+    <div id="logbook-pages"></div>
+  </section>
+
+  <!-- Checklists -->
+  <section class="screen" id="screen-checklists">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>Checklists <span class="hand">— before you roll</span></h1>
+      <p>Big rows, one thumb, works with no signal. Pick the moment you're in.</p>
+    </div>
+    <div id="checklist-picker"></div>
+    <div id="checklist-run" hidden></div>
+  </section>
+
+  <!-- Tires -->
+  <section class="screen" id="screen-tires">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>Tires, by age <span class="hand">— not tread</span></h1>
+      <p>Blowouts come from old tires, not worn tread. Enter each DOT code once; the book watches the birthdays. Flags start at 5 years, turn serious at 7. The bar fills toward the 10-year hard limit.</p>
+    </div>
+    <div class="btnrow" style="padding:0 .2rem">
+      <button class="btn" id="tire-add-btn">＋ Add a tire</button>
+    </div>
+    <div id="tire-list"></div>
+  </section>
+
+  <!-- Parts to get -->
+  <section class="screen" id="screen-parts">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>Parts to get <span class="hand">— before the job</span></h1>
+      <p>What you need, which job it's for, and what you paid when you've got it. It lives in the app — print it for the counter, or download it as a file.</p>
+    </div>
+    <div class="btnrow" style="padding:0 .2rem">
+      <button class="btn" id="parts-add-btn">＋ Add a part</button>
+      <button class="btn secondary" id="parts-print-btn">🖨 Print the list</button>
+      <button class="btn secondary" id="parts-csv-btn">⬇ Download the list</button>
+      <button class="btn small ghost" id="parts-back-btn">‹ Home</button>
+    </div>
+    <div id="parts-list"></div>
+  </section>
+
+  <!-- My pros -->
+  <section class="screen" id="screen-pros">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>My pros <span class="hand">— the shops you trust</span></h1>
+      <p>Shops and techs you trust, with a number to call. Tick "Leave it to the pro" on a task and pick one — the number rides along with the job.</p>
+    </div>
+    <div class="btnrow" style="padding:0 .2rem">
+      <button class="btn" id="pros-add-btn">＋ Add a pro</button>
+      <button class="btn small ghost" id="pros-back-btn">‹ Home</button>
+    </div>
+    <div id="pros-list"></div>
+  </section>
+
+  <!-- Fuel -->
+  <section class="screen" id="screen-fuel">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>Fuel <span class="hand">— what she drinks</span></h1>
+      <p>Every fill-up, with the miles it covered. Fill the tank each time and the MPG stays honest.</p>
+    </div>
+    <div class="card"><div id="fuel-summary"></div></div>
+    <div class="btnrow" style="padding:0 .2rem">
+      <button class="btn" id="fuel-add-btn">＋ Log a fill-up</button>
+      <button class="btn small ghost" id="fuel-back-btn">‹ Home</button>
+    </div>
+    <div id="fuel-list"></div>
+  </section>
+
+  <!-- Trips -->
+  <section class="screen" id="screen-trips">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>Trips <span class="hand">— where she's been</span></h1>
+      <p>Where you went, when, and what it cost. The fuel inside the trip's dates counts itself toward the total.</p>
+    </div>
+    <div class="btnrow" style="padding:0 .2rem">
+      <button class="btn" id="trips-add-btn">＋ Plan a trip</button>
+      <button class="btn small ghost" id="trips-back-btn">‹ Home</button>
+    </div>
+    <div id="trips-list"></div>
+  </section>
+
+  <!-- More: costs, rig, CSV, premium-later, about -->
+  <section class="screen" id="screen-more">
+    <div class="screen-head">
+      <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
+      <h1>More <span class="hand">— the back of the book</span></h1>
+      <p>Costs, your rig, and bringing your list in or out.</p>
+    </div>
+    <div class="card" id="costs-card">
+      <h2>What she's cost <span class="hand" id="costs-year"></span></h2>
+      <div id="costs-body"></div>
+    </div>
+    <div class="card">
+      <h2>Your rig</h2>
+      <div id="rig-body"></div>
+      <div class="btnrow">
+        <button class="btn small secondary" id="rig-edit-btn">Edit rig</button>
+        <button class="btn small secondary" id="rig-equipment-btn">What my rig has</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>My pros</h2>
+      <p class="muted small">The shops and techs you trust — name, what they do, phone, town. Pick one from a task when the job belongs to a shop.</p>
+      <div class="btnrow">
+        <button class="btn small secondary" id="pros-open-btn">My pros</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Bring your list in — or take it out</h2>
+      <p class="muted small">Import a task list from a spreadsheet (CSV). Columns it understands: title, category, due date, due mileage, due generator hours, every-months, note. It also reads a simple "task, category, due date" file.</p>
+      <div class="btnrow">
+        <button class="btn small" id="csv-import-btn">Import tasks (CSV)</button>
+        <button class="btn small secondary" id="csv-export-tasks-btn">Export tasks</button>
+        <button class="btn small secondary" id="csv-export-logs-btn">Export logbook</button>
+        <button class="btn small secondary" id="csv-export-parts-btn">Export parts</button>
+        <button class="btn small secondary" id="csv-export-fuel-btn">Export fuel log</button>
+      </div>
+      <input type="file" id="csv-file-input" accept=".csv,text/csv" hidden />
+      <p class="small muted" id="csv-status"></p>
+    </div>
+    <div class="card" id="premium-card">
+      <h2>Premium <span class="hand">— a drawer for later</span></h2>
+      <p class="muted">The free core is the whole book, and it stays free. Later updates will add the ownership report (one clean PDF for a buyer), the document vault (registration, insurance, warranties with expiry alerts), parts &amp; warranty tracking, more than one rig, and backup. Nothing here asks you to pay today.</p>
+    </div>
+    <div class="card">
+      <h2>About this book</h2>
+      <p class="small muted"><span id="about-version">RollOnRV v1.0</span> — your rig's logbook. Everything is stored on this phone only. No account, no cloud, no ads. Your records are yours: export them any time as a CSV.</p>
+      <div class="btnrow">
+        <button class="btn small ghost" id="reset-btn">Start over — erase this book</button>
+      </div>
+    </div>
+  </section>
+
+  <nav id="tabbar" aria-label="Sections">
+    <div class="tabs">
+      <button class="tab" data-screen="home"><span class="ico">⌂</span>Home</button>
+      <button class="tab" data-screen="logbook"><span class="ico">▤</span>Logbook</button>
+      <button class="tab" data-screen="checklists"><span class="ico">✓</span>Checklists</button>
+      <button class="tab" data-screen="tires"><span class="ico">◎</span>Tires</button>
+      <button class="tab" data-screen="more"><span class="ico">•••</span>More</button>
+    </div>
+  </nav>
+</div>
+
+<!-- sheet (modal) host -->
+<div id="sheet-host" hidden></div>
+<input type="file" id="photo-input" accept="image/*" hidden />
+<!-- print sheet: filled in when the user prints a list; the print
+     stylesheet hides the app itself, so only this page comes out -->
+<div id="print-sheet" aria-hidden="true"></div>
+
+<script src="app.js?v=41"></script>
+</body>
+</html>

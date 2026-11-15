@@ -1,0 +1,9 @@
+{
+  "name": "RollOnRV",
+  "short_name": "RollOnRV",
+  "description": "Your rig's logbook — maintenance, checklists, tire age, and costs.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f7f3e8",
+  "theme_color": "#22304a"
+}

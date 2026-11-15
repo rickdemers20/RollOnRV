@@ -1,0 +1,11 @@
+{
+	"appId": "com.rickdemers.rollonrv",
+	"appName": "RollOnRV",
+	"webDir": "www",
+	"backgroundColor": "#f7f3e8",
+	"packageClassList": [
+		"CAPCameraPlugin",
+		"FilesystemPlugin",
+		"LocalNotificationsPlugin"
+	]
+}
