@@ -67,14 +67,15 @@ jobs:
           APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
+          # Signing lives in the App target's Release config in the pbxproj
+          # (Manual, Apple Distribution, profile "RollOnRV App"). It must NOT
+          # be passed on the command line: a global PROVISIONING_PROFILE_SPECIFIER
+          # is also applied to the Swift Package targets (IONCameraLib) and
+          # those reject a manually specified profile, failing the archive.
           xcodebuild -project ios/App/App.xcodeproj \
             -scheme App -configuration Release \
             -sdk iphoneos -destination 'generic/platform=iOS' \
-            -archivePath build/App.xcarchive archive \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="RollOnRV App"
+            -archivePath build/App.xcarchive archive
           xcodebuild -exportArchive -archivePath build/App.xcarchive \
             -exportPath build -exportOptionsPlist ios/App/ExportOptions.plist
       - name: Upload .ipa
