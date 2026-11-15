@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 59"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 60"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -791,7 +791,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#log-add-task-btn")); await sleep(20);
   check("the add-task sheet offers the usual jobs", !!doc.querySelector("#at-starters"));
   click(doc.querySelector("#at-starters")); await sleep(20);
-  check("the picker lists nine usual jobs for a Class C", doc.querySelectorAll("[data-add-starter]").length === 9);
+  check("the picker lists twelve usual jobs for a Class C", doc.querySelectorAll("[data-add-starter]").length === 12);
   click(doc.querySelector('[data-add-starter="0"]')); await sleep(20);
   check("tapping Add writes the job in the book", R.store().tasks.some((t) => t.title === "Engine oil & filter" && t.intervalMonths === 12));
   check("an added job shows In the book", doc.querySelector("#sheet-host").textContent.includes("In the book"));
@@ -802,7 +802,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("[data-close]")); await sleep(20);
   click(doc.querySelector("#log-add-task-btn")); await sleep(20);
   click(doc.querySelector("#at-starters")); await sleep(20);
-  check("a travel trailer sees seven usual jobs, no engine work", doc.querySelectorAll("[data-add-starter]").length === 7 && !doc.querySelector("#sheet-host").textContent.includes("Engine oil"));
+  check("a travel trailer sees ten usual jobs, no engine work", doc.querySelectorAll("[data-add-starter]").length === 10 && !doc.querySelector("#sheet-host").textContent.includes("Engine oil"));
   R.activeRig().type = "Class C"; R.save(); R.renderHome();
 
   /* ---- 33. the guide button sits with the photo button, same size ---- */
@@ -822,8 +822,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#at-starters")); await sleep(20);
   check("the picker offers to fit the jobs to the rig", !!doc.querySelector("#st-fit"));
   click(doc.querySelector("#st-fit")); await sleep(20);
-  check("the questions sheet asks seven questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 24);
-  check("every question offers Not sure", doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 7);
+  check("the questions sheet asks eleven questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 37);
+  check("every question offers Not sure", doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 11);
   click(doc.querySelector('[data-eq="roof"][data-val="tpo"]')); await sleep(20);
   click(doc.querySelector('[data-eq="waterHeater"][data-val="tankless"]')); await sleep(20);
   click(doc.querySelector('[data-eq="fridge"][data-val="residential"]')); await sleep(20);
@@ -831,7 +831,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector('[data-eq="slides"][data-val="no"]')); await sleep(20);
   click(doc.querySelector("#eq-save")); await sleep(20);
   const fittedRows = Array.from(doc.querySelectorAll("#sheet-host .row"));
-  check("a fitted rig sees six usual jobs", fittedRows.length === 6);
+  check("a fitted rig sees nine usual jobs", fittedRows.length === 9);
   check("tankless shows the descale job, not the flush", doc.querySelector("#sheet-host").textContent.includes("Tankless water heater — descale") && !doc.querySelector("#sheet-host").textContent.includes("Water heater — flush"));
   check("residential fridge hides the burner job", !doc.querySelector("#sheet-host").textContent.includes("Fridge burner"));
   check("no slides hides the slide seals", !doc.querySelector("#sheet-host").textContent.includes("Slide seals"));
@@ -954,7 +954,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#log-add-task-btn")); await sleep(20);
   click(doc.querySelector("#at-starters")); await sleep(20);
   click(doc.querySelector("#st-fit")); await sleep(20);
-  check("a trailer is asked six questions, not seven", doc.querySelectorAll("#sheet-host [data-eq]").length === 21);
+  check("a trailer is asked ten questions, not eleven", doc.querySelectorAll("#sheet-host [data-eq]").length === 34);
   check("a trailer is never asked gas or diesel", !doc.querySelector('#sheet-host [data-eq="fuel"]'));
   click(doc.querySelector("[data-close]")); await sleep(20);
   R.activeRig().type = "Class C"; R.activeRig().equipment = {}; R.save();
@@ -1304,6 +1304,68 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const legRow = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("Roof seals"));
   click(legRow.querySelector("[data-add-starter]")); await sleep(20);
   check("a legacy rubber answer still gets a note", R.store().tasks.some((t) => t.title === "Roof seals — inspect & touch up" && t.note.includes("self-leveling sealant")));
+  click(doc.querySelector("[data-close]")); await sleep(20);
+  R.activeRig().equipment = {}; R.save();
+
+  /* ---- 54. AC, solar, furnace and house batteries ---- */
+  console.log("== 54. AC, solar, furnace, batteries ==");
+  // Nov 15: Rick — four more questions, same as the roof split. AC only
+  // or heat pump; solar yes or no; furnace gas or none; house batteries
+  // flooded, AGM or lithium (only flooded takes water). Each gates its
+  // own jobs; the batteries job note changes with the type. Propane and
+  // water-system jobs ride along for every rig.
+  R.showScreen("logbook"); await sleep(20);
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  click(doc.querySelector("#at-starters")); await sleep(20);
+  click(doc.querySelector("#st-fit")); await sleep(20);
+  const btnTexts = (key) => Array.from(doc.querySelectorAll('[data-eq="' + key + '"]')).map((b) => b.textContent.trim());
+  check("the AC question offers AC only", btnTexts("ac").includes("AC only"));
+  check("the AC question offers Heat pump", btnTexts("ac").includes("Heat pump"));
+  check("the solar question offers Yes and No", btnTexts("solar").includes("Yes") && btnTexts("solar").includes("No"));
+  check("the furnace question offers Gas and None", btnTexts("furnace").includes("Gas") && btnTexts("furnace").includes("None"));
+  check("the batteries question offers Flooded, AGM and Lithium", btnTexts("batteries").includes("Flooded") && btnTexts("batteries").includes("AGM") && btnTexts("batteries").includes("Lithium"));
+  click(doc.querySelector('[data-eq="ac"][data-val="heatpump"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="solar"][data-val="yes"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="furnace"][data-val="gas"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="batteries"][data-val="agm"]')); await sleep(20);
+  click(doc.querySelector("#eq-save")); await sleep(20);
+  const rows54 = Array.from(doc.querySelectorAll("#sheet-host .row"));
+  check("a heat pump rig sees the heat-pump test", rows54.some((r) => r.textContent.includes("Heat pump — test the heat")));
+  check("a solar rig sees the solar panels job", rows54.some((r) => r.textContent.includes("Solar panels — clean & inspect")));
+  check("a gas furnace rig sees the furnace job", rows54.some((r) => r.textContent.includes("Furnace — clean & test")));
+  check("every rig sees the A/C filters job", rows54.some((r) => r.textContent.includes("A/C — clean the filters")));
+  check("every rig sees the propane job", rows54.some((r) => r.textContent.includes("Propane system — check for leaks")));
+  check("every rig sees the water system job", rows54.some((r) => r.textContent.includes("Water system — sanitize & check")));
+  R.store().tasks = R.store().tasks.filter((t) => t.title !== "Heat pump — test the heat"); R.save();
+  const hpRow = rows54.find((r) => r.textContent.includes("Heat pump — test the heat"));
+  click(hpRow.querySelector("[data-add-starter]")); await sleep(20);
+  check("the heat-pump job says the furnace takes over", R.store().tasks.some((t) => t.title === "Heat pump — test the heat" && t.note.includes("furnace takes over")));
+  R.store().tasks = R.store().tasks.filter((t) => t.title !== "House batteries — water & terminals"); R.save();
+  const hbRow = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("House batteries"));
+  click(hbRow.querySelector("[data-add-starter]")); await sleep(20);
+  check("AGM batteries get the no-water note", R.store().tasks.some((t) => t.title === "House batteries — water & terminals" && t.note.includes("No water to top up")));
+  // Re-fit with the other answers: the gated jobs go away, the rest stay.
+  click(doc.querySelector("#st-fit")); await sleep(20);
+  click(doc.querySelector('[data-eq="ac"][data-val="acOnly"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="solar"][data-val="no"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="furnace"][data-val="none"]')); await sleep(20);
+  click(doc.querySelector("#eq-save")); await sleep(20);
+  const rows54b = Array.from(doc.querySelectorAll("#sheet-host .row"));
+  check("AC only hides the heat-pump test", !rows54b.some((r) => r.textContent.includes("Heat pump — test the heat")));
+  check("no solar hides the solar panels job", !rows54b.some((r) => r.textContent.includes("Solar panels")));
+  check("no furnace hides the furnace job", !rows54b.some((r) => r.textContent.includes("Furnace — clean & test")));
+  check("the A/C filters job stays", rows54b.some((r) => r.textContent.includes("A/C — clean the filters")));
+  // Lithium batteries get their own note (read live at add time).
+  // Re-open the starters so the row shows Add again after the task
+  // was taken out of the book.
+  click(doc.querySelector("[data-close]")); await sleep(20);
+  R.store().tasks = R.store().tasks.filter((t) => t.title !== "House batteries — water & terminals"); R.save();
+  R.activeRig().equipment.batteries = "lithium"; R.save();
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  click(doc.querySelector("#at-starters")); await sleep(20);
+  const hbRow2 = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("House batteries"));
+  click(hbRow2.querySelector("[data-add-starter]")); await sleep(20);
+  check("lithium batteries get the monitor note", R.store().tasks.some((t) => t.title === "House batteries — water & terminals" && t.note.includes("battery monitor")));
   click(doc.querySelector("[data-close]")); await sleep(20);
   R.activeRig().equipment = {}; R.save();
 

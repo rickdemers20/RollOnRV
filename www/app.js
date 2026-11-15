@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "59";
+  var APP_VERSION = "60";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -828,16 +828,26 @@
     { title: "Fridge burner & flue — clean", category: "Appliances", intervalMonths: 12, needs: { fridge: "absorption" }, isDefault: true, note: "Brush out the flue and clean the burner so the flame stays blue." },
     { title: "Smoke & CO detectors — test", category: "Safety", intervalMonths: 6, note: "Press the test button; swap batteries when they chirp." },
     { title: "Slide seals — clean & treat", category: "House Systems", intervalMonths: 6, needs: { slides: "yes" }, isDefault: true, note: "Wipe the seals and treat them so they stay soft." },
-    { title: "Portable generator — service", category: "Generator", intervalMonths: 12, needs: { generator: "portable" }, note: "Oil, spark plug and air filter once a year." }
+    { title: "Portable generator — service", category: "Generator", intervalMonths: 12, needs: { generator: "portable" }, note: "Oil, spark plug and air filter once a year." },
+    { title: "A/C — clean the filters", category: "Appliances", intervalMonths: 6, note: "Wash the filters, wipe the coils, check the shroud and the condensate drain." },
+    { title: "Heat pump — test the heat", category: "Appliances", intervalMonths: 12, needs: { ac: "heatpump" }, note: "Run it in heat mode before the cold arrives. A heat pump won't heat much below about 40°F — that's when the furnace takes over. If it blows cool in heat mode, the reversing valve or the charge needs a look." },
+    { title: "Solar panels — clean & inspect", category: "Electrical", intervalMonths: 6, needs: { solar: "yes" }, note: "Wash the panels, check every connection, and look at the charge controller — green light, no fault codes." },
+    { title: "Furnace — clean & test", category: "Appliances", intervalMonths: 12, needs: { furnace: "gas" }, note: "Before the cold: clean the burner, check the exhaust, and run it — it should light on the first try and blow hot without sputtering." },
+    { title: "Propane system — check for leaks & regulator", category: "Safety", intervalMonths: 12, note: "Brush soapy water on every connection — bubbles mean a leak. Check the regulator and the hoses for cracks, and make sure the propane detector inside still works." },
+    { title: "Water system — sanitize & check", category: "Water & Plumbing", intervalMonths: 6, note: "Sanitize the fresh tank, run it through every tap, then flush clean. Check the pump strainer and look for leaks under the sinks." }
   ];
 
   /* ---------------- rig questions (fit the jobs to the rig) --------------- */
-  /* Five quick questions, asked in plain words, so the usual-jobs list
+  /* Eleven quick questions, asked in plain words, so the usual-jobs list
      only shows work this rig actually has. No data to import? This is
      the quick way to build the book instead. "Not sure" is always a
      fine answer — it never hides a job. */
   var EQUIPMENT_QUESTIONS = [
     { key: "roof", label: "What kind of roof?", options: [["epdm", "Rubber (EPDM)"], ["tpo", "Rubber (TPO)"], ["fiberglass", "Fiberglass"], ["aluminum", "Aluminum"]] },
+    { key: "ac", label: "Air conditioning?", options: [["acOnly", "AC only"], ["heatpump", "Heat pump"]] },
+    { key: "solar", label: "Solar power?", options: [["yes", "Yes"], ["no", "No"]] },
+    { key: "furnace", label: "Furnace?", options: [["gas", "Gas"], ["none", "None"]] },
+    { key: "batteries", label: "House batteries?", options: [["flooded", "Flooded"], ["agm", "AGM"], ["lithium", "Lithium"]] },
     { key: "waterHeater", label: "Water heater?", options: [["tank", "Tank"], ["tankless", "Tankless"]] },
     { key: "fridge", label: "Fridge?", options: [["absorption", "Propane"], ["residential", "Residential"]] },
     { key: "generator", label: "Generator?", options: [["builtin", "Built-in"], ["portable", "Portable"], ["none", "None"]] },
@@ -857,6 +867,14 @@
     rubber: "Walk the roof, look at every seam and vent, touch up cracked sealant with self-leveling sealant.",
     fiberglass: "Walk the roof, check the seams and vents for cracks, touch up what is cracked.",
     aluminum: "Check the seams and rivets for leaks, touch up what is cracked."
+  };
+  var BATTERY_NOTES = {
+    /* Only flooded batteries take water (Nov 15: Rick — the house
+       battery type is an option). AGM and lithium never need topping
+       up; they just want clean, tight connections. */
+    flooded: "Top up with distilled water; clean the terminals.",
+    agm: "No water to top up — just clean the terminals and check the connections.",
+    lithium: "No water to top up — check the connections and the battery monitor."
   };
   function openEquipmentSheet() {
     var rig = activeRig(); if (!rig) return;
@@ -2287,6 +2305,7 @@
           if (!t || alreadyIn(t.title)) return;
           var note = t.note;
           if (t.title.indexOf("Roof seals") === 0) { var rn = ROOF_NOTES[(rig.equipment || {}).roof]; if (rn) note = rn; }
+          if (t.title.indexOf("House batteries") === 0) { var bn = BATTERY_NOTES[(rig.equipment || {}).batteries]; if (bn) note = bn; }
           store.tasks.push(newTask({ rigId: rig.id, title: t.title, category: t.category, intervalMonths: t.intervalMonths, intervalMiles: t.intervalMiles, intervalGenHours: t.intervalGenHours, note: note, needsPro: !!t.needsPro }));
           save(); scheduleReminders(); draw(); renderLogbook(); renderHome();
         });
