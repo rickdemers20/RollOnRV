@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "62";
+  var APP_VERSION = "63";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -626,7 +626,8 @@
           { id: "lugs", label: "Lug nuts torqued" },
           { id: "lights", label: "Lights, leaks & walk-around" },
           { id: "slides", label: "Slides in · awning in · antenna down" },
-          { id: "jacks", label: "Jacks up, pads stowed" }
+          { id: "jacks", label: "Jacks up, pads stowed" },
+          { id: "toad", label: "Toad hooked up — tow bar, cables, lights, brakes" }
         ]},
         { name: "Hookups", items: [
           { id: "power", label: "Shore power cord stowed" },
@@ -762,6 +763,24 @@
         { name: "Inside", items: [
           { id: "screensm", label: "Window screens — look for tears & holes" },
           { id: "pestsm", label: "Look for dampness, odors & signs of pests" }
+        ]}
+      ]
+    },
+    {
+      id: "boondock", name: "Boondocking", sub: "Off the grid — no hookups", groups: [
+        { name: "Before You Go", items: [
+          { id: "waterfull", label: "Fresh water tank full" },
+          { id: "tanksempty", label: "Grey & black tanks empty" },
+          { id: "battfull", label: "House batteries fully charged" },
+          { id: "propfull", label: "Propane full" },
+          { id: "genfuel", label: "Generator fuel full — run it once" },
+          { id: "dumpplan", label: "Dump plan for the way out" }
+        ]},
+        { name: "On Site", items: [
+          { id: "levelb", label: "Parked level, chocks in" },
+          { id: "solarb", label: "Solar panels clean & facing the sun" },
+          { id: "fridgeb", label: "Fridge cold, running on propane" },
+          { id: "conserve", label: "Water use planned — conserve" }
         ]}
       ]
     }

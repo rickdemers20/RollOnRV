@@ -130,19 +130,19 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("photo renders in the entry", logHtml.includes("data:image/png;base64"));
   check("parts total shown in entry", /Test filter/.test(logHtml) || true); // parts show on detail sheet
 
-  /* ---- 5. checklist run: pre-trip, all 17 items ---- */
+  /* ---- 5. checklist run: pre-trip, all 18 items ---- */
   console.log("== 5. pre-trip checklist ==");
   R.showScreen("checklists");
   const startBtn = doc.querySelector('[data-start="pretrip"]');
   click(startBtn);
   await sleep(20);
   let boxes = doc.querySelectorAll("#checklist-run .check-item");
-  check("pre-trip has 17 items", boxes.length === 17, "got " + boxes.length);
+  check("pre-trip has 18 items", boxes.length === 18, "got " + boxes.length);
   check("tire pressure item shows rig PSI (80/75)", doc.querySelector("#checklist-run").textContent.includes("80 psi front"));
   boxes.forEach((b) => click(b));
   await sleep(20);
   const runText = doc.querySelector("#checklist-run").textContent;
-  check("all 17 checked, progress full", runText.includes("17 of 17 checked"));
+  check("all 18 checked, progress full", runText.includes("18 of 18 checked"));
   check("DONE stamp appears when complete", /Done/.test(runText));
   click(doc.querySelector("#run-finish"));
   await sleep(20);
@@ -159,11 +159,11 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   await sleep(20);
   check("custom item appears in the run", doc.querySelector("#checklist-run").textContent.includes("Test AGS check"));
   check("custom item saved to the rig's list", R.store().customItems.some((c) => c.label === "Test AGS check" && c.templateId === "pretrip"));
-  check("total counts the custom item", doc.querySelector("#checklist-run").textContent.includes("0 of 18 checked"));
+  check("total counts the custom item", doc.querySelector("#checklist-run").textContent.includes("0 of 19 checked"));
   const customBox = Array.from(doc.querySelectorAll("#checklist-run .check-item")).find((b) => b.textContent.includes("Test AGS check"));
   click(customBox);
   await sleep(20);
-  check("custom item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 18 checked"));
+  check("custom item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 19 checked"));
   click(doc.querySelector("#run-back"));
   await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]'));
@@ -176,7 +176,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("[data-del-custom]"));
   await sleep(20);
   check("second tap takes it off", !doc.querySelector("#checklist-run").textContent.includes("Test AGS check") && !R.store().customItems.some((c) => c.label === "Test AGS check"));
-  check("total is back to 17 built-ins", doc.querySelector("#checklist-run").textContent.includes("0 of 17 checked"));
+  check("total is back to 18 built-ins", doc.querySelector("#checklist-run").textContent.includes("0 of 18 checked"));
 
   /* ---- 5c. custom groups inside a checklist ---- */
   console.log("== 5c. custom groups ==");
@@ -195,11 +195,11 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc.querySelector("[data-group-input]").value = "Test group item";
   click(doc.querySelector("[data-group-add]"));
   await sleep(20);
-  check("group item appears and counts", doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 18 checked"));
+  check("group item appears and counts", doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 19 checked"));
   const groupBox = Array.from(doc.querySelectorAll("#checklist-run .check-item")).find((b) => b.textContent.includes("Test group item"));
   click(groupBox);
   await sleep(20);
-  check("group item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 18 checked"));
+  check("group item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 19 checked"));
   click(doc.querySelector("#run-back"));
   await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]'));
@@ -214,7 +214,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("one tap only arms the item delete", !!doc.querySelector("[data-del-custom].armed") && doc.querySelector("#checklist-run").textContent.includes("Test group item"));
   click(doc.querySelector("[data-del-custom].armed"));
   await sleep(20);
-  check("second tap takes the group item off", !doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 17 checked"));
+  check("second tap takes the group item off", !doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 18 checked"));
   click(doc.querySelector("[data-del-group]"));
   await sleep(20);
   check("one tap only arms the group delete", !!doc.querySelector("[data-del-group].armed") && doc.querySelector("#checklist-run").textContent.includes("Test group"));
@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 62"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 63"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1447,6 +1447,33 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("no dishwasher hides the dishwasher job", !rows56b.some((r) => r.textContent.includes("Dishwasher")));
   click(doc.querySelector("[data-close]")); await sleep(20);
   R.activeRig().equipment = {}; R.save();
+
+  /* ---- 57. Boondocking + the toad check ---- */
+  console.log("== 57. boondocking, toad ==");
+  // Nov 15: Rick — a lot of people tow a car, and the internet sweep
+  // found Boondocking as the one standard list the app still lacked.
+  // The toad check rides on Before You Roll; Boondocking is its own list.
+  R.showScreen("checklists");
+  click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
+  const run57 = doc.querySelector("#checklist-run").textContent;
+  check("Before You Roll checks the toad", run57.includes("Toad hooked up — tow bar, cables, lights, brakes"));
+  check("the toad check sits in Outside", run57.indexOf("Toad hooked up") > run57.indexOf("Jacks up, pads stowed") && run57.indexOf("Toad hooked up") < run57.indexOf("Shore power cord stowed"));
+  click(doc.querySelector("#run-back")); await sleep(20);
+  click(doc.querySelector('[data-start="boondock"]')); await sleep(20);
+  const run57b = doc.querySelector("#checklist-run").textContent;
+  const boxes57 = doc.querySelectorAll("#checklist-run .check-item");
+  check("boondocking has 10 items", boxes57.length === 10, "got " + boxes57.length);
+  check("boondocking fills the fresh tank", run57b.includes("Fresh water tank full"));
+  check("boondocking empties the holding tanks", run57b.includes("Grey & black tanks empty"));
+  check("boondocking charges the batteries", run57b.includes("House batteries fully charged"));
+  check("boondocking fuels the generator", run57b.includes("Generator fuel full"));
+  check("boondocking plans the dump", run57b.includes("Dump plan for the way out"));
+  check("boondocking conserves water on site", run57b.includes("Water use planned — conserve"));
+  boxes57.forEach((b) => click(b));
+  await sleep(20);
+  check("all 10 checked, progress full", doc.querySelector("#checklist-run").textContent.includes("10 of 10 checked"));
+  click(doc.querySelector("#run-finish")); await sleep(20);
+  check("boondocking run finished and saved", R.store().runs.some((r) => r.templateId === "boondock" && r.finishedAt));
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");
