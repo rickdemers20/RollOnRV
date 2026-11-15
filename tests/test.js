@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 50"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 51"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1170,9 +1170,15 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   R2.printChecklistRun(R2.CHECKLISTS[0], { id: "r1", templateId: "pretrip", rigId: R2.activeRig().id, startedAt: "2026-11-15", finishedAt: null, checks: {}, proof: null, proofAt: null }, R2.activeRig());
   await sleep(20);
   const printLink = doc2.querySelector('a[target="_blank"]');
-  check("printing in the installed app opens the sheet in a new tab", !!printLink && String(printLink.getAttribute("href") || "").indexOf("blob:") === 0);
+  check("printing in the installed app opens the sheet on a real https page", !!printLink && String(printLink.getAttribute("href") || "").indexOf("https://rickdemers.com/rollonrv-preview/print.html#") === 0);
   check("the print link carries no download attribute (one swallows the tap in the installed app)", !!printLink && !printLink.hasAttribute("download"));
   check("printing in the installed app does not call window.print()", !printCalled);
+
+  /* The print page the app links to: it must read the sheet from the
+     #hash and print it in real Safari. */
+  const printHtml = fs.readFileSync(path.join(ROOT, "www", "print.html"), "utf8");
+  check("print page reads the sheet from the link's hash", printHtml.includes("decodeURIComponent") && printHtml.includes("location.hash"));
+  check("print page has its own Print button", printHtml.includes('id="print-btn"') && printHtml.includes("window.print()"));
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");

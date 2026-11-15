@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RollOnRV — printable sheet</title>
+<style>
+  /* The printable sheet as its own page. The installed app cannot print
+     (window.print() is a no-op in WKWebView, and a blob link will not
+     open Safari), so the app sends the sheet here as a #hash and this
+     page prints it in real Safari. The hint and the button never reach
+     paper. */
+  body{margin:0;color:#111;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:11pt;padding:16px;max-width:700px;margin:0 auto;}
+  .print-hint{background:#ece7db;border-left:4px solid #b3372c;border-radius:0 8px 8px 0;padding:10px 12px;font-size:11pt;}
+  .print-btn{display:block;width:100%;margin:.8rem 0 1rem;padding:.7rem 1rem;border:0;border-radius:12px;background:#b3372c;color:#fff;font:inherit;font-weight:700;cursor:pointer;}
+  .print-head h1{font-family:Georgia,"Times New Roman",serif;font-size:20pt;margin:0 0 .2rem;}
+  .print-head p{color:#555;margin:0 0 1rem;}
+  .print-group{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:13pt;margin:1rem 0 .2rem;}
+  .print-item{display:flex;gap:.6rem;align-items:flex-start;padding:.4rem 0;border-bottom:1px solid #ccc;break-inside:avoid;}
+  .print-box{flex:none;width:1.05rem;height:1.05rem;border:1.5px solid #111;border-radius:2px;text-align:center;line-height:1.05rem;font-weight:700;margin-top:.1rem;}
+  .print-label{font-weight:600;display:block;}
+  .print-sub{color:#555;font-size:9.5pt;display:block;}
+  .print-note-line{border-bottom:1px solid #ccc;height:1.6rem;}
+  .print-foot{margin-top:1.4rem;color:#555;font-size:10pt;}
+  .print-foot p{margin:.3rem 0;}
+  @media print{.print-hint,.print-btn{display:none !important;}}
+</style>
+</head>
+<body>
+<p class="print-hint">To print this sheet: tap Share, then Print — or use the button below.</p>
+<button class="print-btn" id="print-btn" type="button">🖨 Print this sheet</button>
+<div id="sheet"></div>
+<script>
+(function () {
+  var raw = location.hash ? location.hash.slice(1) : "";
+  var host = document.getElementById("sheet");
+  if (!raw) {
+    host.innerHTML = "<p>Nothing to print — open this page from the app's Print button.</p>";
+    return;
+  }
+  try {
+    host.innerHTML = decodeURIComponent(raw);
+  } catch (e) {
+    host.innerHTML = "<p>Couldn't read the sheet — try the Print button again from the app.</p>";
+  }
+  document.getElementById("print-btn").addEventListener("click", function () { window.print(); });
+})();
+</script>
+</body>
+</html>

@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "50";
+  var APP_VERSION = "51";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -2001,38 +2001,18 @@
     try { window.print(); } catch (e) {}
   }
   function openPrintPage(html) {
-    /* The printable sheet as its own page, with the print styles inline
-       (a blob page can't load the app's stylesheet). The hint at the top
-       tells the reader how to print from Safari — and never reaches paper. */
-    var doc = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" />' +
-      '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' +
-      '<title>RollOnRV — printable sheet</title><style>' +
-      'body{margin:0;color:#111;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:11pt;padding:16px;max-width:700px;margin:0 auto;}' +
-      '.print-hint{background:#ece7db;border-left:4px solid #b3372c;border-radius:0 8px 8px 0;padding:10px 12px;font-size:11pt;}' +
-      '.print-head h1{font-family:Georgia,"Times New Roman",serif;font-size:20pt;margin:0 0 .2rem;}' +
-      '.print-head p{color:#555;margin:0 0 1rem;}' +
-      '.print-group{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:13pt;margin:1rem 0 .2rem;}' +
-      '.print-item{display:flex;gap:.6rem;align-items:flex-start;padding:.4rem 0;border-bottom:1px solid #ccc;break-inside:avoid;}' +
-      '.print-box{flex:none;width:1.05rem;height:1.05rem;border:1.5px solid #111;border-radius:2px;text-align:center;line-height:1.05rem;font-weight:700;margin-top:.1rem;}' +
-      '.print-label{font-weight:600;display:block;}' +
-      '.print-sub{color:#555;font-size:9.5pt;display:block;}' +
-      '.print-note-line{border-bottom:1px solid #ccc;height:1.6rem;}' +
-      '.print-foot{margin-top:1.4rem;color:#555;font-size:10pt;}' +
-      '.print-foot p{margin:.3rem 0;}' +
-      '@media print{.print-hint{display:none !important;}}' +
-      '</style></head><body>' +
-      '<p class="print-hint">To print this sheet: tap Share, then Print.</p>' +
-      html + '</body></html>';
-    /* A plain new-tab link, NOT downloadFile: v49 reused downloadFile, but
-       the download attribute on a blob link swallows the tap inside the
-       installed app (WKWebView cannot download), so Safari never opened
-       and "Print this list" still did nothing. A plain link opens Safari,
-       the same way the old guide link used to. */
-    var blob = new Blob([doc], { type: "text/html;charset=utf-8" });
+    /* v49 tried a blob link (the download attribute swallowed the tap);
+       v50 tried a plain blob link (Safari cannot open a blob: URL from
+       outside the web view, so nothing opened either). The sheet now
+       travels as a #hash on a real https page — the same plain-link path
+       the old guide link used to leave the app for Safari, which is
+       proven to work on this phone. print.html carries the print
+       styles and the Print button. */
     var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob); a.target = "_blank"; a.rel = "noopener";
+    a.href = "https://rickdemers.com/rollonrv-preview/print.html#" + encodeURIComponent(html);
+    a.target = "_blank"; a.rel = "noopener";
     document.body.appendChild(a); a.click();
-    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    setTimeout(function () { a.remove(); }, 500);
   }
   function printChecklistRun(tpl, run, rig) {
     var rows = [];
