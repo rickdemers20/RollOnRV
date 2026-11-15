@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 45"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 46"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1148,6 +1148,17 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc2.querySelector("#home-rig-photo-btn").dispatchEvent(new win2.MouseEvent("click", { bubbles: true }));
   await sleep(50);
   check("a user cancel stays silent (no fallback picker)", !inputClicked);
+
+  /* ---- 44. the guide opens inside the app, not in Safari ---- */
+  console.log("== 44. guide opens in-app ==");
+  // Same native boot as section 43: tapping "How to use this app" used to
+  // throw the reader out to Safari (Nov 15). It must open the in-app
+  // browser sheet instead.
+  let browserOpened = null;
+  win2.Capacitor.Plugins.Browser = { open: function (opts) { browserOpened = opts && opts.url; return Promise.resolve(); } };
+  doc2.querySelector("#home-guide-link").dispatchEvent(new win2.MouseEvent("click", { bubbles: true, cancelable: true }));
+  await sleep(20);
+  check("the guide opens in the in-app browser sheet", browserOpened === "https://rickdemers.com/rollonrv-guide/");
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);
