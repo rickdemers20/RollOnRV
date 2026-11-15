@@ -332,3 +332,21 @@ Deploy: ?v=40 zip + guide zip — the preview DID go live (my own curl HEAD: app
 Rick (Nov 15, 07:00): "I forgot let's save it for premium" — the vault stays premium, as originally decided. The ?v=40 deploy was halted mid-flight (preview already live with the vault, guide untouched); the vault was then removed entirely from the free app: Vault screen, Home vault card, `store.docs`/`DOC_KINDS`/`newDoc`/`docsForRig`/`docStatus`/`taskDocsLine`/`renderVault`/`vaultPending`/`openDocSheet`/`openDataUrl` all out of app.js and index.html, guide section 15 out, test section 41 out, theme-button count back to 10, premium card in More lists the vault again ("the ownership report, the document vault, parts & warranty tracking, more than one rig, and backup"). One suite fix: §9 save/load round-trip failed because load() still back-filled `store.docs` after DEFAULTS dropped it — the back-fill line is gone too. Suite is now **337 passed, 0 failed** (347 − 11 vault checks + 1 fix; fuel §40 and trips §42 unchanged). Selling points, Rick's "What did you think" (Nov 15): lead premium with the vault (expired papers cost real money; warranty claims live or die on the paper), second the ownership report (one clean PDF a buyer trusts, pays for itself at sale); multi-rig is niche, backup is retention not a selling point, parts & warranty tracking is too close to the free parts list to pitch in one line.
 
 Deploy: ?v=41 zip (193,606 bytes) + guide zip (10,678 bytes) deployed and verified live Nov 15, 07:06 — my own curl HEAD matched local bytes exactly (app.js 163,023; preview index.html 14,912; styles.css 15,671; guide index.html 10,678; HTTP 200); served app.js contains APP_VERSION = "41" and "fuelStats" (4×), and contains NO "screen-vault" or "renderVault"; guide runs sections 1–14, ending with "13. Fuel" and "14. Trips", no section 15. Live at https://rickdemers.com/rollonrv-preview/.
+
+## TestFlight setup (Nov 15, 2026)
+
+Rick (Nov 15 ~08:50): "Okay to do TestFlight" — approved after saying No earlier; he is happy with the app. Setup done in the background while he was at church.
+
+Done:
+- GitHub repo rickdemers20/RollOnRV created (public, like the Bible repo); v41 pushed (163 files, commit 82bae891).
+- Workflow `.github/workflows/build.yml` ("Build RollOnRV app"): bun install (bun.lock is the lockfile — there is no package-lock.json), `npm test`, `cap sync ios`, unsigned Debug build; signed .ipa + TestFlight upload gated on secrets. Run 43727452949: **SUCCESS** — project compiles, 337 tests pass, certificate import works; signed steps skipped (no profile yet).
+- `ios/App/ExportOptions.plist` added (method app-store-connect, team FM234R8P73, profile "RollOnRV App" for com.rickdemers.rollonrv).
+- Repo secrets set: APPLE_CERT_P12_BASE64 + APPLE_CERT_PASSWORD (same distribution certificate/password as the Bible app, from signing/), APPLE_TEAM_ID, APPLE_API_KEY_ID, APPLE_API_ISSUER_ID (API key "Bible Study Upload").
+- One workflow fix (commit 22991ff): Find .ipa / Upload to TestFlight were gated only on the API key, so the first run failed at the upload step with no .ipa present; now gated on profile secret AND API key.
+
+Still needed (browser work):
+- App Store Connect app record for RollOnRV (com.rickdemers.rollonrv) — does not exist yet.
+- App Store provisioning profile "RollOnRV App" for com.rickdemers.rollonrv with the existing Apple Distribution certificate; download the .mobileprovision to the VM, then set APPLE_PROVISIONING_PROFILE_BASE64.
+- APPLE_API_KEY_P8: the .p8 for key D8RQ53QR9X is not on disk anywhere (it exists only as a secret in the Bible repo, which cannot be read back). Either deliver the .p8 file to the VM or create a new App Store Connect API key and download its .p8.
+- Add Rick (rickdemers@hotmail.com) as a TestFlight tester for RollOnRV.
+- App is version 1.0, build 1 — the first TestFlight upload will be build 1. TestFlight only; do NOT submit for App Store review (Bible app Build 6 4.3 thread still open).
