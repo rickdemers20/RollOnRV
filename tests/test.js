@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 63"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 64"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1474,6 +1474,45 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("all 10 checked, progress full", doc.querySelector("#checklist-run").textContent.includes("10 of 10 checked"));
   click(doc.querySelector("#run-finish")); await sleep(20);
   check("boondocking run finished and saved", R.store().runs.some((r) => r.templateId === "boondock" && r.finishedAt));
+
+  /* ---- 58. built-in items come off — and come back ---- */
+  console.log("== 58. deletable tick boxes ==");
+  // Nov 15: Rick — "make the tick boxes deletable or add back if things change".
+  R.showScreen("checklists");
+  click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
+  /* Earlier sections leave two of their own items on this list ("Test
+     words changed", "Heading test item"), so the baseline is 18 built-ins
+     plus whatever of theirs is still there — count deltas, not absolutes. */
+  var base = doc.querySelectorAll("#checklist-run .check-item").length;
+  check("pre-trip starts with all 18 built-ins", doc.querySelectorAll("[data-del-builtin]").length === 18 && base >= 18);
+  var toadBox = Array.from(doc.querySelectorAll("#checklist-run .check-item")).find(function (b) { return b.textContent.includes("Toad hooked up"); });
+  check("the toad line is on the run", !!toadBox);
+  // Check it first, so a stale check is sitting in the run.
+  click(toadBox); await sleep(20);
+  check("checking the toad counts it", doc.querySelector("#checklist-run").textContent.includes("1 of " + base + " checked"));
+  var toadDel = doc.querySelector('[data-del-builtin="toad"]');
+  check("the toad line has a take-off button", !!toadDel);
+  // First tap on × only arms it.
+  click(toadDel); await sleep(20);
+  check("first tap only arms the delete", doc.querySelector('[data-del-builtin="toad"]').textContent.includes("Delete?") && doc.querySelectorAll("#checklist-run .check-item").length === base);
+  click(doc.querySelector('[data-del-builtin="toad"]')); await sleep(20);
+  check("second tap takes the toad off", doc.querySelectorAll("#checklist-run .check-item").length === base - 1 && !Array.from(doc.querySelectorAll("#checklist-run .check-item")).some(function (b) { return b.textContent.includes("Toad hooked up"); }));
+  check("the count drops by one", doc.querySelector("#checklist-run").textContent.includes("0 of " + (base - 1) + " checked"));
+  check("the stale check does not count", !doc.querySelector("#checklist-run").textContent.includes("1 of " + (base - 1) + " checked"));
+  check("the taken-off line is listed to put back", doc.querySelector("#checklist-run").textContent.includes("Taken off this list") && !!doc.querySelector('[data-restore-builtin="toad"]'));
+  // Put it back.
+  click(doc.querySelector('[data-restore-builtin="toad"]')); await sleep(20);
+  check("put back restores the toad line", doc.querySelectorAll("#checklist-run .check-item").length === base && Array.from(doc.querySelectorAll("#checklist-run .check-item")).some(function (b) { return b.textContent.includes("Toad hooked up"); }));
+  check("the count is back to the baseline", doc.querySelector("#checklist-run").textContent.includes("0 of " + base + " checked"));
+  check("the taken-off section is gone", !doc.querySelector("#checklist-run").textContent.includes("Taken off this list"));
+  // The removal sticks across a fresh run.
+  click(doc.querySelector('[data-del-builtin="toad"]')); await sleep(20);
+  click(doc.querySelector('[data-del-builtin="toad"]')); await sleep(20);
+  click(doc.querySelector("#run-back")); await sleep(20);
+  click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
+  check("the toad stays off on the next run", doc.querySelectorAll("#checklist-run .check-item").length === base - 1);
+  click(doc.querySelector('[data-restore-builtin="toad"]')); await sleep(20);
+  check("put back works on the next run too", doc.querySelectorAll("#checklist-run .check-item").length === base);
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");

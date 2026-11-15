@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "63";
+  var APP_VERSION = "64";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -58,7 +58,7 @@
   /* ---------------- store ------------------------------------------------- */
   var KEY = "rollonrv.v1";
   var DEFAULTS = function () {
-    return { version: 1, rigs: [], activeRigId: null, tasks: [], logs: [], tires: [], runs: [], customItems: [], customGroups: [], customLists: [], customHeadings: [], parts: [], pros: [], fuel: [], trips: [], settings: {} };
+    return { version: 1, rigs: [], activeRigId: null, tasks: [], logs: [], tires: [], runs: [], customItems: [], customGroups: [], customLists: [], customHeadings: [], removedItems: [], parts: [], pros: [], fuel: [], trips: [], settings: {} };
   };
   var store = DEFAULTS();
   function load() {
@@ -73,6 +73,8 @@
           if (!Array.isArray(store.customGroups)) store.customGroups = [];
           if (!Array.isArray(store.customLists)) store.customLists = [];
           if (!Array.isArray(store.customHeadings)) store.customHeadings = [];
+          /* Books saved before built-in items could come off lack the list. */
+          if (!Array.isArray(store.removedItems)) store.removedItems = [];
           if (!Array.isArray(store.parts)) store.parts = [];
           /* Books saved before the pros list existed lack it. */
           if (!Array.isArray(store.pros)) store.pros = [];
@@ -787,7 +789,8 @@
   ];
   /* Custom checklist items: plain text the owner adds to a list. They live
      with the rig, not with one run, so they are there next trip too. The
-     built-in items are never editable — only your own can come back off. */
+     built-in items are never editable — but any line can come off and be
+     put back (see removedItems below). */
   function customItemsFor(rigId, templateId) {
     return (store.customItems || []).filter(function (c) { return c.rigId === rigId && c.templateId === templateId; });
   }
@@ -795,6 +798,28 @@
      their own items. As many as you want, per rig, free tier. */
   function customGroupsFor(rigId, templateId) {
     return (store.customGroups || []).filter(function (g) { return g.rigId === rigId && g.templateId === templateId; });
+  }
+  /* Built-in items can come off too (Nov 15: Rick — "make the tick boxes
+     deletable or add back if things change"). The removal lives with the
+     rig and the list, so the line stays off trip after trip — until it is
+     put back. The template itself never changes. */
+  function removedItemsFor(rigId, templateId) {
+    return (store.removedItems || []).filter(function (r) { return r.rigId === rigId && r.templateId === templateId; });
+  }
+  function isItemRemoved(rigId, templateId, itemId) {
+    return removedItemsFor(rigId, templateId).some(function (r) { return r.itemId === itemId; });
+  }
+  function removeBuiltInItem(rigId, templateId, itemId) {
+    if (isItemRemoved(rigId, templateId, itemId)) return;
+    (store.removedItems = store.removedItems || []).push({ rigId: rigId, templateId: templateId, itemId: itemId });
+  }
+  function restoreBuiltInItem(rigId, templateId, itemId) {
+    store.removedItems = (store.removedItems || []).filter(function (r) { return !(r.rigId === rigId && r.templateId === templateId && r.itemId === itemId); });
+  }
+  function builtInLabel(tpl, itemId) {
+    var label = null;
+    tpl.groups.forEach(function (g) { g.items.forEach(function (it) { if (it.id === itemId) label = it.label; }); });
+    return label;
   }
   /* The heading over your own items is yours too — rename it per list and
      rig, and it prints under the new name. No heading saved yet means the
@@ -826,6 +851,7 @@
   function checklistTotal(tpl, rigId) {
     var n = tpl.groups.reduce(function (acc, g) { return acc + g.items.length; }, 0);
     if (!rigId) return n;
+    tpl.groups.forEach(function (g) { g.items.forEach(function (it) { if (isItemRemoved(rigId, tpl.id, it.id)) n--; }); });
     n += customItemsFor(rigId, tpl.id).length;
     customGroupsFor(rigId, tpl.id).forEach(function (g) { n += g.items.length; });
     return n;
@@ -850,7 +876,7 @@
   }
   function runCheckedCount(run, tpl, rigId) {
     var n = 0;
-    tpl.groups.forEach(function (g) { g.items.forEach(function (it) { if (run.checks[it.id]) n++; }); });
+    tpl.groups.forEach(function (g) { g.items.forEach(function (it) { if (!isItemRemoved(rigId, tpl.id, it.id) && run.checks[it.id]) n++; }); });
     if (rigId) {
       customItemsFor(rigId, tpl.id).forEach(function (c) { if (run.checks[c.id]) n++; });
       customGroupsFor(rigId, tpl.id).forEach(function (g) { g.items.forEach(function (it) { if (run.checks[it.id]) n++; }); });
@@ -1242,6 +1268,7 @@
         store.customItems = (store.customItems || []).filter(function (c) { return c.templateId !== id; });
         store.customGroups = (store.customGroups || []).filter(function (g) { return g.templateId !== id; });
         store.customHeadings = (store.customHeadings || []).filter(function (h) { return h.templateId !== id; });
+        store.removedItems = (store.removedItems || []).filter(function (r) { return r.templateId !== id; });
         store.runs = store.runs.filter(function (r) { return r.templateId !== id; });
         armedList = null; save(); renderChecklists(); toast("List removed.");
       });
@@ -1295,6 +1322,7 @@
     var picker = $("#checklist-picker"), host = $("#checklist-run");
     var armedDel = null; /* first tap on × only arms it — second tap deletes */
     var armedGroup = null; /* same deal for a whole custom group */
+    var armedBuiltin = null; /* same deal for a built-in line */
     picker.hidden = true; host.hidden = false;
     /* Takes a custom item back off, whether it lives in a named group or
        in the flat "Your own items" list. */
@@ -1367,13 +1395,26 @@
       tpl.groups.forEach(function (g) {
         html += '<div class="check-group">' + esc(g.name) + '</div>';
         g.items.forEach(function (it) {
+          if (isItemRemoved(rig.id, tpl.id, it.id)) return;
           var psi = "";
           if (it.psi && rig) psi = '<div class="psi">' + (rig.psiFront ? rig.psiFront + " psi front" : "") + (rig.psiFront && rig.psiRear ? " · " : "") + (rig.psiRear ? rig.psiRear + " psi rear" : "") + '</div>';
-          html += '<button class="check-item' + (run.checks[it.id] ? ' done' : '') + '" data-item="' + it.id + '">' +
+          html += '<div class="custom-row"><button class="check-item' + (run.checks[it.id] ? ' done' : '') + '" data-item="' + it.id + '">' +
             '<span class="box">' + (run.checks[it.id] ? "✓" : "") + '</span>' +
-            '<span><span class="label">' + esc(it.label) + '</span>' + psi + '</span></button>';
+            '<span><span class="label">' + esc(it.label) + '</span>' + psi + '</span></button>' +
+            '<button class="custom-del' + (armedBuiltin === it.id ? ' armed' : '') + '" data-del-builtin="' + it.id + '" aria-label="Take this item off the list">' + (armedBuiltin === it.id ? 'Delete?' : '×') + '</button></div>';
         });
       });
+      /* Lines taken off this list — tap Put back and the line is on the
+         list again. Things change: a rig gains a toad, or loses one. */
+      var removed = removedItemsFor(rig.id, tpl.id).map(function (r) { return r.itemId; }).filter(function (id) { return builtInLabel(tpl, id); });
+      if (removed.length) {
+        html += '<div class="check-group">Taken off this list</div>' +
+          '<p class="small muted">Changed your mind? Tap Put back and the line is on the list again.</p>';
+        removed.forEach(function (id) {
+          html += '<div class="custom-row"><span class="label muted" style="flex:1;padding:.55rem 0">' + esc(builtInLabel(tpl, id)) + '</span>' +
+            '<button class="btn small ghost" data-restore-builtin="' + id + '" type="button">Put back</button></div>';
+        });
+      }
       if (customs.length) {
         html += '<button class="check-group heading-edit" type="button" data-edit-heading>' + esc(customHeadingFor(rig.id, tpl.id)) + ' <span class="edit-hint">✎</span></button>';
         customs.forEach(function (c) {
@@ -1417,7 +1458,7 @@
       $all("[data-item]", host).forEach(function (b) {
         b.addEventListener("click", function () {
           var id = b.getAttribute("data-item");
-          armedDel = null; armedGroup = null; run.checks[id] = !run.checks[id]; save(); draw();
+          armedDel = null; armedGroup = null; armedBuiltin = null; run.checks[id] = !run.checks[id]; save(); draw();
         });
       });
       /* Tap the words themselves to change them — the tap never reaches
@@ -1434,6 +1475,22 @@
         el.addEventListener("click", function () {
           armedDel = null; armedGroup = null;
           openCustomHeadingSheet();
+        });
+      });
+      $all("[data-del-builtin]", host).forEach(function (b) {
+        b.addEventListener("click", function () {
+          var id = b.getAttribute("data-del-builtin");
+          if (armedBuiltin !== id) { armedBuiltin = id; armedDel = null; armedGroup = null; draw(); return; }
+          removeBuiltInItem(rig.id, tpl.id, id);
+          delete run.checks[id];
+          armedBuiltin = null; save(); draw(); toast("Item taken off the list — put it back any time.");
+        });
+      });
+      $all("[data-restore-builtin]", host).forEach(function (b) {
+        b.addEventListener("click", function () {
+          var id = b.getAttribute("data-restore-builtin");
+          restoreBuiltInItem(rig.id, tpl.id, id);
+          armedDel = null; armedGroup = null; armedBuiltin = null; save(); draw(); toast("Back on the list.");
         });
       });
       $all("[data-del-custom]", host).forEach(function (b) {
@@ -2160,7 +2217,7 @@
         rows.push('<div class="print-item"><span class="print-box">' + (run && run.checks[it.id] ? "✓" : "") + '</span><span><span class="print-label">' + esc(it.label) + '</span>' + (sub ? '<span class="print-sub">' + esc(sub) + '</span>' : "") + '</span></div>');
       });
     }
-    tpl.groups.forEach(function (g) { addGroup(g.name, g.items); });
+    tpl.groups.forEach(function (g) { addGroup(g.name, g.items.filter(function (it) { return !isItemRemoved(rig.id, tpl.id, it.id); })); });
     addGroup(customHeadingFor(rig.id, tpl.id), customItemsFor(rig.id, tpl.id).map(function (c) { return { id: c.id, label: c.label }; }));
     customGroupsFor(rig.id, tpl.id).forEach(function (g) { addGroup(g.name, g.items); });
     printSheet(
