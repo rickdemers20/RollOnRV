@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 48"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 49"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1157,6 +1157,21 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc2.querySelector("#home-rig-photo-btn").dispatchEvent(new win2.MouseEvent("click", { bubbles: true }));
   await sleep(50);
   check("a failed native camera call keeps the photo callback pending for the fallback picker", inputClicked && R2.photoPendingSet());
+
+  /* ---- 46. printing in the installed app opens the sheet ---- */
+  console.log("== 46. printing in-app ==");
+  // window.print() does nothing inside the installed app (Nov 15: "Print
+  // this list doesn't work") — the printable sheet must open in a new tab
+  // instead, where Share → Print works.
+  let printCalled = false;
+  win2.print = function () { printCalled = true; };
+  win2.URL.createObjectURL = function () { return "blob:fake-print"; };
+  win2.URL.revokeObjectURL = function () {};
+  R2.printChecklistRun(R2.CHECKLISTS[0], { id: "r1", templateId: "pretrip", rigId: R2.activeRig().id, startedAt: "2026-11-15", finishedAt: null, checks: {}, proof: null, proofAt: null }, R2.activeRig());
+  await sleep(20);
+  const printLink = doc2.querySelector('a[target="_blank"]');
+  check("printing in the installed app opens the sheet in a new tab", !!printLink && String(printLink.getAttribute("href") || "").indexOf("blob:") === 0);
+  check("printing in the installed app does not call window.print()", !printCalled);
 
   /* ---- 45. the guide is a page inside the app ---- */
   console.log("== 45. guide is in-app ==");
