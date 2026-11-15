@@ -24,6 +24,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Take photos of finished work to attach to maintenance jobs as proof, and to set a picture of your rig on the home screen.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose photos from your library to attach to maintenance jobs as proof of finished work, and to set a picture of your rig on the home screen.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
