@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "60";
+  var APP_VERSION = "61";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -633,6 +633,10 @@
           { id: "water", label: "Water hose drained & stowed" },
           { id: "sewer", label: "Sewer hose rinsed & capped" },
           { id: "propane", label: "Propane set for travel" }
+        ]},
+        { name: "Water", items: [
+          { id: "sanitize", label: "Water system sanitized" },
+          { id: "fillwater", label: "Fresh water tank filled" }
         ]},
         { name: "Inside", items: [
           { id: "fridge", label: "Fridge latched, mode set" },
