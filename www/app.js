@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "49";
+  var APP_VERSION = "50";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -2023,7 +2023,16 @@
       '</style></head><body>' +
       '<p class="print-hint">To print this sheet: tap Share, then Print.</p>' +
       html + '</body></html>';
-    downloadFile("rollonrv-print.html", doc, "text/html;charset=utf-8");
+    /* A plain new-tab link, NOT downloadFile: v49 reused downloadFile, but
+       the download attribute on a blob link swallows the tap inside the
+       installed app (WKWebView cannot download), so Safari never opened
+       and "Print this list" still did nothing. A plain link opens Safari,
+       the same way the old guide link used to. */
+    var blob = new Blob([doc], { type: "text/html;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.target = "_blank"; a.rel = "noopener";
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
   function printChecklistRun(tpl, run, rig) {
     var rows = [];

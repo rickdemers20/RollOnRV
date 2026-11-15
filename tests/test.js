@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 49"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 50"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1171,7 +1171,14 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   await sleep(20);
   const printLink = doc2.querySelector('a[target="_blank"]');
   check("printing in the installed app opens the sheet in a new tab", !!printLink && String(printLink.getAttribute("href") || "").indexOf("blob:") === 0);
+  check("the print link carries no download attribute (one swallows the tap in the installed app)", !!printLink && !printLink.hasAttribute("download"));
   check("printing in the installed app does not call window.print()", !printCalled);
+
+  /* ---- 47. double-tap never zooms the screen ---- */
+  console.log("== 47. double-tap zoom is off ==");
+  const vp = doc.querySelector('meta[name="viewport"]').getAttribute("content") || "";
+  check("viewport locks the zoom off", vp.includes("maximum-scale=1.0") && vp.includes("user-scalable=no"));
+  check("body kills the double-tap zoom gesture", css.includes("touch-action:manipulation"));
 
   /* ---- 45. the guide is a page inside the app ---- */
   console.log("== 45. guide is in-app ==");
