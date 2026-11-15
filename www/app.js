@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "46";
+  var APP_VERSION = "47";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -1752,22 +1752,29 @@
   var MAX_PHOTO_DIM = 1024, MAX_PHOTOS_PER_LOG = 12, STORE_SOFT_LIMIT = 4500000;
   function downscalePhoto(dataUrl) {
     return new Promise(function (resolve) {
+      /* A phone photo that never decodes must not hang the photo flow
+         forever (Nov 15: a picked photo that never lands looks identical
+         to a dead button). The 6s timer settles with the original, same
+         as the error path. */
+      var done = false;
+      function finish(v) { if (!done) { done = true; resolve(v); } }
+      setTimeout(function () { finish(dataUrl); }, 6000);
       try {
         var img = new Image();
         img.onload = function () {
           try {
             var w = img.width, h = img.height;
-            if (w <= MAX_PHOTO_DIM && h <= MAX_PHOTO_DIM) { resolve(dataUrl); return; }
+            if (w <= MAX_PHOTO_DIM && h <= MAX_PHOTO_DIM) { finish(dataUrl); return; }
             var s = Math.min(MAX_PHOTO_DIM / w, MAX_PHOTO_DIM / h);
             var c = document.createElement("canvas");
             c.width = Math.round(w * s); c.height = Math.round(h * s);
             c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-            resolve(c.toDataURL("image/jpeg", 0.8));
-          } catch (e) { resolve(dataUrl); }
+            finish(c.toDataURL("image/jpeg", 0.8));
+          } catch (e) { finish(dataUrl); }
         };
-        img.onerror = function () { resolve(dataUrl); };
+        img.onerror = function () { finish(dataUrl); };
         img.src = dataUrl;
-      } catch (e) { resolve(dataUrl); }
+      } catch (e) { finish(dataUrl); }
     });
   }
   function storeHasRoom(bytes) {
@@ -1793,11 +1800,14 @@
                  the tap entirely, so the button looked dead (Nov 15, TestFlight:
                  "Add photo of your rig won't open"). Fall back to the file
                  picker so a photo is always reachable. A user cancel is the one
-                 case that stays silent: they already said no. */
-              photoPending = null;
+                 case that stays silent: they already said no. The callback must
+                 STAY pending for the fallback picker — clearing it here (v45)
+                 meant the picker opened, a photo was chosen, and nothing
+                 happened (Nov 15: "opens the camera and the photos but won't
+                 add to screen"). */
               var msg = "";
               try { msg = String((err && err.message) || err || ""); } catch (e) {}
-              if (/cancel/i.test(msg)) return;
+              if (/cancel/i.test(msg)) { photoPending = null; return; }
               openPhotoInput();
             });
           return;
@@ -2613,6 +2623,7 @@
     cleanTaskTitle: cleanTaskTitle,
     parseCSV: parseCSV, CHECKLISTS: CHECKLISTS, STARTER_TASKS: STARTER_TASKS, CATEGORIES: CATEGORIES,
     rigSilhouette: rigSilhouette, setRigPhoto: setRigPhoto,
+    photoPendingSet: function () { return !!photoPending; },
     setTheme: setTheme, currentTheme: currentTheme,
     printChecklistRun: printChecklistRun, printDueTasks: printDueTasks,
     nextUpTasks: nextUpTasks,

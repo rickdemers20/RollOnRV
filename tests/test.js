@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 46"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 47"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1148,9 +1148,18 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc2.querySelector("#home-rig-photo-btn").dispatchEvent(new win2.MouseEvent("click", { bubbles: true }));
   await sleep(50);
   check("a user cancel stays silent (no fallback picker)", !inputClicked);
+  // A failed native call must keep the photo callback pending, so the
+  // fallback picker can actually hand the chosen photo over (Nov 15:
+  // v45 cleared it, so the picker opened, a photo was chosen, and
+  // nothing happened).
+  win2.Capacitor.Plugins.Camera.getPhoto = () => Promise.reject(new Error("plugin boom"));
+  inputClicked = false;
+  doc2.querySelector("#home-rig-photo-btn").dispatchEvent(new win2.MouseEvent("click", { bubbles: true }));
+  await sleep(50);
+  check("a failed native camera call keeps the photo callback pending for the fallback picker", inputClicked && R2.photoPendingSet());
 
-  /* ---- 44. the guide opens inside the app, not in Safari ---- */
-  console.log("== 44. guide opens in-app ==");
+  /* ---- 45. the guide opens inside the app, not in Safari ---- */
+  console.log("== 45. guide opens in-app ==");
   // Same native boot as section 43: tapping "How to use this app" used to
   // throw the reader out to Safari (Nov 15). It must open the in-app
   // browser sheet instead.
