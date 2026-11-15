@@ -286,7 +286,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("tasks export includes imported rows", tasksCsv.includes("Test oil change") && tasksCsv.includes("2027-03-01"));
   check("logs export includes the test job", logsCsv.includes("Test soon job") && logsCsv.includes("42.50"));
   const reimport = R.importTasksCSV(tasksCsv, rig.id);
-  check("export re-imports cleanly", reimport.imported >= 3 && reimport.errors.length === 0, JSON.stringify(reimport));
+  check("re-importing the same file adds nothing (duplicates skipped)", reimport.imported === 0 && reimport.skipped >= 3 && reimport.errors.length === 0, JSON.stringify(reimport));
   const bad = R.importTasksCSV("foo,bar\n1,2\n", rig.id);
   check("CSV without a task column is rejected with an error", bad.imported === 0 && bad.errors.length > 0);
 
@@ -312,6 +312,28 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("Usage-based keeps hours, drops the date", p3 && p3.nextDueDate === null && p3.intervalGenHours === 150 && p3.nextDueGenHours === 410, JSON.stringify(p3));
   const p4 = R.store().tasks.find((t) => t.title === "Test transmission check");
   check("usage-based miles map to due mileage", p4 && p4.intervalMiles === 15000 && p4.nextDueMileage === 38716, JSON.stringify(p4));
+
+  /* ---- 8c. A file imported twice must not double the book ---- */
+  console.log("== 8c. duplicate import + cleanup ==");
+  const again = R.importTasksCSV(sampleCsv, rig.id);
+  check("importing the same file again adds nothing", again.imported === 0 && again.skipped === 3, JSON.stringify(again));
+  // A doubled job by hand: same title + category, one copy logged.
+  const dupA = R.newTask({ rigId: rig.id, title: "Test doubled job", category: "Safety", intervalMonths: 1, nextDueDate: "2026-10-19" });
+  const dupB = R.newTask({ rigId: rig.id, title: "Test doubled job", category: "Safety", intervalMonths: 1, nextDueDate: "2026-10-19" });
+  R.store().tasks.push(dupA, dupB);
+  const dupLogA = R.newLog({ rigId: rig.id, taskId: dupA.id, title: "Test doubled job", date: "2026-11-14" });
+  const dupLogB = R.newLog({ rigId: rig.id, taskId: dupB.id, title: "Test doubled job", date: "2026-11-15" });
+  R.store().logs.push(dupLogA, dupLogB);
+  R.completeTask(dupB, dupLogB);
+  const removed = R.dedupeTasks();
+  check("cleanup merges the doubled job", removed === 1 && R.store().tasks.filter((t) => t.title === "Test doubled job").length === 1);
+  const keptDup = R.store().tasks.find((t) => t.title === "Test doubled job");
+  check("cleanup keeps the copy with the latest work", keptDup && keptDup.id === dupB.id && keptDup.nextDueDate === "2026-12-15");
+  check("logs from the dropped copy move to the kept one", R.store().logs.find((l) => l.id === dupLogA.id).taskId === dupB.id);
+  check("cleanup is idempotent", R.dedupeTasks() === 0);
+  const otherCat = R.newTask({ rigId: rig.id, title: "Test doubled job", category: "Tires", intervalMonths: 1 });
+  R.store().tasks.push(otherCat);
+  check("same title in another category is not a duplicate", R.dedupeTasks() === 0 && R.store().tasks.filter((t) => t.title === "Test doubled job").length === 2);
 
   /* ---- 9. persistence: save -> load round-trip ---- */
   console.log("== 9. persistence ==");
@@ -590,6 +612,18 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#parts-back-btn")); await sleep(20);
   check("back button returns Home", doc.querySelector("#screen-home").classList.contains("active"));
   R.showScreen("parts"); await sleep(20);
+  check("Parts screen has a full-width back button at the bottom", !!doc.querySelector("#parts-back-btn-bottom"));
+  click(doc.querySelector("#parts-back-btn-bottom")); await sleep(20);
+  check("bottom back button returns Home", doc.querySelector("#screen-home").classList.contains("active"));
+  R.showScreen("parts"); await sleep(20);
+  // Every off-tab screen has a full-width back button at the bottom, not
+  // just the small one at the top — Rick kept reaching for the browser back button.
+  for (const name of ["pros", "fuel", "trips"]) {
+    R.showScreen(name); await sleep(20);
+    check(name + " screen has a bottom back button", !!doc.querySelector("#" + name + "-back-btn-bottom"));
+  }
+  click(doc.querySelector("#trips-back-btn-bottom")); await sleep(20);
+  check("bottom back button returns Home from Trips", doc.querySelector("#screen-home").classList.contains("active"));
   // Tap the box on the filter: bought, with a price, lands in what she's cost.
   doc.querySelector('[data-toggle-part="' + pOil.id + '"]').click(); await sleep(20);
   check("tapping the box marks the part got", R.store().parts.find((p) => p.id === pOil.id).bought === true);
@@ -700,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 41"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 43"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");

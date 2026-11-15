@@ -345,8 +345,12 @@ Done:
 - One workflow fix (commit 22991ff): Find .ipa / Upload to TestFlight were gated only on the API key, so the first run failed at the upload step with no .ipa present; now gated on profile secret AND API key.
 
 Still needed (browser work):
-- App Store Connect app record for RollOnRV (com.rickdemers.rollonrv) — does not exist yet.
-- App Store provisioning profile "RollOnRV App" for com.rickdemers.rollonrv with the existing Apple Distribution certificate; download the .mobileprovision to the VM, then set APPLE_PROVISIONING_PROFILE_BASE64.
-- APPLE_API_KEY_P8: the .p8 for key D8RQ53QR9X is not on disk anywhere (it exists only as a secret in the Bible repo, which cannot be read back). Either deliver the .p8 file to the VM or create a new App Store Connect API key and download its .p8.
+- App Store Connect app record for RollOnRV — CREATED Nov 15 (browser task; Name "RollOnRV", SKU "RollOnRV1", iOS 1.0, Prepare for Submission). Bundle ID com.rickdemers.rollonrv was not registered — registered first as an explicit App ID.
+- Provisioning profile "RollOnRV App" — CREATED Nov 15 (App Store distribution, existing Apple Distribution certificate, expires 2027/11/09, profile ID 39B2H448SW); .mobileprovision downloaded to ~/workspace/browser_downloads/sess-3153267369/ (12,149 bytes).
+- API key — NEW key "RollOnRV Upload" created Nov 15 (Key ID 8LBH8J2MFX, Issuer ID 196b8f58-5c33-421b-9cb7-13e3d8554d22, App Manager); .p8 downloaded (257 bytes — the only copy, do not lose it). Old key D8RQ53QR9X ("Bible Study Upload") untouched.
 - Add Rick (rickdemers@hotmail.com) as a TestFlight tester for RollOnRV.
 - App is version 1.0, build 1 — the first TestFlight upload will be build 1. TestFlight only; do NOT submit for App Store review (Bible app Build 6 4.3 thread still open).
+
+## Build 42 — back buttons on every page (Nov 15, 2026)
+
+Rick kept reaching for the browser back button in the Safari preview — which leaves the app, since a single-page app has no history to go back through — and the small "‹ Home" buttons at the top of Parts / My pros / Fuel / Trips were too easy to miss. His way back had been the fixed tab bar at the bottom. Every off-tab screen now has a full-width "‹ Back to Home" button at the bottom of its content too (Parts, My pros, Fuel, Trips); the small top buttons stay. Tab screens (Home, Logbook, Checklists, Tires, More) navigate by the tab bar and need none. Suite section 23: 6 new checks (bottom buttons exist on all four screens; Parts and Trips bottom buttons return Home). Suite now **343 passed, 0 failed**.

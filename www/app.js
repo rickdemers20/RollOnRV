@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "41";
+  var APP_VERSION = "43";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -94,6 +94,9 @@
             });
           });
           if (cleanedAny) save();
+          /* One-time cleanup (Nov 15): merge jobs doubled by importing
+             the same file twice — keep the copy with the work behind it. */
+          if (dedupeTasks()) save();
           return;
         }
       }
@@ -513,9 +516,17 @@
       function val(key) { return colMap[key] == null ? "" : String(r[colMap[key]] || "").trim(); }
       function numVal(key) { var v = val(key).replace(/,/g, ""); var n = parseFloat(v); return isNaN(n) ? null : n; }
       var days = numVal("intervalDays");
+      var cat = CATEGORIES.indexOf(val("category")) >= 0 ? val("category") : (val("category") || "Other");
+      /* Already in the book? A second import of the same file must not
+         double every job — skip the row and count it, so the book stays
+         one copy per job. Same cleaned title + same category = same job. */
+      var dupe = store.tasks.some(function (t) {
+        return t.rigId === rigId && cleanTaskTitle(t.title).toLowerCase() === title.toLowerCase() && String(t.category || "").toLowerCase() === String(cat).toLowerCase();
+      });
+      if (dupe) { skipped++; return; }
       var task = newTask({
         rigId: rigId, title: title,
-        category: CATEGORIES.indexOf(val("category")) >= 0 ? val("category") : (val("category") || "Other"),
+        category: cat,
         intervalMonths: numVal("intervalMonths") != null ? numVal("intervalMonths") : (days != null ? Math.max(1, Math.round(days / 30)) : null),
         intervalMiles: numVal("intervalMiles"),
         intervalGenHours: numVal("intervalGenHours"),
@@ -530,6 +541,40 @@
       store.tasks.push(task); imported++;
     });
     return { imported: imported, skipped: skipped, errors: errors };
+  }
+  /* Merge jobs doubled by importing the same file twice: same rig, same
+     cleaned title, same category = the same job, twice. Keep the copy
+     with the most work behind it — logs first, then latest done, then
+     latest due — and re-point the dropped copy's logs and parts at the
+     copy that stays, so nothing written up is lost. Idempotent: once
+     the twins are gone it finds nothing to do. Returns how many it removed. */
+  function dedupeTasks() {
+    var groups = {};
+    store.tasks.forEach(function (t) {
+      var k = t.rigId + "|" + cleanTaskTitle(t.title).toLowerCase() + "|" + String(t.category || "").toLowerCase();
+      (groups[k] = groups[k] || []).push(t);
+    });
+    var removed = 0;
+    Object.keys(groups).forEach(function (k) {
+      var g = groups[k];
+      if (g.length < 2) return;
+      function logCount(id) { return store.logs.filter(function (l) { return l.taskId === id; }).length; }
+      function cmp(a, b) {
+        var d = logCount(b.id) - logCount(a.id); if (d) return d;
+        var la = a.lastDoneAt || "", lb = b.lastDoneAt || ""; if (la !== lb) return lb < la ? -1 : 1;
+        var na = a.nextDueDate || "", nb = b.nextDueDate || ""; if (na !== nb) return nb < na ? -1 : 1;
+        return (a.createdAt || "") < (b.createdAt || "") ? -1 : 1;
+      }
+      g.sort(cmp);
+      var keep = g[0];
+      g.slice(1).forEach(function (drop) {
+        store.logs.forEach(function (l) { if (l.taskId === drop.id) l.taskId = keep.id; });
+        (store.parts || []).forEach(function (p) { if (p.taskId === drop.id) p.taskId = keep.id; });
+        store.tasks = store.tasks.filter(function (t) { return t.id !== drop.id; });
+        removed++;
+      });
+    });
+    return removed;
   }
   function exportTasksCSV(rigId) {
     var head = ["Task", "Category", "Due Date", "Due Mileage", "Due Gen Hours", "Every Months", "Every Miles", "Every Gen Hours", "Note", "Pro", "Shop"];
@@ -2419,13 +2464,17 @@
       toast("Opened in a new tab — the app is still here behind it.");
     });
     $("#parts-back-btn").addEventListener("click", function () { showScreen("home"); });
+    $("#parts-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
     $("#pros-open-btn").addEventListener("click", function () { showScreen("pros"); });
     $("#pros-add-btn").addEventListener("click", function () { openProSheet(null); });
     $("#pros-back-btn").addEventListener("click", function () { showScreen("home"); });
+    $("#pros-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
     $("#fuel-add-btn").addEventListener("click", function () { openFuelSheet(null); });
     $("#fuel-back-btn").addEventListener("click", function () { showScreen("home"); });
+    $("#fuel-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
     $("#trips-add-btn").addEventListener("click", function () { openTripSheet(null); });
     $("#trips-back-btn").addEventListener("click", function () { showScreen("home"); });
+    $("#trips-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
     $("#rig-edit-btn").addEventListener("click", openRigSheet);
     $("#rig-equipment-btn").addEventListener("click", openEquipmentSheet);
     $("#csv-import-btn").addEventListener("click", function () { $("#csv-file-input").click(); });
@@ -2526,7 +2575,7 @@
     exportPartsCSV: exportPartsCSV, printPartsList: printPartsList, partsListHTML: partsListHTML, renderParts: renderParts, openPartSheet: openPartSheet,
     taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask,
     dotInfo: dotInfo, costsForYear: costsForYear, costPerMile: costPerMile,
-    importTasksCSV: importTasksCSV, exportTasksCSV: exportTasksCSV, exportLogsCSV: exportLogsCSV,
+    importTasksCSV: importTasksCSV, exportTasksCSV: exportTasksCSV, exportLogsCSV: exportLogsCSV, dedupeTasks: dedupeTasks,
     exportFuelCSV: exportFuelCSV, fuelStats: fuelStats, fuelMpg: fuelMpg, fuelForRig: fuelForRig,
     tripCosts: tripCosts, tripsForRig: tripsForRig,
     cleanTaskTitle: cleanTaskTitle,
