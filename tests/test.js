@@ -130,19 +130,19 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("photo renders in the entry", logHtml.includes("data:image/png;base64"));
   check("parts total shown in entry", /Test filter/.test(logHtml) || true); // parts show on detail sheet
 
-  /* ---- 5. checklist run: pre-trip, all 14 items ---- */
+  /* ---- 5. checklist run: pre-trip, all 17 items ---- */
   console.log("== 5. pre-trip checklist ==");
   R.showScreen("checklists");
   const startBtn = doc.querySelector('[data-start="pretrip"]');
   click(startBtn);
   await sleep(20);
   let boxes = doc.querySelectorAll("#checklist-run .check-item");
-  check("pre-trip has 16 items", boxes.length === 16, "got " + boxes.length);
+  check("pre-trip has 17 items", boxes.length === 17, "got " + boxes.length);
   check("tire pressure item shows rig PSI (80/75)", doc.querySelector("#checklist-run").textContent.includes("80 psi front"));
   boxes.forEach((b) => click(b));
   await sleep(20);
   const runText = doc.querySelector("#checklist-run").textContent;
-  check("all 16 checked, progress full", runText.includes("16 of 16 checked"));
+  check("all 17 checked, progress full", runText.includes("17 of 17 checked"));
   check("DONE stamp appears when complete", /Done/.test(runText));
   click(doc.querySelector("#run-finish"));
   await sleep(20);
@@ -159,11 +159,11 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   await sleep(20);
   check("custom item appears in the run", doc.querySelector("#checklist-run").textContent.includes("Test AGS check"));
   check("custom item saved to the rig's list", R.store().customItems.some((c) => c.label === "Test AGS check" && c.templateId === "pretrip"));
-  check("total counts the custom item", doc.querySelector("#checklist-run").textContent.includes("0 of 17 checked"));
+  check("total counts the custom item", doc.querySelector("#checklist-run").textContent.includes("0 of 18 checked"));
   const customBox = Array.from(doc.querySelectorAll("#checklist-run .check-item")).find((b) => b.textContent.includes("Test AGS check"));
   click(customBox);
   await sleep(20);
-  check("custom item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 17 checked"));
+  check("custom item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 18 checked"));
   click(doc.querySelector("#run-back"));
   await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]'));
@@ -176,7 +176,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("[data-del-custom]"));
   await sleep(20);
   check("second tap takes it off", !doc.querySelector("#checklist-run").textContent.includes("Test AGS check") && !R.store().customItems.some((c) => c.label === "Test AGS check"));
-  check("total is back to 16 built-ins", doc.querySelector("#checklist-run").textContent.includes("0 of 16 checked"));
+  check("total is back to 17 built-ins", doc.querySelector("#checklist-run").textContent.includes("0 of 17 checked"));
 
   /* ---- 5c. custom groups inside a checklist ---- */
   console.log("== 5c. custom groups ==");
@@ -195,11 +195,11 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc.querySelector("[data-group-input]").value = "Test group item";
   click(doc.querySelector("[data-group-add]"));
   await sleep(20);
-  check("group item appears and counts", doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 17 checked"));
+  check("group item appears and counts", doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 18 checked"));
   const groupBox = Array.from(doc.querySelectorAll("#checklist-run .check-item")).find((b) => b.textContent.includes("Test group item"));
   click(groupBox);
   await sleep(20);
-  check("group item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 17 checked"));
+  check("group item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 18 checked"));
   click(doc.querySelector("#run-back"));
   await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]'));
@@ -214,7 +214,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("one tap only arms the item delete", !!doc.querySelector("[data-del-custom].armed") && doc.querySelector("#checklist-run").textContent.includes("Test group item"));
   click(doc.querySelector("[data-del-custom].armed"));
   await sleep(20);
-  check("second tap takes the group item off", !doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 16 checked"));
+  check("second tap takes the group item off", !doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 17 checked"));
   click(doc.querySelector("[data-del-group]"));
   await sleep(20);
   check("one tap only arms the group delete", !!doc.querySelector("[data-del-group].armed") && doc.querySelector("#checklist-run").textContent.includes("Test group"));
@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 61"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 62"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -822,8 +822,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#at-starters")); await sleep(20);
   check("the picker offers to fit the jobs to the rig", !!doc.querySelector("#st-fit"));
   click(doc.querySelector("#st-fit")); await sleep(20);
-  check("the questions sheet asks eleven questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 37);
-  check("every question offers Not sure", doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 11);
+  check("the questions sheet asks fourteen questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 46);
+  check("every question offers Not sure", doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 14);
   click(doc.querySelector('[data-eq="roof"][data-val="tpo"]')); await sleep(20);
   click(doc.querySelector('[data-eq="waterHeater"][data-val="tankless"]')); await sleep(20);
   click(doc.querySelector('[data-eq="fridge"][data-val="residential"]')); await sleep(20);
@@ -838,9 +838,9 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("no generator hides both generator jobs", !doc.querySelector("#sheet-host").textContent.includes("Generator oil") && !doc.querySelector("#sheet-host").textContent.includes("Portable generator"));
   check("the picker says it is fitted", doc.querySelector("#st-fit").textContent.includes("Fitted to your rig"));
   check("the answers are saved on the rig", R.activeRig().equipment.waterHeater === "tankless" && R.activeRig().equipment.generator === "none");
-  const roofRow = fittedRows.find((r) => r.textContent.includes("Roof seals"));
+  const roofRow = fittedRows.find((r) => r.textContent.includes("Outside seams"));
   click(roofRow.querySelector("[data-add-starter]")); await sleep(20);
-  check("a TPO roof gets the TPO note", R.store().tasks.some((t) => t.title === "Roof seals — inspect & touch up" && t.note.includes("doesn't chalk")));
+  check("a TPO roof gets the TPO note", R.store().tasks.some((t) => t.title === "Outside seams — inspect & caulk" && t.note.includes("doesn't chalk")));
   // Not sure never hides the usual job.
   click(doc.querySelector("#st-fit")); await sleep(20);
   click(doc.querySelector('[data-eq="waterHeater"][data-val="unsure"]')); await sleep(20);
@@ -954,7 +954,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#log-add-task-btn")); await sleep(20);
   click(doc.querySelector("#at-starters")); await sleep(20);
   click(doc.querySelector("#st-fit")); await sleep(20);
-  check("a trailer is asked ten questions, not eleven", doc.querySelectorAll("#sheet-host [data-eq]").length === 34);
+  check("a trailer is asked thirteen questions, not fourteen", doc.querySelectorAll("#sheet-host [data-eq]").length === 43);
   check("a trailer is never asked gas or diesel", !doc.querySelector('#sheet-host [data-eq="fuel"]'));
   click(doc.querySelector("[data-close]")); await sleep(20);
   R.activeRig().type = "Class C"; R.activeRig().equipment = {}; R.save();
@@ -1288,22 +1288,22 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("no plain Rubber choice is left", !roofBtns.includes("Rubber"));
   click(doc.querySelector("[data-close]")); await sleep(20);
   // EPDM roof: the seals note warns about petroleum products.
-  R.store().tasks = R.store().tasks.filter((t) => t.title !== "Roof seals — inspect & touch up"); R.save();
+  R.store().tasks = R.store().tasks.filter((t) => t.title !== "Outside seams — inspect & caulk"); R.save();
   R.activeRig().equipment = { roof: "epdm" }; R.save();
   click(doc.querySelector("#log-add-task-btn")); await sleep(20);
   click(doc.querySelector("#at-starters")); await sleep(20);
-  const epdmRow = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("Roof seals"));
+  const epdmRow = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("Outside seams"));
   click(epdmRow.querySelector("[data-add-starter]")); await sleep(20);
-  check("an EPDM roof gets the EPDM note", R.store().tasks.some((t) => t.title === "Roof seals — inspect & touch up" && t.note.includes("petroleum-based")));
+  check("an EPDM roof gets the EPDM note", R.store().tasks.some((t) => t.title === "Outside seams — inspect & caulk" && t.note.includes("petroleum-based")));
   click(doc.querySelector("[data-close]")); await sleep(20);
   // Legacy plain-"rubber" answer still resolves to a note.
-  R.store().tasks = R.store().tasks.filter((t) => t.title !== "Roof seals — inspect & touch up"); R.save();
+  R.store().tasks = R.store().tasks.filter((t) => t.title !== "Outside seams — inspect & caulk"); R.save();
   R.activeRig().equipment = { roof: "rubber" }; R.save();
   click(doc.querySelector("#log-add-task-btn")); await sleep(20);
   click(doc.querySelector("#at-starters")); await sleep(20);
-  const legRow = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("Roof seals"));
+  const legRow = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("Outside seams"));
   click(legRow.querySelector("[data-add-starter]")); await sleep(20);
-  check("a legacy rubber answer still gets a note", R.store().tasks.some((t) => t.title === "Roof seals — inspect & touch up" && t.note.includes("self-leveling sealant")));
+  check("a legacy rubber answer still gets a note", R.store().tasks.some((t) => t.title === "Outside seams — inspect & caulk" && t.note.includes("self-leveling sealant")));
   click(doc.querySelector("[data-close]")); await sleep(20);
   R.activeRig().equipment = {}; R.save();
 
@@ -1381,7 +1381,72 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the water group asks to fill the tank", run55.includes("Fresh water tank filled"));
   check("the water group sits after Hookups", run55.indexOf("Water system sanitized") > run55.indexOf("Propane set for travel"));
   check("the water group sits before Inside", run55.indexOf("Fresh water tank filled") < run55.indexOf("Fridge latched"));
+  check("Before You Roll asks to check the propane level", run55.includes("Propane level checked, tank filled"));
+  check("the propane level item sits in Hookups", run55.indexOf("Propane level checked, tank filled") > run55.indexOf("Propane set for travel") && run55.indexOf("Propane level checked, tank filled") < run55.indexOf("Water system sanitized"));
   click(doc.querySelector("#run-back")); await sleep(20);
+
+  /* ---- 56. Monthly Walk-Around + washer/dryer, ice maker, dishwasher ---- */
+  console.log("== 56. monthly walk-around, three new questions ==");
+  // Nov 15: Rick — "you can add any check list you find". The five lists
+  // were missing the monthly round, so it joins them: tires, seams,
+  // slides, underneath, windows (operated or they stick), water, systems,
+  // screens and dampness. Washer/dryer, ice maker and dishwasher are
+  // questions now, each gating its own job.
+  R.showScreen("checklists");
+  click(doc.querySelector('[data-start="monthly"]')); await sleep(20);
+  const run56 = doc.querySelector("#checklist-run").textContent;
+  const boxes56 = doc.querySelectorAll("#checklist-run .check-item");
+  check("monthly walk-around has 15 items", boxes56.length === 15, "got " + boxes56.length);
+  check("monthly checks the tires", run56.includes("Tire pressures to placard"));
+  check("monthly checks every outside seam", run56.includes("Outside seams — roof, walls, windows"));
+  check("monthly works every window", run56.includes("Windows — open & close them all, check the seals"));
+  check("monthly checks the screens", run56.includes("Window screens — look for tears & holes"));
+  check("monthly tests the detectors", run56.includes("Smoke, CO & propane detectors"));
+  check("monthly tests the GFCI outlets", run56.includes("GFCI outlets — press TEST"));
+  check("monthly runs the generator under load", run56.includes("Generator — run it under load"));
+  boxes56.forEach((b) => click(b));
+  await sleep(20);
+  check("all 15 checked, progress full", doc.querySelector("#checklist-run").textContent.includes("15 of 15 checked"));
+  click(doc.querySelector("#run-finish")); await sleep(20);
+  check("monthly run finished and saved", R.store().runs.some((r) => r.templateId === "monthly" && r.finishedAt));
+  // The widened seams job covers more than the roof when no roof is set.
+  R.store().tasks = R.store().tasks.filter((t) => t.title !== "Outside seams — inspect & caulk"); R.save();
+  R.activeRig().equipment = {}; R.save();
+  R.showScreen("logbook"); await sleep(20);
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  click(doc.querySelector("#at-starters")); await sleep(20);
+  const seamsRow = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("Outside seams"));
+  click(seamsRow.querySelector("[data-add-starter]")); await sleep(20);
+  check("the seams job covers sidewalls, windows and vents", R.store().tasks.some((t) => t.title === "Outside seams — inspect & caulk" && t.note.includes("sidewalls")));
+  click(doc.querySelector("[data-close]")); await sleep(20);
+  // The three new questions gate their jobs.
+  R.showScreen("logbook"); await sleep(20);
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  click(doc.querySelector("#at-starters")); await sleep(20);
+  click(doc.querySelector("#st-fit")); await sleep(20);
+  const btnTexts56 = (key) => Array.from(doc.querySelectorAll('[data-eq="' + key + '"]')).map((b) => b.textContent.trim());
+  check("the washer/dryer question offers Yes and No", btnTexts56("washerdryer").includes("Yes") && btnTexts56("washerdryer").includes("No"));
+  check("the ice maker question offers Yes and No", btnTexts56("icemaker").includes("Yes") && btnTexts56("icemaker").includes("No"));
+  check("the dishwasher question offers Yes and No", btnTexts56("dishwasher").includes("Yes") && btnTexts56("dishwasher").includes("No"));
+  click(doc.querySelector('[data-eq="washerdryer"][data-val="yes"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="icemaker"][data-val="yes"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="dishwasher"][data-val="yes"]')); await sleep(20);
+  click(doc.querySelector("#eq-save")); await sleep(20);
+  const rows56 = Array.from(doc.querySelectorAll("#sheet-host .row"));
+  check("a washer/dryer rig sees the lint filter job", rows56.some((r) => r.textContent.includes("Washer/dryer — clean the lint filter")));
+  check("an ice maker rig sees the ice maker job", rows56.some((r) => r.textContent.includes("Ice maker — clean & sanitize")));
+  check("a dishwasher rig sees the dishwasher job", rows56.some((r) => r.textContent.includes("Dishwasher — clean the filter")));
+  click(doc.querySelector("#st-fit")); await sleep(20);
+  click(doc.querySelector('[data-eq="washerdryer"][data-val="no"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="icemaker"][data-val="no"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="dishwasher"][data-val="no"]')); await sleep(20);
+  click(doc.querySelector("#eq-save")); await sleep(20);
+  const rows56b = Array.from(doc.querySelectorAll("#sheet-host .row"));
+  check("no washer/dryer hides the lint filter job", !rows56b.some((r) => r.textContent.includes("Washer/dryer")));
+  check("no ice maker hides the ice maker job", !rows56b.some((r) => r.textContent.includes("Ice maker")));
+  check("no dishwasher hides the dishwasher job", !rows56b.some((r) => r.textContent.includes("Dishwasher")));
+  click(doc.querySelector("[data-close]")); await sleep(20);
+  R.activeRig().equipment = {}; R.save();
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");

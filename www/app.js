@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "61";
+  var APP_VERSION = "62";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -632,7 +632,8 @@
           { id: "power", label: "Shore power cord stowed" },
           { id: "water", label: "Water hose drained & stowed" },
           { id: "sewer", label: "Sewer hose rinsed & capped" },
-          { id: "propane", label: "Propane set for travel" }
+          { id: "propane", label: "Propane set for travel" },
+          { id: "propanelevel", label: "Propane level checked, tank filled" }
         ]},
         { name: "Water", items: [
           { id: "sanitize", label: "Water system sanitized" },
@@ -736,6 +737,33 @@
           { id: "clean", label: "Air it out, wipe it down" }
         ]}
       ]
+    },
+    {
+      id: "monthly", name: "Monthly Walk-Around", sub: "Once a month, whether you roll or not", groups: [
+        { name: "Outside", items: [
+          { id: "tiresm", label: "Tire pressures to placard — look for cracks & bulges" },
+          { id: "seamsm", label: "Outside seams — roof, walls, windows — look for cracks & water stains" },
+          { id: "slidesm", label: "Slide seals — look for tears, wipe them down" },
+          { id: "underm", label: "Look underneath — leaks, hanging wires, loose parts" },
+          { id: "windowsm", label: "Windows — open & close them all, check the seals" }
+        ]},
+        { name: "Water", items: [
+          { id: "sinksm", label: "Look under every sink & around the toilet for leaks" },
+          { id: "pumpm", label: "Water pump — runs and stops, no cycling" }
+        ]},
+        { name: "Systems", items: [
+          { id: "batteriesm", label: "House batteries — water if flooded, terminals clean" },
+          { id: "detectorsm", label: "Smoke, CO & propane detectors — press the test buttons" },
+          { id: "gfcim", label: "GFCI outlets — press TEST, then RESET" },
+          { id: "acfilterm", label: "A/C filters — clean or swap" },
+          { id: "generatorm", label: "Generator — run it under load" },
+          { id: "fluidsm", label: "Engine fluids — oil, coolant, brake, power steering" }
+        ]},
+        { name: "Inside", items: [
+          { id: "screensm", label: "Window screens — look for tears & holes" },
+          { id: "pestsm", label: "Look for dampness, odors & signs of pests" }
+        ]}
+      ]
     }
   ];
   /* Custom checklist items: plain text the owner adds to a list. They live
@@ -824,7 +852,7 @@
     { title: "Liquid Springs — check fluid & fittings", category: "Engine & Chassis", intervalMonths: 6, intervalMiles: 25000, needs: { suspension: "liquidspring" }, needsPro: true, note: "Every 25,000 miles or 6 months, whichever comes first. Check the reservoir fluid level, look over every hose and fitting for leaks, and check the bolts for looseness. Never feel for a leak with your hands — the system runs up to 3,500 psi. Depressurize before touching any fitting. Before each trip: green ride-height light steady, red warning light off." },
     { title: "Diesel fuel filter — change", category: "Engine & Chassis", intervalMonths: 12, motorized: true, needs: { fuel: "diesel" }, note: "Change the filter once a year; drain the water separator when the light says so." },
     { title: "Spark plugs — change", category: "Engine & Chassis", intervalMiles: 60000, motorized: true, needs: { fuel: "gas" }, note: "Per your chassis manual — most gas coaches are 60,000 to 100,000 miles." },
-    { title: "Roof seals — inspect & touch up", category: "House Systems", intervalMonths: 6, note: "Walk the roof, look at every seam and vent, touch up what is cracked." },
+    { title: "Outside seams — inspect & caulk", category: "House Systems", intervalMonths: 6, note: "Walk the roof and every outside seam — sidewalls, windows, vents — and touch up what is cracked so water stays out." },
     { title: "House batteries — water & terminals", category: "Electrical", intervalMonths: 3, note: "Top up with distilled water; clean the terminals." },
     { title: "Tire pressures — check all", category: "Tires", intervalMonths: 1, note: "Cold, to the placard pressures for your rig." },
     { title: "Water heater — flush", category: "Water & Plumbing", intervalMonths: 12, needs: { waterHeater: "tank" }, isDefault: true, note: "Drain and flush the tank once a year." },
@@ -838,11 +866,14 @@
     { title: "Solar panels — clean & inspect", category: "Electrical", intervalMonths: 6, needs: { solar: "yes" }, note: "Wash the panels, check every connection, and look at the charge controller — green light, no fault codes." },
     { title: "Furnace — clean & test", category: "Appliances", intervalMonths: 12, needs: { furnace: "gas" }, note: "Before the cold: clean the burner, check the exhaust, and run it — it should light on the first try and blow hot without sputtering." },
     { title: "Propane system — check for leaks & regulator", category: "Safety", intervalMonths: 12, note: "Brush soapy water on every connection — bubbles mean a leak. Check the regulator and the hoses for cracks, and make sure the propane detector inside still works." },
-    { title: "Water system — sanitize & check", category: "Water & Plumbing", intervalMonths: 6, note: "Sanitize the fresh tank, run it through every tap, then flush clean. Check the pump strainer and look for leaks under the sinks." }
+    { title: "Water system — sanitize & check", category: "Water & Plumbing", intervalMonths: 6, note: "Sanitize the fresh tank, run it through every tap, then flush clean. Check the pump strainer and look for leaks under the sinks." },
+    { title: "Washer/dryer — clean the lint filter & check the hoses", category: "Appliances", intervalMonths: 6, needs: { washerdryer: "yes" }, note: "Clean the lint filter, check the hoses for cracks, and run a cleaning cycle." },
+    { title: "Ice maker — clean & sanitize, change the water filter", category: "Appliances", intervalMonths: 6, needs: { icemaker: "yes" }, note: "Clean and sanitize the ice maker, and change the water filter on schedule." },
+    { title: "Dishwasher — clean the filter & run a cleaning cycle", category: "Appliances", intervalMonths: 6, needs: { dishwasher: "yes" }, note: "Clean the filter, check the drain hose, and run a cleaning cycle." }
   ];
 
   /* ---------------- rig questions (fit the jobs to the rig) --------------- */
-  /* Eleven quick questions, asked in plain words, so the usual-jobs list
+  /* Fourteen quick questions, asked in plain words, so the usual-jobs list
      only shows work this rig actually has. No data to import? This is
      the quick way to build the book instead. "Not sure" is always a
      fine answer — it never hides a job. */
@@ -857,7 +888,10 @@
     { key: "generator", label: "Generator?", options: [["builtin", "Built-in"], ["portable", "Portable"], ["none", "None"]] },
     { key: "slides", label: "Slides?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "suspension", label: "Suspension?", options: [["liquidspring", "Liquid Springs"], ["standard", "Standard"]] },
-    { key: "fuel", label: "Gas or diesel?", options: [["gas", "Gas"], ["diesel", "Diesel"]], motorized: true }
+    { key: "fuel", label: "Gas or diesel?", options: [["gas", "Gas"], ["diesel", "Diesel"]], motorized: true },
+    { key: "washerdryer", label: "Washer/dryer?", options: [["yes", "Yes"], ["no", "No"]] },
+    { key: "icemaker", label: "Fridge ice maker?", options: [["yes", "Yes"], ["no", "No"]] },
+    { key: "dishwasher", label: "Dishwasher?", options: [["yes", "Yes"], ["no", "No"]] }
   ];
   var ROOF_NOTES = {
     /* Rubber roofs come in two kinds (Nov 15: Rick — it matters).
@@ -2308,7 +2342,7 @@
           var t = list[Number(b.getAttribute("data-add-starter"))];
           if (!t || alreadyIn(t.title)) return;
           var note = t.note;
-          if (t.title.indexOf("Roof seals") === 0) { var rn = ROOF_NOTES[(rig.equipment || {}).roof]; if (rn) note = rn; }
+          if (t.title.indexOf("Outside seams") === 0) { var rn = ROOF_NOTES[(rig.equipment || {}).roof]; if (rn) note = rn; }
           if (t.title.indexOf("House batteries") === 0) { var bn = BATTERY_NOTES[(rig.equipment || {}).batteries]; if (bn) note = bn; }
           store.tasks.push(newTask({ rigId: rig.id, title: t.title, category: t.category, intervalMonths: t.intervalMonths, intervalMiles: t.intervalMiles, intervalGenHours: t.intervalGenHours, note: note, needsPro: !!t.needsPro }));
           save(); scheduleReminders(); draw(); renderLogbook(); renderHome();
