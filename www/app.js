@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "58";
+  var APP_VERSION = "59";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -837,7 +837,7 @@
      the quick way to build the book instead. "Not sure" is always a
      fine answer — it never hides a job. */
   var EQUIPMENT_QUESTIONS = [
-    { key: "roof", label: "What kind of roof?", options: [["rubber", "Rubber"], ["fiberglass", "Fiberglass"], ["aluminum", "Aluminum"]] },
+    { key: "roof", label: "What kind of roof?", options: [["epdm", "Rubber (EPDM)"], ["tpo", "Rubber (TPO)"], ["fiberglass", "Fiberglass"], ["aluminum", "Aluminum"]] },
     { key: "waterHeater", label: "Water heater?", options: [["tank", "Tank"], ["tankless", "Tankless"]] },
     { key: "fridge", label: "Fridge?", options: [["absorption", "Propane"], ["residential", "Residential"]] },
     { key: "generator", label: "Generator?", options: [["builtin", "Built-in"], ["portable", "Portable"], ["none", "None"]] },
@@ -846,6 +846,14 @@
     { key: "fuel", label: "Gas or diesel?", options: [["gas", "Gas"], ["diesel", "Diesel"]], motorized: true }
   ];
   var ROOF_NOTES = {
+    /* Rubber roofs come in two kinds (Nov 15: Rick — it matters).
+       EPDM is the older black rubber: it chalks as it ages and
+       petroleum-based products eat it, so only EPDM-safe sealant.
+       TPO is the white membrane: tougher, stays white, no chalking.
+       "rubber" is the old single answer — kept so a rig fitted
+       before the split still gets a note. */
+    epdm: "Walk the roof, look at every seam and vent, touch up cracked sealant with self-leveling sealant made for EPDM — never use petroleum-based products on it. Wash off the chalky residue when it shows.",
+    tpo: "Walk the roof, look at every seam and vent, touch up cracked sealant with self-leveling sealant. TPO stays white and doesn't chalk like EPDM.",
     rubber: "Walk the roof, look at every seam and vent, touch up cracked sealant with self-leveling sealant.",
     fiberglass: "Walk the roof, check the seams and vents for cracks, touch up what is cracked.",
     aluminum: "Check the seams and rivets for leaks, touch up what is cracked."

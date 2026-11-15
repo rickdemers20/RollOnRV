@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 58"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 59"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -822,9 +822,9 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#at-starters")); await sleep(20);
   check("the picker offers to fit the jobs to the rig", !!doc.querySelector("#st-fit"));
   click(doc.querySelector("#st-fit")); await sleep(20);
-  check("the questions sheet asks seven questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 23);
+  check("the questions sheet asks seven questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 24);
   check("every question offers Not sure", doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 7);
-  click(doc.querySelector('[data-eq="roof"][data-val="rubber"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="roof"][data-val="tpo"]')); await sleep(20);
   click(doc.querySelector('[data-eq="waterHeater"][data-val="tankless"]')); await sleep(20);
   click(doc.querySelector('[data-eq="fridge"][data-val="residential"]')); await sleep(20);
   click(doc.querySelector('[data-eq="generator"][data-val="none"]')); await sleep(20);
@@ -840,7 +840,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the answers are saved on the rig", R.activeRig().equipment.waterHeater === "tankless" && R.activeRig().equipment.generator === "none");
   const roofRow = fittedRows.find((r) => r.textContent.includes("Roof seals"));
   click(roofRow.querySelector("[data-add-starter]")); await sleep(20);
-  check("a rubber roof gets the rubber-roof note", R.store().tasks.some((t) => t.title === "Roof seals — inspect & touch up" && t.note.includes("self-leveling sealant")));
+  check("a TPO roof gets the TPO note", R.store().tasks.some((t) => t.title === "Roof seals — inspect & touch up" && t.note.includes("doesn't chalk")));
   // Not sure never hides the usual job.
   click(doc.querySelector("#st-fit")); await sleep(20);
   click(doc.querySelector('[data-eq="waterHeater"][data-val="unsure"]')); await sleep(20);
@@ -954,7 +954,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#log-add-task-btn")); await sleep(20);
   click(doc.querySelector("#at-starters")); await sleep(20);
   click(doc.querySelector("#st-fit")); await sleep(20);
-  check("a trailer is asked six questions, not seven", doc.querySelectorAll("#sheet-host [data-eq]").length === 20);
+  check("a trailer is asked six questions, not seven", doc.querySelectorAll("#sheet-host [data-eq]").length === 21);
   check("a trailer is never asked gas or diesel", !doc.querySelector('#sheet-host [data-eq="fuel"]'));
   click(doc.querySelector("[data-close]")); await sleep(20);
   R.activeRig().type = "Class C"; R.activeRig().equipment = {}; R.save();
@@ -1270,6 +1270,42 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#home-fuel-more")); await sleep(20);
   check("tapping the fuel pill opens the fuel screen", !!doc.querySelector("#screen-fuel.active"));
   R.showScreen("home"); await sleep(20);
+
+  /* ---- 53. rubber roofs come in two kinds: EPDM and TPO ---- */
+  console.log("== 53. EPDM and TPO roofs ==");
+  // Nov 15: Rick — "Is there more than one type of rubber roof?" TPO,
+  // and another type (EPDM). It matters: EPDM chalks and petroleum
+  // products eat it; TPO stays white and doesn't chalk. The roof
+  // question now offers both, and each gets its own roof-seals note.
+  // A rig fitted before the split (plain "rubber") still gets a note.
+  R.showScreen("logbook"); await sleep(20);
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  click(doc.querySelector("#at-starters")); await sleep(20);
+  click(doc.querySelector("#st-fit")); await sleep(20);
+  const roofBtns = Array.from(doc.querySelectorAll('[data-eq="roof"]')).map((b) => b.textContent.trim());
+  check("the roof question offers Rubber (EPDM)", roofBtns.includes("Rubber (EPDM)"));
+  check("the roof question offers Rubber (TPO)", roofBtns.includes("Rubber (TPO)"));
+  check("no plain Rubber choice is left", !roofBtns.includes("Rubber"));
+  click(doc.querySelector("[data-close]")); await sleep(20);
+  // EPDM roof: the seals note warns about petroleum products.
+  R.store().tasks = R.store().tasks.filter((t) => t.title !== "Roof seals — inspect & touch up"); R.save();
+  R.activeRig().equipment = { roof: "epdm" }; R.save();
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  click(doc.querySelector("#at-starters")); await sleep(20);
+  const epdmRow = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("Roof seals"));
+  click(epdmRow.querySelector("[data-add-starter]")); await sleep(20);
+  check("an EPDM roof gets the EPDM note", R.store().tasks.some((t) => t.title === "Roof seals — inspect & touch up" && t.note.includes("petroleum-based")));
+  click(doc.querySelector("[data-close]")); await sleep(20);
+  // Legacy plain-"rubber" answer still resolves to a note.
+  R.store().tasks = R.store().tasks.filter((t) => t.title !== "Roof seals — inspect & touch up"); R.save();
+  R.activeRig().equipment = { roof: "rubber" }; R.save();
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  click(doc.querySelector("#at-starters")); await sleep(20);
+  const legRow = Array.from(doc.querySelectorAll("#sheet-host .row")).find((r) => r.textContent.includes("Roof seals"));
+  click(legRow.querySelector("[data-add-starter]")); await sleep(20);
+  check("a legacy rubber answer still gets a note", R.store().tasks.some((t) => t.title === "Roof seals — inspect & touch up" && t.note.includes("self-leveling sealant")));
+  click(doc.querySelector("[data-close]")); await sleep(20);
+  R.activeRig().equipment = {}; R.save();
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");
