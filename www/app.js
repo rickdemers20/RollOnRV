@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "52";
+  var APP_VERSION = "53";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -783,8 +783,18 @@
     return runs.length ? runs[runs.length - 1] : null;
   }
   function startRun(templateId, rigId) {
-    var run = { id: uid(), templateId: templateId, rigId: rigId, startedAt: todayISO(), finishedAt: null, checks: {}, proof: null, proofAt: null };
+    var run = { id: uid(), templateId: templateId, rigId: rigId, startedAt: todayISO(), finishedAt: null, checks: {}, proofs: [] };
     store.runs.push(run); save(); return run;
+  }
+  /* Proof photos are a list now (Nov 15: more than one per run). A run
+     saved with the old single proof migrates in place the first time
+     it is read. */
+  function proofsOf(run) {
+    if (!run.proofs) {
+      run.proofs = run.proof ? [{ id: uid(), data: run.proof, takenAt: run.proofAt || run.finishedAt }] : [];
+      delete run.proof; delete run.proofAt;
+    }
+    return run.proofs;
   }
   function runCheckedCount(run, tpl, rigId) {
     var n = 0;
@@ -1129,12 +1139,13 @@
         store.runs.forEach(function (r) {
           if (r.templateId === tpl.id && r.finishedAt && (!lastFinished || r.finishedAt >= lastFinished.finishedAt)) lastFinished = r;
         });
+        var lastProofs = lastFinished ? proofsOf(lastFinished) : [];
         return '<div class="card"><div class="card-head"><h2>' + esc(tpl.name) + '</h2>' +
           (tpl.custom ? '<button class="custom-del' + (armedList === tpl.id ? ' armed' : '') + '" data-del-list="' + tpl.id + '" aria-label="Remove this list">' + (armedList === tpl.id ? 'Delete?' : '×') + '</button>' : '') + '</div>' +
           '<p class="muted">' + esc(tpl.sub) + ' · ' + total + ' items</p>' +
           (run ? '<div class="progress"><div style="width:' + pct + '%"></div></div><p class="small" style="margin:.4rem 0 0">' + done + ' of ' + total + ' checked — started ' + esc(fmtDate(run.startedAt)) + '</p>' : '') +
-          (lastFinished ? '<div class="small" style="margin:.4rem 0 0;cursor:pointer" data-open-finished="' + tpl.id + '|' + lastFinished.id + '">✓ Finished ' + esc(fmtDate(lastFinished.finishedAt)) + (lastFinished.proof ? ' · 📷 proof taken ' + esc(fmtDate(lastFinished.proofAt || lastFinished.finishedAt)) : ' · no photo yet') + '</div>' +
-            (lastFinished.proof ? '<div class="thumbs"><img src="' + esc(lastFinished.proof) + '" alt="Photo proof" /></div>' : '') : '') +
+          (lastFinished ? '<div class="small" style="margin:.4rem 0 0;cursor:pointer" data-open-finished="' + tpl.id + '|' + lastFinished.id + '">✓ Finished ' + esc(fmtDate(lastFinished.finishedAt)) + (lastProofs.length ? ' · 📷 ' + (lastProofs.length === 1 ? 'proof taken ' + esc(fmtDate(lastProofs[0].takenAt || lastFinished.finishedAt)) : lastProofs.length + ' photos') : ' · no photo yet') + '</div>' +
+            (lastProofs.length ? '<div class="thumbs">' + lastProofs.slice(0, 3).map(function (p) { return '<img src="' + esc(p.data) + '" alt="Photo proof" />'; }).join("") + '</div>' : '') : '') +
           '<div class="btnrow"><button class="btn" data-start="' + tpl.id + '">' + (run ? 'Keep going' : 'Start') + '</button>' +
           (run ? '<button class="btn ghost" data-restart="' + tpl.id + '">Start over</button>' : '') + '</div></div>';
       }).join("");
@@ -1163,7 +1174,7 @@
     $all("[data-restart]", picker).forEach(function (b) {
       b.addEventListener("click", function () {
         var run = activeRun(b.getAttribute("data-restart"));
-        if (run) { run.checks = {}; run.proof = null; run.proofAt = null; save(); }
+        if (run) { run.checks = {}; run.proofs = []; delete run.proof; delete run.proofAt; save(); }
         openChecklistRun(b.getAttribute("data-restart"));
       });
     });
@@ -1302,16 +1313,17 @@
         html += '<div class="add-custom"><input data-group-input="' + g.id + '" type="text" placeholder="Add an item to ' + esc(g.name) + '" maxlength="120" autocomplete="off" />' +
           '<button class="btn" data-group-add="' + g.id + '" type="button">Add item</button></div>';
       });
+      var proofs = proofsOf(run);
       html += '<div class="check-group">Photo proof</div>' +
         '<p class="small muted">Snap the finished sheet, or the work itself — it rides along with this run, for warranty claims and your own records.</p>';
-      if (run.proof) {
-        html += '<img src="' + esc(run.proof) + '" alt="Photo proof" style="width:100%;border-radius:12px;display:block;margin-top:.5rem" />' +
-          '<p class="small muted">Taken ' + esc(fmtDate(run.proofAt || run.finishedAt)) + ' — the date the photo was taken, with the run.</p>' +
-          '<div class="btnrow"><button class="btn ghost block" id="run-proof-replace">📷 Replace the photo</button>' +
-          '<button class="btn ghost block" id="run-proof-remove">Remove the photo</button></div>';
-      } else {
-        html += '<div class="btnrow"><button class="btn ghost block" id="run-proof-add">📷 Add a photo — proof for this run</button></div>';
+      if (proofs.length) {
+        html += '<div class="thumbs">' + proofs.map(function (p) {
+          return '<span style="position:relative"><img src="' + esc(p.data) + '" alt="Photo proof" />' +
+            '<button type="button" data-del-proof="' + p.id + '" style="position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border:none;border-radius:50%;width:1.4rem;height:1.4rem;font-weight:700" aria-label="Remove this photo">×</button></span>';
+        }).join("") + '</div>' +
+          '<p class="small muted">Taken ' + esc(fmtDate(proofs[proofs.length - 1].takenAt || run.finishedAt)) + ' — the date the photo was taken, with the run.</p>';
       }
+      html += '<div class="btnrow"><button class="btn ghost block" id="run-proof-add">📷 ' + (proofs.length ? 'Add another photo' : 'Add a photo — proof for this run') + '</button></div>';
       html += '<div class="btnrow"><button class="btn block" id="run-finish">' + (done === total ? 'Stamp it done' : 'Done for now') + '</button>' +
         '<button class="btn ghost block" id="run-print">🖨 Print this list</button>' +
         '<button class="btn ghost block" id="run-back">Back to checklists</button></div>';
@@ -1389,17 +1401,23 @@
         run.finishedAt = todayISO(); save(); renderChecklists(); toast("Checklist finished — nice and done.");
       });
       function addProof() {
+        var proofs = proofsOf(run);
+        if (proofs.length >= MAX_PHOTOS_PER_LOG) { toast("That's enough photos for one run — 12 is the limit."); return; }
         requestPhoto(function (dataUrl) {
           downscalePhoto(dataUrl).then(function (small) {
             if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); return; }
-            run.proof = small; run.proofAt = todayISO(); save(); draw();
+            proofsOf(run).push({ id: uid(), data: small, takenAt: todayISO() }); save(); draw();
           });
         });
       }
-      var proofAdd = $("#run-proof-add", host), proofReplace = $("#run-proof-replace", host), proofRemove = $("#run-proof-remove", host);
+      var proofAdd = $("#run-proof-add", host);
       if (proofAdd) proofAdd.addEventListener("click", addProof);
-      if (proofReplace) proofReplace.addEventListener("click", addProof);
-      if (proofRemove) proofRemove.addEventListener("click", function () { run.proof = null; run.proofAt = null; save(); draw(); });
+      $all("[data-del-proof]", host).forEach(function (b) {
+        b.addEventListener("click", function () {
+          var id = b.getAttribute("data-del-proof");
+          run.proofs = proofsOf(run).filter(function (p) { return p.id !== id; }); save(); draw();
+        });
+      });
       $("#run-print").addEventListener("click", function () { printChecklistRun(tpl, run, rig); });
       $("#run-back").addEventListener("click", function () { save(); renderChecklists(); });
     }

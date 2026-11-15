@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 52"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 53"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -996,38 +996,49 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the call link goes with the deleted pro", !doc.querySelector('#sheet-host a[href^="tel:"]'));
   click(doc.querySelector("[data-close]")); await sleep(20);
 
-  /* ---- 39. Photo proof on a checklist run ---- */
+  /* ---- 39. Photo proof on a checklist run — more than one ---- */
   console.log("== 39. Photo proof ==");
   R.showScreen("checklists"); await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
   check("the run screen offers a photo proof", !!doc.querySelector("#run-proof-add"));
   var run39 = R.store().runs.find((r) => r.templateId === "pretrip" && !r.finishedAt);
-  run39.proof = FAKE_PHOTO; R.save();
+  run39.proofs = [{ id: "p1", data: FAKE_PHOTO, takenAt: "2026-11-15" }]; R.save();
   click(doc.querySelector("#run-back")); await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
   check("the proof shows in the run", !!doc.querySelector('#checklist-run img[src^="data:image"]'));
-  check("the proof can be replaced or removed", !!doc.querySelector("#run-proof-replace") && !!doc.querySelector("#run-proof-remove"));
+  check("the add button stays after the first photo", !!doc.querySelector("#run-proof-add") && doc.querySelector("#run-proof-add").textContent.includes("Add another photo"));
+  check("each photo carries its own remove button", !!doc.querySelector('[data-del-proof="p1"]'));
+  // a second photo joins the first — nothing is replaced
+  run39.proofs.push({ id: "p2", data: FAKE_PHOTO, takenAt: "2026-11-15" }); R.save();
+  click(doc.querySelector("#run-back")); await sleep(20);
+  click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
+  check("two photos show side by side", doc.querySelectorAll('#checklist-run .thumbs img[src^="data:image"]').length === 2);
+  click(doc.querySelector('[data-del-proof="p1"]')); await sleep(20);
+  check("removing one photo leaves the other", doc.querySelectorAll('#checklist-run .thumbs img[src^="data:image"]').length === 1 && R.store().runs.find((r) => r.id === run39.id).proofs[0].id === "p2");
   doc.querySelectorAll("#checklist-run .check-item").forEach((b) => click(b)); await sleep(20);
   click(doc.querySelector("#run-finish")); await sleep(20);
-  check("the finished run keeps its proof", R.store().runs.some((r) => r.templateId === "pretrip" && r.finishedAt && r.proof === FAKE_PHOTO));
+  check("the finished run keeps its proofs", R.store().runs.some((r) => r.templateId === "pretrip" && r.finishedAt && r.proofs && r.proofs.length === 1 && r.proofs[0].data === FAKE_PHOTO));
   R.showScreen("checklists"); await sleep(20);
   check("the picker shows the finished run with its proof date", doc.querySelector("#checklist-picker").textContent.includes("proof taken"));
   check("the picker shows the proof thumbnail", !!doc.querySelector('#checklist-picker .thumbs img[src^="data:image"]'));
   click(doc.querySelector("[data-open-finished]")); await sleep(20);
   check("tapping the finished line reopens the run with its proof", doc.querySelector("#checklist-run").textContent.includes("Photo proof") && !!doc.querySelector('#checklist-run img[src^="data:image"]'));
-  var reopened = R.store().runs.find((r) => r.templateId === "pretrip" && r.finishedAt && r.proof === FAKE_PHOTO);
-  click(doc.querySelector("#run-proof-remove")); await sleep(20);
-  check("removing the proof clears it", !R.store().runs.find((r) => r.id === reopened.id).proof);
   click(doc.querySelector("#run-back")); await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
   var run39b = R.store().runs.find((r) => r.templateId === "pretrip" && !r.finishedAt);
-  run39b.proof = FAKE_PHOTO; run39b.proofAt = "2026-11-15"; R.save();
+  run39b.proofs = [{ id: "p1", data: FAKE_PHOTO, takenAt: "2026-11-15" }]; R.save();
   click(doc.querySelector("#run-back")); await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
   check("the proof carries its date under the photo", doc.querySelector("#checklist-run").textContent.includes("Taken Sun, Nov 15, 2026"));
   click(doc.querySelector("#run-back")); await sleep(20);
   click(doc.querySelector('[data-restart="pretrip"]')); await sleep(20);
-  check("starting over clears the checks, the proof and its date", Object.keys(run39b.checks).length === 0 && !run39b.proof && !run39b.proofAt);
+  check("starting over clears the checks and the proofs", Object.keys(run39b.checks).length === 0 && run39b.proofs.length === 0);
+  // a run saved with the old single proof migrates to the list on read
+  run39b.proof = FAKE_PHOTO; run39b.proofAt = "2026-11-15"; delete run39b.proofs; R.save();
+  click(doc.querySelector("#run-back")); await sleep(20);
+  click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
+  check("an old single proof still shows after the change", !!doc.querySelector('#checklist-run img[src^="data:image"]'));
+  check("the old proof migrated into the list", run39b.proofs && run39b.proofs.length === 1 && run39b.proofs[0].data === FAKE_PHOTO && !run39b.proof);
   // the real path: snap a photo and the run is date-stamped when taken
   // jsdom never loads images, so the downscale's Image would hang: stub it.
   window.Image = function () { var self = this; this.width = 100; this.height = 100; setTimeout(function () { if (self.onload) self.onload(); }, 0); };
@@ -1038,8 +1049,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   photoInput.dispatchEvent(new window.Event("change", { bubbles: true })); await sleep(100);
   var today = new Date();
   var todayStr = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
-  check("snapping a photo stores it as the proof", !!run39b.proof && run39b.proof.indexOf("data:image/jpeg") === 0);
-  check("the photo is date-stamped when taken", run39b.proofAt === todayStr);
+  check("snapping a photo adds it to the proofs", run39b.proofs.length === 2 && run39b.proofs[1].data.indexOf("data:image/jpeg") === 0);
+  check("the photo is date-stamped when taken", run39b.proofs[1].takenAt === todayStr);
   check("the stamp shows under the photo", doc.querySelector("#checklist-run").textContent.includes("Taken " + today.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })));
   click(doc.querySelector("#run-back")); await sleep(20);
 
