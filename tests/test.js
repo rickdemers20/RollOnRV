@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 53"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 54"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1039,18 +1039,20 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
   check("an old single proof still shows after the change", !!doc.querySelector('#checklist-run img[src^="data:image"]'));
   check("the old proof migrated into the list", run39b.proofs && run39b.proofs.length === 1 && run39b.proofs[0].data === FAKE_PHOTO && !run39b.proof);
-  // the real path: snap a photo and the run is date-stamped when taken
+  // the real path: pick two photos at once and both land, date-stamped
   // jsdom never loads images, so the downscale's Image would hang: stub it.
   window.Image = function () { var self = this; this.width = 100; this.height = 100; setTimeout(function () { if (self.onload) self.onload(); }, 0); };
+  check("the photo picker lets you choose more than one at once", doc.querySelector("#photo-input").hasAttribute("multiple"));
   click(doc.querySelector("#run-proof-add")); await sleep(20);
-  var proofFile = new window.File([new window.Blob(["fake-jpeg"], { type: "image/jpeg" })], "proof.jpg", { type: "image/jpeg" });
+  var proofFile1 = new window.File([new window.Blob(["fake-jpeg-1"], { type: "image/jpeg" })], "proof1.jpg", { type: "image/jpeg" });
+  var proofFile2 = new window.File([new window.Blob(["fake-jpeg-2"], { type: "image/jpeg" })], "proof2.jpg", { type: "image/jpeg" });
   var photoInput = doc.querySelector("#photo-input");
-  Object.defineProperty(photoInput, "files", { value: [proofFile], configurable: true });
-  photoInput.dispatchEvent(new window.Event("change", { bubbles: true })); await sleep(100);
+  Object.defineProperty(photoInput, "files", { value: [proofFile1, proofFile2], configurable: true });
+  photoInput.dispatchEvent(new window.Event("change", { bubbles: true })); await sleep(200);
   var today = new Date();
   var todayStr = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
-  check("snapping a photo adds it to the proofs", run39b.proofs.length === 2 && run39b.proofs[1].data.indexOf("data:image/jpeg") === 0);
-  check("the photo is date-stamped when taken", run39b.proofs[1].takenAt === todayStr);
+  check("picking two photos adds both to the proofs", run39b.proofs.length === 3 && run39b.proofs[1].data.indexOf("data:image/jpeg") === 0 && run39b.proofs[2].data.indexOf("data:image/jpeg") === 0);
+  check("both photos are date-stamped when taken", run39b.proofs[1].takenAt === todayStr && run39b.proofs[2].takenAt === todayStr);
   check("the stamp shows under the photo", doc.querySelector("#checklist-run").textContent.includes("Taken " + today.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })));
   click(doc.querySelector("#run-back")); await sleep(20);
 

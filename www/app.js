@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "53";
+  var APP_VERSION = "54";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -163,7 +163,8 @@
   }
   function pickRigPhoto() {
     var rig = activeRig(); if (!rig) return;
-    requestPhoto(function (dataUrl) {
+    requestPhoto(function (urls) {
+      var dataUrl = urls[0]; if (!dataUrl) return;
       downscalePhoto(dataUrl).then(function (small) {
         if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); return; }
         rig.photo = small; save(); renderHome(); toast("That's the one — your rig's photo is on the home screen.");
@@ -1401,13 +1402,23 @@
         run.finishedAt = todayISO(); save(); renderChecklists(); toast("Checklist finished — nice and done.");
       });
       function addProof() {
-        var proofs = proofsOf(run);
-        if (proofs.length >= MAX_PHOTOS_PER_LOG) { toast("That's enough photos for one run — 12 is the limit."); return; }
-        requestPhoto(function (dataUrl) {
-          downscalePhoto(dataUrl).then(function (small) {
-            if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); return; }
-            proofsOf(run).push({ id: uid(), data: small, takenAt: todayISO() }); save(); draw();
-          });
+        /* One picker session can hand over several photos now (Nov 15:
+           the picker only ever offered one). Each is downscaled and
+           added in turn; the run caps at 12, like log entries. */
+        if (proofsOf(run).length >= MAX_PHOTOS_PER_LOG) { toast("That's enough photos for one run — 12 is the limit."); return; }
+        requestPhoto(function (urls) {
+          var i = 0, added = 0, stopped = false;
+          function finish() { if (added) { save(); draw(); } }
+          (function next() {
+            if (stopped || i >= urls.length) { finish(); return; }
+            var url = urls[i++];
+            downscalePhoto(url).then(function (small) {
+              if (proofsOf(run).length >= MAX_PHOTOS_PER_LOG) { toast("That's enough photos for one run — 12 is the limit."); stopped = true; finish(); return; }
+              if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); stopped = true; finish(); return; }
+              proofsOf(run).push({ id: uid(), data: small, takenAt: todayISO() }); added++;
+              next();
+            });
+          })();
         });
       }
       var proofAdd = $("#run-proof-add", host);
@@ -1782,7 +1793,7 @@
   function storeHasRoom(bytes) {
     try { return (localStorage.getItem(KEY) || "").length + bytes < STORE_SOFT_LIMIT; } catch (e) { return true; }
   }
-  var photoPending = null; // function(dataUrl)
+  var photoPending = null; // function(dataUrls) — one picker session can hand over several photos
   function openPhotoInput() {
     var input = $("#photo-input");
     input.value = "";
@@ -1795,7 +1806,7 @@
         var Camera = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Camera;
         if (Camera && Camera.getPhoto) {
           Camera.getPhoto({ quality: 80, allowEditing: false, resultType: "dataUrl", source: "prompt" })
-            .then(function (r) { var f = photoPending; photoPending = null; if (f && r && r.dataUrl) f(r.dataUrl); })
+            .then(function (r) { var f = photoPending; photoPending = null; if (f && r && r.dataUrl) f([r.dataUrl]); })
             .catch(function (err) {
               /* The native camera call can fail (plugin not answering, no
                  permission, anything else) — and a failed call used to swallow
@@ -1902,12 +1913,19 @@
       costHint();
       $("#lj-photo").addEventListener("click", function () {
         if (draft.photos.length >= MAX_PHOTOS_PER_LOG) { toast("That's enough photos for one entry — 12 is the limit."); return; }
-        requestPhoto(function (dataUrl) {
-          downscalePhoto(dataUrl).then(function (small) {
-            if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); return; }
-            draft.photos.push({ id: uid(), name: "photo", data: small });
-            draw();
-          });
+        requestPhoto(function (urls) {
+          var i = 0, added = 0, stopped = false;
+          function finish() { if (added) draw(); }
+          (function next() {
+            if (stopped || i >= urls.length) { finish(); return; }
+            var url = urls[i++];
+            downscalePhoto(url).then(function (small) {
+              if (draft.photos.length >= MAX_PHOTOS_PER_LOG) { toast("That's enough photos for one entry — 12 is the limit."); stopped = true; finish(); return; }
+              if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); stopped = true; finish(); return; }
+              draft.photos.push({ id: uid(), name: "photo", data: small }); added++;
+              next();
+            });
+          })();
         });
       });
       $all("[data-del-photo]", sheetHost).forEach(function (b) {
@@ -2591,12 +2609,20 @@
       location.reload();
     });
     $("#photo-input").addEventListener("change", function (e) {
-      var file = e.target.files && e.target.files[0];
+      /* The picker offers several photos at once now (Nov 15: it only
+         ever offered one). Read every chosen file, in order, and hand
+         the whole batch to whoever is waiting for photos. */
+      var files = e.target.files ? Array.prototype.slice.call(e.target.files) : [];
       var cb = photoPending; photoPending = null;
-      if (!file || !cb) return;
-      var reader = new FileReader();
-      reader.onload = function () { cb(String(reader.result || "")); };
-      reader.readAsDataURL(file);
+      if (!files.length || !cb) return;
+      var urls = [], i = 0;
+      (function readNext() {
+        if (i >= files.length) { cb(urls); return; }
+        var reader = new FileReader();
+        reader.onload = function () { urls.push(String(reader.result || "")); i++; readNext(); };
+        reader.onerror = function () { i++; readNext(); };
+        reader.readAsDataURL(files[i]);
+      })();
       e.target.value = "";
     });
   }
