@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 55"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 56"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
   console.log("== 28. editable heading ==");
@@ -1211,6 +1211,22 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   // sheet scales itself to 80% — same result on paper.
   check("the app's print rules scale the sheet to 80%", css.includes("body{ background:#fff !important; zoom:0.8; }"));
   check("the print page scales the sheet to 80%", printHtml.includes("body{zoom:0.8;}"));
+
+  /* ---- 50. the sheet Close button never covers the instructions ---- */
+  console.log("== 50. sheet Close button ==");
+  // The Close button used to ride up on a negative margin and sit on
+  // top of the subtitle's last words (Nov 15: "Add a task" sheet, it
+  // covered "just once."). Now it sits beside the title and the
+  // instructions run full-width underneath.
+  R.showScreen("logbook"); await sleep(20);
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  var sheetHeadEl = doc.querySelector(".sheet-head");
+  check("the sheet header is a title row", !!sheetHeadEl && !!sheetHeadEl.querySelector("h2"));
+  check("Close sits in the title row, beside the title", !!sheetHeadEl && !!sheetHeadEl.querySelector('[data-close]'));
+  var sheetSub = doc.querySelector("#sheet-host .sheet > p.muted");
+  check("the instructions sit below the title row, full-width", !!sheetSub && sheetSub.textContent.includes("Something the rig needs") && !sheetHeadEl.contains(sheetSub));
+  check("no sheet header pulls the button up over the text", !appJs.includes("margin:-2.4rem"));
+  click(doc.querySelector('[data-close]')); await sleep(20);
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");

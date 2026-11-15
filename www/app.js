@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "55";
+  var APP_VERSION = "56";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -1754,8 +1754,13 @@
   }
   function closeSheet() { if (sheetHost) { sheetHost.hidden = true; sheetHost.innerHTML = ""; } }
   function sheetHead(title, sub) {
-    return '<h2>' + title + '</h2>' + (sub ? '<p class="muted">' + sub + '</p>' : '') +
-      '<div style="text-align:right;margin:-2.4rem 0 .6rem"><button class="btn small ghost" data-close type="button">Close</button></div>';
+    /* The Close button sits beside the title (Nov 15: it used to ride
+       up on a negative margin and cover the subtitle's last words —
+       on the "Add a task" sheet it sat on top of "just once."). The
+       instructions run full-width underneath, so nothing ever overlaps. */
+    return '<div class="sheet-head"><h2>' + title + '</h2>' +
+      '<button class="btn small ghost" data-close type="button">Close</button></div>' +
+      (sub ? '<p class="muted">' + sub + '</p>' : '');
   }
   function wireClose(root) {
     $all("[data-close]", root || document).forEach(function (b) { b.addEventListener("click", closeSheet); });
