@@ -85,16 +85,19 @@ jobs:
         with:
           name: rollonrv-ios-ipa
           path: build/*.ipa
-      # Upload the signed .ipa to TestFlight — only runs when the API key exists.
+      # Upload the signed .ipa to TestFlight — only runs when the API key exists
+      # AND a signed .ipa was produced (i.e. the provisioning profile is set).
       - name: Find .ipa
-        if: env.APPLE_API_KEY_ID != ''
+        if: env.APPLE_PROVISIONING_PROFILE_BASE64 != '' && env.APPLE_API_KEY_ID != ''
         id: find-ipa
         env:
+          APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
         run: echo "ipa-path=$(ls build/*.ipa | head -1)" >> $GITHUB_OUTPUT
       - name: Upload to TestFlight
-        if: env.APPLE_API_KEY_ID != ''
+        if: env.APPLE_PROVISIONING_PROFILE_BASE64 != '' && env.APPLE_API_KEY_ID != ''
         env:
+          APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
           APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
