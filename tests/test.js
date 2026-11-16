@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 69"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 70"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1538,6 +1538,30 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#run-finish")); await sleep(20);
   check("stamping it done returns to the top of the picker", scrolled60 > 0);
   window.scrollTo = realScroll60;
+
+  /* ---- 61. Did you know? tips on Home ---- */
+  console.log("== 61. home tips card ==");
+  // Nov 16: Rick — a few hundred tips on the front page only, in our
+  // own words; Next tip walks the list, Dismiss hides it till tomorrow.
+  check("two hundred tips", R.TIPS.length === 200);
+  check("tips are all different", new Set(R.TIPS.map(function (t) { return t.trim().toLowerCase(); })).size === 200);
+  check("tips are all short plain lines", R.TIPS.every(function (t) { return typeof t === "string" && t.trim().length > 10 && t.length <= 400; }));
+  R.showScreen("home"); R.renderHome(); await sleep(20);
+  const tipCard = doc.querySelector("#home-tip-card");
+  check("tips card shows on Home", tipCard && !tipCard.hidden);
+  const firstTip = doc.querySelector("#home-tip-text").textContent;
+  check("first tip is tip one", firstTip === R.TIPS[0]);
+  click(doc.querySelector("#home-tip-next")); await sleep(20);
+  check("Next tip moves to the next tip", doc.querySelector("#home-tip-text").textContent === R.TIPS[1]);
+  R.store().settings.tipIndex = 199; R.renderHome(); await sleep(20);
+  click(doc.querySelector("#home-tip-next")); await sleep(20);
+  check("Next tip wraps back to the start", doc.querySelector("#home-tip-text").textContent === R.TIPS[0]);
+  click(doc.querySelector("#home-tip-dismiss")); await sleep(20);
+  check("Dismiss hides the card", doc.querySelector("#home-tip-card").hidden);
+  R.renderHome(); await sleep(20);
+  check("dismissed today stays hidden", doc.querySelector("#home-tip-card").hidden);
+  delete R.store().settings.tipsDismissed; R.renderHome(); await sleep(20);
+  check("card comes back another day", !doc.querySelector("#home-tip-card").hidden);
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");

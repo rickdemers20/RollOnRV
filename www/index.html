@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="RollOnRV" />
-<link rel="stylesheet" href="styles.css?v=69" />
+<link rel="stylesheet" href="styles.css?v=70" />
 <script>try{var _t=localStorage.getItem("rollonrv-theme");if(_t==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
 </head>
 <body>
@@ -112,6 +112,11 @@
     <div class="card">
       <h2>Spent this year</h2>
       <div id="home-spent"></div>
+    </div>
+    <div class="card" id="home-tip-card">
+      <h2>Did you know?</h2>
+      <p id="home-tip-text"></p>
+      <div class="btnrow"><button class="btn small ghost tiny" id="home-tip-next" type="button">Next tip</button><button class="btn small ghost tiny" id="home-tip-dismiss" type="button">Dismiss</button></div>
     </div>
   </section>
 
@@ -367,6 +372,6 @@
      stylesheet hides the app itself, so only this page comes out -->
 <div id="print-sheet" aria-hidden="true"></div>
 
-<script src="app.js?v=69"></script>
+<script src="app.js?v=70"></script>
 </body>
 </html>

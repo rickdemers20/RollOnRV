@@ -568,3 +568,11 @@ TestFlight build 24: version stays 1.0; build number goes 23 → 24 (`CURRENT_PR
 Rick (1:21 AM, testing build 24 on his phone, screenshot): two fixes. (1) On Departure Tear-Down, swap the two unchecked Hookups lines — "Tanks dumped, valves closed" now comes BEFORE "Sewer hose rinsed, capped & stowed" (dump first, then rinse the hose). (2) After stamping a list done, the picker came back at the bottom of the screen, and the next list opened at the bottom too — a run now opens at the top of the screen, and going back / stamping it done returns the picker to the top. Suite **476 passed, 0 failed** (new section 60 — departure order + scroll-to-top spy).
 
 TestFlight build 25: version stays 1.0; build number goes 24 → 25 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).
+
+**Build 25 (v69) VALID Nov 16 01:34** (run 43824278502, commit `67a657b3`, uploaded 07:34:43 UTC, expires 2027-02-13; buildUpload COMPLETE errors [] warnings []). Still needed (browser step): answer export compliance for build 25 and assign it to the Internal Testers group — a new build needs compliance answered again.
+
+## Build 70 — "Did you know?" tips on Home (Nov 16, 2026)
+
+Rick (2:30 AM, with an RVKeeper screenshot of its DID YOU KNOW card): add tips to the front page only — "maybe a few hundred" — "only if you can find them online somewhere maybe change the wording to make them ours". So: **200 tips** in our own words (facts are general RV know-how, wording is ours — no copied sentences), on the Home screen only: a "Did you know?" card under Spent this year, one tip at a time, "Next tip" walks the list in order and wraps, "Dismiss" hides the card till tomorrow (stored per device: settings.tipIndex / settings.tipsDismissed). Four batches of 50 — maintenance & systems, driving/towing/setup, camping & boondocking, seasons/storage/safety/money. Suite **486 passed, 0 failed** (new section 61 — 200 unique tips, Next tip, wrap, Dismiss till tomorrow).
+
+TestFlight build 26: version stays 1.0; build number goes 25 → 26 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).
