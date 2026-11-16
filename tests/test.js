@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 68"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 69"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1516,6 +1516,28 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the toad stays off on the next run", doc.querySelectorAll("#checklist-run .check-item").length === base - 1);
   click(doc.querySelector('[data-restore-builtin="toad"]')); await sleep(20);
   check("put back works on the next run too", doc.querySelectorAll("#checklist-run .check-item").length === base);
+
+  /* ---- 60. departure order + lists open at the top ---- */
+  console.log("== 60. departure order, scroll to top ==");
+  // Nov 16: Rick — dump the tanks BEFORE rinsing the sewer hose, and a
+  // list must open at the top, not where the last one left off.
+  var scrolled60 = 0;
+  var realScroll60 = window.scrollTo;
+  window.scrollTo = function () { scrolled60++; };
+  R.showScreen("checklists");
+  scrolled60 = 0;
+  click(doc.querySelector('[data-start="departure"]')); await sleep(20);
+  check("opening a list starts at the top", scrolled60 > 0);
+  const run60 = doc.querySelector("#checklist-run").textContent;
+  check("tanks dump before the sewer hose rinse", run60.indexOf("Tanks dumped, valves closed") !== -1 && run60.indexOf("Tanks dumped, valves closed") < run60.indexOf("Sewer hose rinsed, capped & stowed"));
+  scrolled60 = 0;
+  click(doc.querySelector("#run-back")); await sleep(20);
+  check("going back to the picker starts at the top", scrolled60 > 0);
+  click(doc.querySelector('[data-start="departure"]')); await sleep(20);
+  scrolled60 = 0;
+  click(doc.querySelector("#run-finish")); await sleep(20);
+  check("stamping it done returns to the top of the picker", scrolled60 > 0);
+  window.scrollTo = realScroll60;
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");

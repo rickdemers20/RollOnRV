@@ -560,3 +560,11 @@ TestFlight build 23: version stays 1.0; build number goes 22 → 23 (`CURRENT_PR
 Rick: "Can you change the word truck to Toad". One-word label change: the flat-tow line is now "Toad in flat tow mode" (was "Truck in flat tow mode"). Suite **472 passed, 0 failed**.
 
 TestFlight build 24: version stays 1.0; build number goes 23 → 24 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).
+
+**Build 24 (v68) VALID Nov 15 19:05** (run 43783628588, commit `66638df1`, uploaded 01:05:18 UTC Nov 16, expires 2027-02-13; buildUpload COMPLETE errors [] warnings []). Still needed (browser step): answer export compliance for build 24 and assign it to the Internal Testers group — a new build needs compliance answered again.
+
+## Build 69 — Departure order + lists open at the top (Nov 16, 2026)
+
+Rick (1:21 AM, testing build 24 on his phone, screenshot): two fixes. (1) On Departure Tear-Down, swap the two unchecked Hookups lines — "Tanks dumped, valves closed" now comes BEFORE "Sewer hose rinsed, capped & stowed" (dump first, then rinse the hose). (2) After stamping a list done, the picker came back at the bottom of the screen, and the next list opened at the bottom too — a run now opens at the top of the screen, and going back / stamping it done returns the picker to the top. Suite **476 passed, 0 failed** (new section 60 — departure order + scroll-to-top spy).
+
+TestFlight build 25: version stays 1.0; build number goes 24 → 25 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).

@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "68";
+  var APP_VERSION = "69";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -686,8 +686,8 @@
         { name: "Hookups", items: [
           { id: "power3", label: "Shore power unplugged & stowed" },
           { id: "water3", label: "Water hose drained & stowed" },
-          { id: "sewer3", label: "Sewer hose rinsed, capped & stowed" },
-          { id: "tanks", label: "Tanks dumped, valves closed" }
+          { id: "tanks", label: "Tanks dumped, valves closed" },
+          { id: "sewer3", label: "Sewer hose rinsed, capped & stowed" }
         ]},
         { name: "Inside", items: [
           { id: "fridge3", label: "Fridge latched, mode set for travel" },
@@ -1540,7 +1540,7 @@
       $("#custom-item-add", host).addEventListener("click", addCustom);
       input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); addCustom(); } });
       $("#run-finish").addEventListener("click", function () {
-        run.finishedAt = todayISO(); save(); renderChecklists(); toast("Checklist finished — nice and done.");
+        run.finishedAt = todayISO(); save(); renderChecklists(); try { window.scrollTo(0, 0); } catch (e) {} toast("Checklist finished — nice and done.");
       });
       function addProof() {
         /* One picker session can hand over several photos now (Nov 15:
@@ -1571,9 +1571,12 @@
         });
       });
       $("#run-print").addEventListener("click", function () { printChecklistRun(tpl, run, rig); });
-      $("#run-back").addEventListener("click", function () { save(); renderChecklists(); });
+      $("#run-back").addEventListener("click", function () { save(); renderChecklists(); try { window.scrollTo(0, 0); } catch (e) {} });
     }
     draw();
+    /* A list always opens at the top (Nov 16: Rick — after stamping one
+       list done, the next one opened at the bottom of the screen). */
+    try { window.scrollTo(0, 0); } catch (e) {}
   }
 
   /* ---------------- Tires --------------------------------------------------- */
