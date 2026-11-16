@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "72";
+  var APP_VERSION = "73";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -2289,6 +2289,7 @@
       '<div class="row"><div class="grow"><div class="title">Odometer</div></div><b>' + num(rig.mileage) + ' mi</b></div>' +
       '<div class="row"><div class="grow"><div class="title">Generator hours</div></div><b>' + num(rig.genHours) + ' hrs</b></div>' +
       '<div class="row"><div class="grow"><div class="title">Tire pressures</div></div><b>' + (rig.psiFront ? rig.psiFront + " / " + (rig.psiRear || "—") + " psi" : "Not set") + '</b></div>';
+    proRefreshPremiumCard();
   }
 
   /* ---------------- sheets (modals) ---------------------------------------- */
@@ -2543,6 +2544,236 @@
         }).catch(function () {});
       } catch (e) {}
     }
+  }
+
+  /* ---------------- RollOnRV Pro (v73 foundation) -------------------------- */
+  // The store pattern is ported from the Bible study app (Build 7), which
+  // proved it: capacitor-plugin-cdv-purchase v13 (window.CdvPurchase,
+  // loaded from cdv-purchase-store.js). Products must exist in App Store
+  // Connect / Play Console with these exact IDs before a sandbox purchase
+  // can be tested. Everything here no-ops on the web (no native bridge)
+  // and falls back to the "not open yet" note. Never use bare `store`
+  // here — that name is the app's own localStorage data store; the
+  // purchase store is always window.CdvPurchase.store.
+  //
+  // The lesson from the other app (Nov 16 — it took forever to treat him
+  // as Pro after he paid, and he left them a bad review): unlock LOCALLY
+  // the instant the store confirms. Re-check on every launch. Restore
+  // Purchases button for a fresh install. Never ship premium untested.
+  var PRO_PRODUCT_IDS = {
+    monthly: "rollonrv_premium_monthly",
+    yearly: "rollonrv_premium_yearly",
+    lifetime: "rollonrv_premium_lifetime"
+  };
+  var PRO_PRICES = { monthly: "$3.99/mo", yearly: "$39.99/yr", lifetime: "$79.99" };
+  var PRO_CONFIG = {
+    // dev builds only: true unlocks Pro locally for testing. Always false
+    // in release. (Same pattern as the Bible app's NOVA_CONFIG.devUnlock.)
+    // How the owner gets Pro for free in production: the same way any
+    // subscriber does — an App Store offer code or a Google Play promo
+    // code, redeemed in the store app. The store then replays the
+    // entitlement through the normal verified chain below and the app
+    // grants it. No account, no backdoor, nothing special in the code.
+    devUnlock: false
+  };
+  var proStoreReady = false;
+  function getPremium() {
+    var s = store.settings || {};
+    var p = s.premium;
+    if (!p || typeof p !== "object") p = {};
+    if (p.status !== "premium") p.status = "free";
+    if (typeof p.productId !== "string") p.productId = null;
+    if (typeof p.since !== "number") p.since = null;
+    s.premium = p;
+    store.settings = s;
+    return p;
+  }
+  function savePremium() { save(); }
+  function isPro() {
+    if (PRO_CONFIG.devUnlock) return true;
+    return getPremium().status === "premium";
+  }
+  function proPlanLabel(productId) {
+    if (productId === PRO_PRODUCT_IDS.monthly) return "Monthly";
+    if (productId === PRO_PRODUCT_IDS.yearly) return "Yearly";
+    if (productId === PRO_PRODUCT_IDS.lifetime) return "Lifetime";
+    return "";
+  }
+  function grantPremium(productId) {
+    var p = getPremium();
+    p.status = "premium";
+    p.productId = productId || null;
+    p.since = Date.now();
+    savePremium();
+    proRefreshStatus();
+  }
+  function proStoreAvailable() {
+    try {
+      return typeof window !== "undefined" &&
+        typeof window.CdvPurchase !== "undefined" &&
+        typeof window.Capacitor !== "undefined" &&
+        typeof window.Capacitor.isNativePlatform === "function" &&
+        window.Capacitor.isNativePlatform();
+    } catch (e) { return false; }
+  }
+  function proStoreNote(msg) {
+    var note = $(".pro-note");
+    if (note) { note.textContent = msg; return; }
+    toast(msg);
+  }
+  function proProductIdFromReceipt(receipt) {
+    var ids = [PRO_PRODUCT_IDS.monthly, PRO_PRODUCT_IDS.yearly, PRO_PRODUCT_IDS.lifetime];
+    try {
+      var txs = (receipt && receipt.sourceReceipt && receipt.sourceReceipt.transactions) || [];
+      for (var i = txs.length - 1; i >= 0; i--) {
+        var prods = txs[i].products || [];
+        for (var j = 0; j < prods.length; j++) {
+          if (prods[j] && ids.indexOf(prods[j].id) !== -1) return prods[j].id;
+        }
+      }
+      // The receipt's own id is the validated product id.
+      if (receipt && receipt.id && ids.indexOf(receipt.id) !== -1) return receipt.id;
+    } catch (e) {}
+    return null;
+  }
+  // The store replays owned entitlements through the verified chain on
+  // launch, so a returning Pro user is Pro again without tapping
+  // anything. The other direction matters too: when a subscription has
+  // ended, the store stops replaying it, so a stored grant must not
+  // live forever. Once the store is ready, check what is actually owned
+  // and clear a grant nothing backs. Offline the store cannot confirm
+  // either way, so the stored grant stands until the phone is back.
+  function proRecheckOwnership() {
+    if (PRO_CONFIG.devUnlock) return;
+    var p = getPremium();
+    if (p.status !== "premium") return;
+    try {
+      if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+      var S = window.CdvPurchase;
+      if (!S || !S.store || typeof S.store.owned !== "function") return;
+      var owned = S.store.owned(PRO_PRODUCT_IDS.monthly) ||
+        S.store.owned(PRO_PRODUCT_IDS.yearly) ||
+        S.store.owned(PRO_PRODUCT_IDS.lifetime);
+      if (!owned) {
+        p.status = "free"; p.productId = null; p.since = null;
+        savePremium();
+        proRefreshStatus();
+      }
+    } catch (e) {}
+  }
+  function proRefreshPremiumCard() {
+    var card = $("#premium-card"); if (!card) return;
+    var title = $("#premium-title"); var blurb = $("#premium-blurb"); var btn = $("#premium-open-btn");
+    if (!title || !blurb || !btn) return;
+    if (isPro()) {
+      var p = getPremium();
+      title.innerHTML = 'Premium <span class="hand">— active</span>';
+      blurb.textContent = "Pro is on" +
+        (p.productId ? " — " + proPlanLabel(p.productId) : "") +
+        (p.since ? " since " + fmtDate(new Date(p.since).toISOString().slice(0, 10)) : "") +
+        ". The ownership report, the Rig Binder, parts & warranty tracking, more rigs, and backup are yours.";
+      btn.textContent = "Pro is active";
+    } else {
+      title.innerHTML = 'Premium <span class="hand">— a drawer for later</span>';
+      blurb.textContent = "The free core is the whole book, and it stays free. Pro adds the extras behind the door: the ownership report, the Rig Binder document vault, parts & warranty tracking, more than one rig, and backup.";
+      btn.textContent = "See Pro plans";
+    }
+  }
+  function proRefreshStatus() {
+    proRefreshPremiumCard();
+    if ($("#pro-paywall")) openProPaywall();
+  }
+  function proStoreInit() {
+    if (!proStoreAvailable() || proStoreReady) return;
+    try {
+      var S = window.CdvPurchase;
+      var platform = window.Capacitor.getPlatform() === "ios" ? S.Platform.APPLE_APPSTORE : S.Platform.GOOGLE_PLAY;
+      S.store.register([
+        { id: PRO_PRODUCT_IDS.monthly, type: S.ProductType.PAID_SUBSCRIPTION, platform: platform },
+        { id: PRO_PRODUCT_IDS.yearly, type: S.ProductType.PAID_SUBSCRIPTION, platform: platform },
+        { id: PRO_PRODUCT_IDS.lifetime, type: S.ProductType.NON_CONSUMABLE, platform: platform }
+      ]);
+      S.store.when()
+        .approved(function (transaction) { transaction.verify(); })
+        .verified(function (receipt) {
+          // Grant on .verified — that IS the instant unlock. Finish only
+          // after the grant, so a purchase is never paid for and lost.
+          grantPremium(proProductIdFromReceipt(receipt));
+          receipt.finish();
+        })
+        .error(function (err) {
+          if (err && err.code === S.ErrorCode.PAYMENT_CANCELLED) proStoreNote("Purchase cancelled — nothing was charged.");
+          else proStoreNote("The store reported a problem. Please try again.");
+        });
+      S.store.ready(function () { proRecheckOwnership(); });
+      S.store.initialize();
+      proStoreReady = true;
+    } catch (e) { /* store unavailable — subscribe falls back to the note */ }
+  }
+  function proRestorePurchases() {
+    if (!proStoreAvailable()) {
+      proStoreNote("Restore works in the app once the Pro products are set up in the App Store / Google Play.");
+      return;
+    }
+    try {
+      proStoreNote("Checking your purchases…");
+      window.CdvPurchase.store.restorePurchases();
+    } catch (e) {
+      proStoreNote("Restore couldn't run right now. Please try again.");
+    }
+  }
+  function proSubscribe(plan) {
+    if (!proStoreAvailable()) {
+      // No native store (web, or products not wired yet): say so plainly
+      // instead of taking anyone's money or failing quietly.
+      proStoreNote("Subscriptions aren't open yet — the Pro products are still being set up in the App Store and Google Play. Check back soon.");
+      return;
+    }
+    var productId = PRO_PRODUCT_IDS[plan] || PRO_PRODUCT_IDS.monthly;
+    proStoreNote("Opening the store…");
+    try {
+      window.CdvPurchase.store.order(productId);
+    } catch (e) {
+      proStoreNote("The store couldn't open the purchase. Please try again.");
+    }
+  }
+  // The paywall has to do the selling — there is no free trial, so the
+  // door has a window: every Pro feature is named plainly, with what it
+  // does, before any price appears. Pay from day one.
+  function proPaywallHTML() {
+    var pro = isPro();
+    var p = getPremium();
+    var html = sheetHead("RollOnRV Pro", "The free core is the whole book, and it stays free. Pro opens the extras behind the door.") +
+      '<div id="pro-paywall">' +
+      '<p class="small"><b>Ownership report.</b> One clean PDF of the whole book, ready to hand a buyer when you sell the rig.</p>' +
+      '<p class="small"><b>Rig Binder.</b> Your document vault — registration, insurance, warranties, manuals — with expiry alerts so nothing lapses quietly.</p>' +
+      '<p class="small"><b>Parts &amp; warranty tracking.</b> Every part you bought, what it cost, and when its warranty runs out.</p>' +
+      '<p class="small"><b>More than one rig.</b> A book for each rig you own, in the same app.</p>' +
+      '<p class="small"><b>Backup.</b> A copy of your book, safe if the phone is lost or replaced.</p>' +
+      '<p class="small"><b>Subscribe now and your rate never goes up.</b> Early subscribers keep their rate — if the price goes up later for new subscribers, yours stays where it is.</p>';
+    if (pro) {
+      html += '<p class="small"><b>Pro is active' +
+        (p.productId ? " — " + proPlanLabel(p.productId) : "") +
+        (p.since ? " since " + fmtDate(new Date(p.since).toISOString().slice(0, 10)) : "") +
+        '.</b> The extras above are yours.</p>';
+    } else {
+      html += '<div class="field"><label>Choose a plan</label>' +
+        '<div class="btnrow"><button class="btn block" id="pro-buy-monthly" type="button">Monthly — $3.99 a month</button></div>' +
+        '<div class="btnrow"><button class="btn block" id="pro-buy-yearly" type="button">Yearly — $39.99 a year</button></div>' +
+        '<div class="btnrow"><button class="btn block" id="pro-buy-lifetime" type="button">Lifetime — $79.99 once, yours forever</button></div></div>';
+    }
+    html += '<div class="btnrow"><button class="btn secondary block" id="pro-restore" type="button">Restore Purchases</button></div>' +
+      '<p class="muted small pro-note">' + (proStoreAvailable() ? "" : "Subscriptions aren't open yet — the Pro products are still being set up in the App Store and Google Play. Check back soon.") + '</p>' +
+      '<div class="btnrow"><button class="btn block" data-close type="button">Done</button></div></div>';
+    return html;
+  }
+  function openProPaywall() {
+    openSheet(proPaywallHTML());
+    wireClose(sheetHost);
+    var m = $("#pro-buy-monthly"); if (m) m.addEventListener("click", function () { proSubscribe("monthly"); });
+    var y = $("#pro-buy-yearly"); if (y) y.addEventListener("click", function () { proSubscribe("yearly"); });
+    var l = $("#pro-buy-lifetime"); if (l) l.addEventListener("click", function () { proSubscribe("lifetime"); });
+    var r = $("#pro-restore"); if (r) r.addEventListener("click", proRestorePurchases);
   }
 
   /* ---------------- log-a-job sheet ----------------------------------------- */
@@ -3254,6 +3485,7 @@
     $("#parts-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
     $("#pros-open-btn").addEventListener("click", function () { showScreen("pros"); });
     $("#reminders-open-btn").addEventListener("click", openRemindersSheet);
+    $("#premium-open-btn").addEventListener("click", openProPaywall);
     $("#pros-add-btn").addEventListener("click", function () { openProSheet(null); });
     $("#pros-back-btn").addEventListener("click", function () { showScreen("home"); });
     $("#pros-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
@@ -3360,6 +3592,7 @@
       showScreen("home");
     }
     scheduleReminders();
+    proStoreInit();
   }
 
   /* ---------------- test hooks (not shipped UI — used by tests/test.js) ------ */
@@ -3378,6 +3611,12 @@
     cleanTaskTitle: cleanTaskTitle,
     parseCSV: parseCSV, CHECKLISTS: CHECKLISTS, STARTER_TASKS: STARTER_TASKS, CATEGORIES: CATEGORIES, TIPS: TIPS,
     GUIDANCE: GUIDANCE, guidanceFor: guidanceFor,
+    getPremium: getPremium, isPro: isPro, grantPremium: grantPremium,
+    proStoreAvailable: proStoreAvailable, proStoreInit: proStoreInit,
+    proSubscribe: proSubscribe, proRestorePurchases: proRestorePurchases,
+    proPaywallHTML: proPaywallHTML, openProPaywall: openProPaywall,
+    proRecheckOwnership: proRecheckOwnership, proProductIdFromReceipt: proProductIdFromReceipt,
+    PRO_PRODUCT_IDS: PRO_PRODUCT_IDS, PRO_PRICES: PRO_PRICES, PRO_CONFIG: PRO_CONFIG,
     rigSilhouette: rigSilhouette, setRigPhoto: setRigPhoto,
     photoPendingSet: function () { return !!photoPending; },
     setTheme: setTheme, currentTheme: currentTheme,

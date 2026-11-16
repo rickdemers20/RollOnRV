@@ -22,13 +22,20 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 (async () => {
   console.log("RollOnRV v1 test harness (fake data only)\n");
 
-  /* ---- static guardrails: no copying, no paywalls, no AI, no seed data ---- */
+  /* ---- static guardrails: no copying, no AI, no seed data (store code is the v73 Pro foundation) ---- */
   console.log("== guardrails ==");
   const wwwText = html + appJs + css;
   check("no 'Keeper' anywhere in the app", !/keeper/i.test(wwwText));
   check("no Schedule Mode / Focus Mode", !/schedule mode|focus mode/i.test(wwwText));
-  check("no Rig Binder", !/rig binder/i.test(wwwText));
-  check("no store / paywall / subscription code", !/cdv-purchase|StoreKit|in-app purchase|subscribe/i.test(appJs));
+  // Nov 16 (v73): "Rig Binder" is the decided name of the Pro document
+  // vault — the paywall names it plainly. The old "never say it" check
+  // ended when the name was chosen.
+  check("store bundle is wired into the page", html.indexOf("cdv-purchase-store.js") !== -1);
+  // Nov 16 (v73): the Pro foundation ADDS store code — the old "no
+  // store/paywall code" guardrail ended with it. What stays forbidden is
+  // reaching past the plugin to the native store APIs directly.
+  check("store code goes through cdv-purchase (no raw StoreKit calls)", !/StoreKit/.test(appJs));
+  check("store code is present (register / verified grant / restore)", /\.store\.register\(/.test(appJs) && /CdvPurchase\.store\.restorePurchases/.test(appJs));
   check("no AI / Gemini references", !/gemini|openai|chatgpt/i.test(appJs));
   check("no hard-coded real rig (Bay Star / 24,451 / 284 hrs)", !/bay star|24,?451|284 (gen )?hrs/i.test(wwwText));
   check("no AI-generated or stock image references", !/unsplash|pexels|picsum|placehold\.co|placeholder\.com/i.test(wwwText));
@@ -734,7 +741,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 72"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 73"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1675,6 +1682,92 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   R.store().tasks.push(gTask63c);
   R.openTaskSheet(gTask63c.id); await sleep(20);
   check("an unmatched job shows no guidance sections at all", !doc.querySelector("#ts-guidance") && !!doc.querySelector("#ts-log"));
+
+  /* ---- 64. RollOnRV Pro foundation (v73) ---- */
+  console.log("== 64. Pro foundation ==");
+  // Nov 16: Pro unlocks locally the instant the store confirms, re-checks
+  // on every launch, and the paywall shows what's behind the door — no
+  // free trial, pay from day one.
+  check("premium starts free, not Pro", R.getPremium().status === "free" && R.isPro() === false);
+  check("dev unlock is off in this build", R.PRO_CONFIG.devUnlock === false);
+  check("three Pro products, right prices", R.PRO_PRODUCT_IDS.monthly === "rollonrv_premium_monthly" && R.PRO_PRODUCT_IDS.yearly === "rollonrv_premium_yearly" && R.PRO_PRODUCT_IDS.lifetime === "rollonrv_premium_lifetime" && R.PRO_PRICES.monthly === "$3.99/mo" && R.PRO_PRICES.yearly === "$39.99/yr" && R.PRO_PRICES.lifetime === "$79.99");
+  const pwFree = R.proPaywallHTML();
+  check("paywall names every Pro feature plainly", ["Ownership report", "Rig Binder", "Parts &amp; warranty tracking", "More than one rig", "Backup"].every(function (f) { return pwFree.indexOf(f) !== -1; }));
+  check("paywall shows the three prices", pwFree.indexOf("$3.99") !== -1 && pwFree.indexOf("$39.99") !== -1 && pwFree.indexOf("$79.99") !== -1);
+  check("paywall carries the grandfathered-rate line", pwFree.indexOf("Subscribe now and your rate never goes up") !== -1);
+  check("paywall has a Restore Purchases button", pwFree.indexOf("Restore Purchases") !== -1);
+  check("paywall never mentions a free trial", !/trial/i.test(pwFree));
+  check("paywall has no links out of the app", pwFree.indexOf("<a ") === -1 && pwFree.indexOf("youtube") === -1 && pwFree.indexOf("http") === -1);
+  check("web preview: the store is not available", R.proStoreAvailable() === false);
+  check("web preview: the paywall says subscriptions aren't open yet", pwFree.indexOf("aren't open yet") !== -1);
+  R.openProPaywall(); await sleep(20);
+  check("the Premium card opens the paywall sheet", !!doc.querySelector("#pro-paywall"));
+  R.proSubscribe("monthly"); await sleep(20);
+  check("web preview: subscribing shows the not-open-yet note, never orders", doc.querySelector(".pro-note").textContent.indexOf("aren't open yet") !== -1);
+  R.proRestorePurchases(); await sleep(20);
+  check("web preview: restore says it works once products are set up", doc.querySelector(".pro-note").textContent.indexOf("once the Pro products are set up") !== -1);
+  // Grant: the unlock a verified receipt produces.
+  R.grantPremium("rollonrv_premium_yearly");
+  check("granting premium makes the book Pro", R.isPro() === true && R.getPremium().productId === "rollonrv_premium_yearly" && typeof R.getPremium().since === "number");
+  check("the More card shows Pro as active", doc.querySelector("#premium-title").textContent.indexOf("active") !== -1 && doc.querySelector("#premium-open-btn").textContent.indexOf("Pro is active") !== -1);
+  const pwPro = R.proPaywallHTML();
+  check("the paywall shows the active state, not the plan buttons", pwPro.indexOf("Pro is active") !== -1 && pwPro.indexOf("pro-buy-monthly") === -1 && pwPro.indexOf("pro-buy-yearly") === -1 && pwPro.indexOf("pro-buy-lifetime") === -1);
+  R.store().settings.premium = { status: "free", productId: null, since: null };
+  R.openProPaywall(); await sleep(20);
+  check("back to free, the paywall offers the plans again", R.isPro() === false && !!doc.querySelector("#pro-buy-monthly") && !!doc.querySelector("#pro-buy-yearly") && !!doc.querySelector("#pro-buy-lifetime"));
+  // A fake native store, driving the real init / grant / restore code.
+  const fakeChain = {};
+  const fakeStore = {
+    _owned: [], ordered: null, restored: false, readyCb: null,
+    registered: null, initialized: false,
+    register(list) { this.registered = list; },
+    when() { return fakeChain; },
+    initialize() { this.initialized = true; },
+    order(id) { this.ordered = id; },
+    restorePurchases() { this.restored = true; },
+    ready(cb) { this.readyCb = cb; },
+    owned(id) { return this._owned.indexOf(id) !== -1; },
+  };
+  fakeChain.approved = function (fn) { fakeStore.approvedFn = fn; return fakeChain; };
+  fakeChain.verified = function (fn) { fakeStore.verifiedFn = fn; return fakeChain; };
+  fakeChain.error = function (fn) { fakeStore.errorFn = fn; return fakeChain; };
+  window.CdvPurchase = {
+    store: fakeStore,
+    ProductType: { PAID_SUBSCRIPTION: "PAID_SUBSCRIPTION", NON_CONSUMABLE: "NON_CONSUMABLE" },
+    Platform: { APPLE_APPSTORE: "APPLE_APPSTORE", GOOGLE_PLAY: "GOOGLE_PLAY" },
+    ErrorCode: { PAYMENT_CANCELLED: "PAYMENT_CANCELLED" },
+  };
+  window.Capacitor = { isNativePlatform: () => true, getPlatform: () => "ios" };
+  check("with a native bridge the store is available", R.proStoreAvailable() === true);
+  R.proStoreInit();
+  check("init registers all three products", fakeStore.registered && fakeStore.registered.length === 3 &&
+    fakeStore.registered[0].id === "rollonrv_premium_monthly" && fakeStore.registered[0].type === "PAID_SUBSCRIPTION" && fakeStore.registered[0].platform === "APPLE_APPSTORE" &&
+    fakeStore.registered[1].id === "rollonrv_premium_yearly" && fakeStore.registered[1].type === "PAID_SUBSCRIPTION" &&
+    fakeStore.registered[2].id === "rollonrv_premium_lifetime" && fakeStore.registered[2].type === "NON_CONSUMABLE");
+  check("init starts the store and arms the ownership re-check", fakeStore.initialized === true && typeof fakeStore.readyCb === "function");
+  let verifyCalled = false;
+  fakeStore.approvedFn({ verify() { verifyCalled = true; } });
+  check("an approved purchase is sent to verify", verifyCalled === true);
+  let finishCalled = false;
+  fakeStore.verifiedFn({ sourceReceipt: { transactions: [{ products: [{ id: "rollonrv_premium_lifetime" }] }] }, finish() { finishCalled = true; } });
+  check("a verified receipt grants Pro at once, with the right plan", R.isPro() === true && R.getPremium().productId === "rollonrv_premium_lifetime" && finishCalled === true);
+  R.proSubscribe("yearly");
+  check("subscribing orders the yearly product", fakeStore.ordered === "rollonrv_premium_yearly");
+  R.proRestorePurchases();
+  check("restore asks the store for purchases", fakeStore.restored === true);
+  R.openProPaywall(); await sleep(20);
+  fakeStore.errorFn({ code: "PAYMENT_CANCELLED" });
+  check("a cancelled purchase says nothing was charged", doc.querySelector(".pro-note").textContent.indexOf("nothing was charged") !== -1);
+  fakeStore._owned = [];
+  R.proRecheckOwnership();
+  check("an ended subscription stops being Pro on the next check", R.isPro() === false && R.getPremium().status === "free");
+  R.grantPremium("rollonrv_premium_monthly");
+  fakeStore._owned = ["rollonrv_premium_monthly"];
+  R.proRecheckOwnership();
+  check("a live subscription stays Pro on the next check", R.isPro() === true && R.getPremium().productId === "rollonrv_premium_monthly");
+  delete window.CdvPurchase;
+  delete window.Capacitor;
+  R.store().settings.premium = { status: "free", productId: null, since: null };
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");

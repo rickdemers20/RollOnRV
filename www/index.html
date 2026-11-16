@@ -278,8 +278,11 @@
       <p class="small muted" id="csv-status"></p>
     </div>
     <div class="card" id="premium-card">
-      <h2>Premium <span class="hand">— a drawer for later</span></h2>
-      <p class="muted">The free core is the whole book, and it stays free. Later updates will add the ownership report (one clean PDF for a buyer), the document vault (registration, insurance, warranties with expiry alerts), parts &amp; warranty tracking, more than one rig, and backup. Nothing here asks you to pay today.</p>
+      <h2 id="premium-title">Premium <span class="hand">— a drawer for later</span></h2>
+      <p class="muted" id="premium-blurb">The free core is the whole book, and it stays free. Pro adds the extras behind the door: the ownership report, the Rig Binder document vault, parts &amp; warranty tracking, more than one rig, and backup.</p>
+      <div class="btnrow">
+        <button class="btn small secondary" id="premium-open-btn">See Pro plans</button>
+      </div>
     </div>
     <div class="card">
       <h2>About this book</h2>
@@ -380,6 +383,11 @@
      stylesheet hides the app itself, so only this page comes out -->
 <div id="print-sheet" aria-hidden="true"></div>
 
+<!-- In-app purchase store API (capacitor-plugin-cdv-purchase v13).
+     Loaded as a plain script: it defines the window.CdvPurchase global.
+     Harmless on the web — the native bridge is absent there and all
+     store calls are guarded. -->
+<script src="cdv-purchase-store.js"></script>
 <script src="app.js?v=71"></script>
 </body>
 </html>
