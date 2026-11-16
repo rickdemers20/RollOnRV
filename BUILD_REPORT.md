@@ -552,3 +552,11 @@ TestFlight build 23: version stays 1.0; build number goes 22 → 23 (`CURRENT_PR
 Rick corrected v66: no separate tow-mode switch — the check belongs ON the toad line. v66's toggle was reverted (it never shipped to TestFlight; the v66 preview deploy was already in flight and will be overwritten by v67). Before You Roll's Outside group now has a second line right after the toad hookup: "Truck in flat tow mode". Before You Roll is now 19 built-ins. Suite **472 passed, 0 failed** (section 59 removed; section 57 now proves the flat-tow line sits right after the toad line).
 
 TestFlight build 23: version stays 1.0; build number goes 22 → 23 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release). Build 23 carries v67, not v66.
+
+**Build 23 (v67) VALID Nov 15 18:44** (run 43781637401, commit `2e3deede`, uploaded 00:44:22 UTC, expires 2027-02-13; buildUpload COMPLETE errors [] warnings [] — ITMS-90683 did not recur). Still needed (browser step): answer export compliance for build 23 and assign it to the Internal Testers group — a new build needs compliance answered again.
+
+## Build 68 — "Toad in flat tow mode" (Nov 15, 2026)
+
+Rick: "Can you change the word truck to Toad". One-word label change: the flat-tow line is now "Toad in flat tow mode" (was "Truck in flat tow mode"). Suite **472 passed, 0 failed**.
+
+TestFlight build 24: version stays 1.0; build number goes 23 → 24 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).

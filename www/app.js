@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "67";
+  var APP_VERSION = "68";
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -630,7 +630,7 @@
           { id: "slides", label: "Slides in · awning in · antenna down" },
           { id: "jacks", label: "Jacks up, pads stowed" },
           { id: "toad", label: "Toad hooked up — tow bar, cables, lights, brakes" },
-          { id: "flattow", label: "Truck in flat tow mode" }
+          { id: "flattow", label: "Toad in flat tow mode" }
         ]},
         { name: "Hookups", items: [
           { id: "power", label: "Shore power cord stowed" },

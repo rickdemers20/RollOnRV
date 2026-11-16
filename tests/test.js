@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 67"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 68"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1459,8 +1459,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const run57 = doc.querySelector("#checklist-run").textContent;
   check("Before You Roll checks the toad", run57.includes("Toad hooked up — tow bar, cables, lights, brakes"));
   check("the toad check sits in Outside", run57.indexOf("Toad hooked up") > run57.indexOf("Jacks up, pads stowed") && run57.indexOf("Toad hooked up") < run57.indexOf("Shore power cord stowed"));
-  check("the flat tow check rides with the toad", run57.includes("Truck in flat tow mode"));
-  check("the flat tow check sits right after the toad", run57.indexOf("Truck in flat tow mode") > run57.indexOf("Toad hooked up") && run57.indexOf("Truck in flat tow mode") < run57.indexOf("Shore power cord stowed"));
+  check("the flat tow check rides with the toad", run57.includes("Toad in flat tow mode"));
+  check("the flat tow check sits right after the toad", run57.indexOf("Toad in flat tow mode") > run57.indexOf("Toad hooked up") && run57.indexOf("Toad in flat tow mode") < run57.indexOf("Shore power cord stowed"));
   click(doc.querySelector("#run-back")); await sleep(20);
   click(doc.querySelector('[data-start="boondock"]')); await sleep(20);
   const run57b = doc.querySelector("#checklist-run").textContent;
