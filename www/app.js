@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "71";
+  var APP_VERSION = "72";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -216,6 +216,162 @@
     "Travel in the off-season when you can \u2014 the same park is often cheaper and quieter outside the busy months.",
     "Set a daily spending limit before a trip and check it each night so a small splurge doesn't quietly become a big bill."
   ];
+
+  /* Per-job guidance on the job sheet (v72, Nov 16: Rick — every
+     job in his old app's book carried the same two-part template,
+     so ours does too, in our own words, and with no links out of
+     the app. Keyed by job title, case-insensitive; a job with no
+     entry shows no guidance sections at all.) */
+  var GUIDANCE = [
+    {
+        "look": "Have a tire shop look at every tire once it reaches seven years — sidewalls, tread depth, and the casing — and plan the replacement around your travel, not after a failure. If any tire shows cracking, weather checking, or uneven wear, don't wait for the birthday.",
+        "titles": [
+            "7-Year Tire Replacement Consideration"
+        ],
+        "why": "A tire ages from the rubber out, not from the tread down. By seven years the rubber has hardened and tiny cracks have started inside the sidewall where you can't see them, and a tire that looks fine can let go without warning. On a fully loaded Class A, a blowout can take the steering with it."
+    },
+    {
+        "look": "Replace every tire at ten years, right away, at a qualified shop. After the new tires go on, write down the new DOT codes so the age clock starts over from the right date.",
+        "titles": [
+            "10-Year Tire Replacement Required"
+        ],
+        "why": "Ten years is the hard stop, not a suggestion. Past it, the rubber inside the tire has broken down far enough that no inspection can clear it — the tire is done, whatever the tread still looks like."
+    },
+    {
+        "look": "Find the last four digits of the DOT stamp on each tire — the first two are the week, the last two the year. If a stamp won't read, mark that tire so you know its age is unknown instead of guessing.",
+        "titles": [
+            "Record Your Tire Dates"
+        ],
+        "why": "You can't judge a tire's age by looking at it, and the birthday is stamped on the sidewall in a code most people never read. Writing the codes down once means the book can watch the birthdays for you."
+    },
+    {
+        "look": "Check them cold, before you roll, front and rear to the placard pressures. While you're down there, look at the tread and the sidewalls for cracks, bulges, or anything stuck in the rubber.",
+        "titles": [
+            "Tire pressures — check all",
+            "Inspect Tires and Check Pressure"
+        ],
+        "why": "A soft tire runs hot, wears wrong, and makes the engine work harder — and under-inflation is the most common reason a tire fails on the road. The right pressure is the one on your placard, not the number on the sidewall."
+    },
+    {
+        "look": "Have the shop check every tire, including the inner duals, and ask about the wear pattern — uneven wear is usually telling you something else is wrong.",
+        "titles": [
+            "Annual Specialist Tire Inspection"
+        ],
+        "why": "A tire shop sees what a walk-around misses — casing damage, slow leaks, and wear patterns that point at alignment or suspension trouble. Once a year is cheap insurance against a roadside failure."
+    },
+    {
+        "look": "Check its pressure and its DOT date, and look the sidewall over for cracks. If it's past seven years, treat it the same as any other old tire.",
+        "titles": [
+            "Inspect Spare Tire"
+        ],
+        "why": "A spare only helps if it's holding air and isn't older than the tires it's meant to replace. Spares age in the dark just like the rest, and a flat spare is no spare at all."
+    },
+    {
+        "look": "Torque them to the spec in your manual, in a star pattern, and check them again after the first 50 miles any time a wheel has been removed.",
+        "titles": [
+            "Check Wheel Lug Nut Torque"
+        ],
+        "why": "Lug nuts work loose, especially after a wheel has been off. A loose wheel doesn't give much warning before it becomes a serious problem."
+    },
+    {
+        "look": "Look for pad thickness, scoring or rust on the rotors, and calipers that move freely. Any grinding, pulling to one side, or a pedal that feels soft is a stop-and-fix-now sign.",
+        "titles": [
+            "Inspect Brake Pads, Rotors, and Calipers"
+        ],
+        "why": "Brakes are the one system you never want to find out about late. Pads wear quietly, and by the time you hear them, the rotors are paying for it."
+    },
+    {
+        "look": "Flex every hose and look for cracks, swelling, or wet spots, and follow the steel lines for rust or rubbing. Any hose that feels soft or looks wet gets replaced.",
+        "titles": [
+            "Inspect Hydraulic Brake Hoses and Lines"
+        ],
+        "why": "Rubber brake hoses age like tires do — they crack and swell from the inside, and a burst hose takes the brakes with it. Steel lines rust where you can't see them."
+    },
+    {
+        "look": "Flush it on schedule and use the fluid type your manual calls for. If the fluid in the reservoir looks dark or cloudy, it's already overdue.",
+        "titles": [
+            "Replace Hydraulic Brake Fluid"
+        ],
+        "why": "Brake fluid soaks up water over time, and water in the lines lowers the boiling point — on a long downhill, that can mean a pedal that goes to the floor. Old fluid also corrodes the system from inside."
+    },
+    {
+        "look": "Check the level against the marks and look at the color — clear to light amber is healthy, dark means it's time for a flush. Top up only with the right type.",
+        "titles": [
+            "Check Brake Fluid Level and Condition"
+        ],
+        "why": "A dropping level means fluid is going somewhere it shouldn't, and dirty fluid means the system is wearing from the inside. Both are early warnings worth catching."
+    },
+    {
+        "look": "Set it and see that it holds, and check the cables and linkage for rust or fraying. If it doesn't hold firmly, don't trust it on a grade.",
+        "titles": [
+            "Inspect Parking Brake Mechanism"
+        ],
+        "why": "The parking brake is the backup when the hydraulics fail and the thing holding a parked rig on a slope. It seizes quietly from disuse."
+    },
+    {
+        "look": "Brush soapy water on every connection and watch for bubbles. Check the hoses for cracks and the regulator for steady pressure, and test the propane detector inside — it's the one that tells you when you can't.",
+        "titles": [
+            "Propane system — check for leaks & regulator",
+            "Inspect Propane Lines & Fittings",
+            "Test Propane Regulator"
+        ],
+        "why": "Propane leaks don't smell like much until there's a lot of it, and a leak near an ignition source is the worst kind of surprise. The regulator and hoses are the parts that age first."
+    },
+    {
+        "look": "Press the test button and make sure it alarms. Detectors age out too — check the date on the back and replace it when the manufacturer says so.",
+        "titles": [
+            "Test Propane / LP Gas Detector"
+        ],
+        "why": "The detector is the only warning you get for a leak you can't see or smell in time. A dead detector is the same as no detector."
+    },
+    {
+        "look": "Press the test button on each one, swap the batteries when they chirp, and replace the whole detector on the schedule printed on it — they don't last forever.",
+        "titles": [
+            "Smoke & CO detectors — test",
+            "Test Smoke Alarm & Replace Batteries"
+        ],
+        "why": "A fire or a carbon monoxide leak in a small sealed box gives you very little time. The detectors are cheap; the warning they give is the whole point of having them."
+    },
+    {
+        "look": "Walk the roof and every outside seam — sidewalls, windows, vents — and touch up anything cracked or lifted with the right sealant for that surface. Check after every long trip and every hailstorm.",
+        "titles": [
+            "Outside seams — inspect & caulk",
+            "Inspect All Roof Sealant"
+        ],
+        "why": "Water gets in through the smallest crack in a seam and does its damage where you can't see it — rot in the roof, stains on the ceiling, delamination on the walls. By the time you see it inside, it's been leaking a while."
+    },
+    {
+        "look": "Check the reservoir level, look over every hose and fitting for leaks, and check the bolts. Before each trip, the green ride-height light should be steady and the red warning light off. Never touch a fitting under pressure — depressurize first.",
+        "titles": [
+            "Liquid Springs — check fluid & fittings"
+        ],
+        "why": "The suspension carries the whole rig, and a leak at 3,500 psi is not something to feel for with your hands. Catching a weeping fitting early is the difference between a top-up and a tow."
+    },
+    {
+        "look": "Follow every line for cracks, swelling, or wet spots, and check the clamps are tight. Any smell of fuel with no visible leak still means stop and find it.",
+        "titles": [
+            "Inspect Gas Fuel Lines"
+        ],
+        "why": "A fuel leak is a fire waiting for a spark, and rubber fuel lines crack with age and heat. The lines run where you rarely look."
+    }
+  ];
+  function guidanceFor(title) {
+    var t = (title || "").toLowerCase();
+    for (var i = 0; i < GUIDANCE.length; i++) {
+      var g = GUIDANCE[i];
+      for (var j = 0; j < g.titles.length; j++) {
+        if (g.titles[j].toLowerCase() === t) return g;
+      }
+    }
+    return null;
+  }
+  function guidanceHTML(task) {
+    var g = guidanceFor(task && task.title);
+    if (!g) return "";
+    return '<div id="ts-guidance">' +
+      '<div class="title">Why it counts</div><p>' + esc(g.why) + '</p>' +
+      '<div class="title">What to check</div><p>' + esc(g.look) + '</p></div>';
+  }
 
   /* ---------------- platform guards (mirror the Bible app pattern) ------- */
   var isNative = false;
@@ -2685,6 +2841,7 @@
       '<p><span class="pill ' + (st.level === "overdue" ? "red" : st.level === "soon" ? "amber" : "green") + '">' + esc(st.text) + '</span></p>' +
       (task.note ? '<p>' + esc(task.note) + '</p>' : '') +
       (task.needsPro ? proLine(task) : '') +
+      guidanceHTML(task) +
       '<div class="row"><div class="grow"><div class="title">Every</div><div class="sub">Cadence, when it repeats</div></div><b>' +
       [task.intervalMonths ? task.intervalMonths + " mo" : null, task.intervalMiles ? num(task.intervalMiles) + " mi" : null, task.intervalGenHours ? num(task.intervalGenHours) + " hrs" : null].filter(Boolean).join(" · ") + '</b></div>' +
       (task.lastDoneAt ? '<div class="row"><div class="grow"><div class="title">Last done</div></div><b>' + esc(fmtDate(task.lastDoneAt)) + '</b></div>' : '') +
@@ -3220,6 +3377,7 @@
     tripCosts: tripCosts, tripsForRig: tripsForRig,
     cleanTaskTitle: cleanTaskTitle,
     parseCSV: parseCSV, CHECKLISTS: CHECKLISTS, STARTER_TASKS: STARTER_TASKS, CATEGORIES: CATEGORIES, TIPS: TIPS,
+    GUIDANCE: GUIDANCE, guidanceFor: guidanceFor,
     rigSilhouette: rigSilhouette, setRigPhoto: setRigPhoto,
     photoPendingSet: function () { return !!photoPending; },
     setTheme: setTheme, currentTheme: currentTheme,

@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 71"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 72"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1646,6 +1646,35 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the sheet says when notifications are allowed on this device", doc2.querySelector(".sheet").textContent.indexOf("Notifications are allowed on this device") !== -1);
   R2.store().settings.remindersOn = false; R2.scheduleReminders(); await sleep(50);
   check("switching reminders off cancels everything on the phone", lnCalls62.cancelled >= 2 && R2.store().settings.catchupDue === null);
+
+  /* ---- 63. per-job guidance on the job sheet ---- */
+  console.log("== 63. per-job guidance ==");
+  // Nov 16: Rick — every job in his old app's book carried the same
+  // two-part template, so ours does too, in our own words, no links out.
+  check("guidance covers 18 entries", R.GUIDANCE && R.GUIDANCE.length === 18);
+  const gBrakes = R.guidanceFor("Inspect Brake Pads, Rotors, and Calipers");
+  check("guidance matches a job title exactly", !!gBrakes && gBrakes.why.indexOf("Pads wear quietly") !== -1 && gBrakes.look.indexOf("Look for pad thickness") !== -1);
+  check("guidance matches regardless of case", R.guidanceFor("RECORD YOUR TIRE DATES") && R.guidanceFor("RECORD YOUR TIRE DATES").why.indexOf("birthday is stamped") !== -1 && R.guidanceFor("inspect brake pads, rotors, and calipers") === gBrakes);
+  const gPropA = R.guidanceFor("Test Propane Regulator");
+  const gPropB = R.guidanceFor("Inspect Propane Lines & Fittings");
+  check("one entry can cover several job titles", !!gPropA && gPropA === gPropB);
+  check("a job with no entry gets no guidance", R.guidanceFor("Test overdue job") === null && R.guidanceFor("") === null && R.guidanceFor(null) === null);
+  const gTask63 = R.newTask({ rigId: rig.id, title: "Inspect Brake Pads, Rotors, and Calipers", category: "Brakes", intervalMonths: 12, nextDueDate: isoPlus(30) });
+  R.store().tasks.push(gTask63);
+  R.openTaskSheet(gTask63.id); await sleep(20);
+  const gBox = doc.querySelector("#ts-guidance");
+  check("a matched job shows both guidance sections", !!gBox && gBox.textContent.indexOf("Why it counts") !== -1 && gBox.textContent.indexOf("What to check") !== -1);
+  check("the sections carry the drafted words", !!gBox && gBox.textContent.indexOf("Pads wear quietly") !== -1 && gBox.textContent.indexOf("Look for pad thickness") !== -1);
+  check("guidance has no links out of the app", !!gBox && !gBox.querySelector("a") && gBox.innerHTML.indexOf("youtube") === -1 && gBox.innerHTML.indexOf("http") === -1);
+  check("the sheet still opens normally around the guidance", !!doc.querySelector("#ts-log") && !!doc.querySelector("#ts-skip"));
+  const gTask63b = R.newTask({ rigId: rig.id, title: "record your tire dates", category: "Tires", intervalMonths: 12, nextDueDate: isoPlus(30) });
+  R.store().tasks.push(gTask63b);
+  R.openTaskSheet(gTask63b.id); await sleep(20);
+  check("the sheet matches titles regardless of case", !!doc.querySelector("#ts-guidance") && doc.querySelector("#ts-guidance").textContent.indexOf("birthday is stamped") !== -1);
+  const gTask63c = R.newTask({ rigId: rig.id, title: "Test overdue job", category: "Engine & Chassis", intervalMonths: 12, nextDueDate: isoPlus(30) });
+  R.store().tasks.push(gTask63c);
+  R.openTaskSheet(gTask63c.id); await sleep(20);
+  check("an unmatched job shows no guidance sections at all", !doc.querySelector("#ts-guidance") && !!doc.querySelector("#ts-log"));
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");
