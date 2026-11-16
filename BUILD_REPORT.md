@@ -530,3 +530,11 @@ TestFlight build 20 outcome (Nov 15, 2026): pushed as commit ff33d21b; workflow 
 Rick: "Make the tick boxes deletable or add back if things change" — every built-in line on a checklist now carries the same × as your own items: first tap arms it, second tap takes it off the list for that rig. It stays off trip after trip, and a "Taken off this list" section at the bottom of the run lists what you took off with a Put back button — so if things change (a rig gains a toad, or loses one), the line comes back with one tap. The counts, the picker progress and the printed sheet all follow what is actually on the list, and a check on a line you then remove does not count. Suite section 58: take the toad off and put it back, twice over two runs; sections 5/5b/5c counts unchanged. Suite now **469 passed, 0 failed**.
 
 TestFlight build 21: version stays 1.0; build number goes 20 → 21 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).
+
+TestFlight build 21 outcome (Nov 15, 2026): pushed as commit 44bcd701; workflow run 43776894048 SUCCESS (469 tests pass). Transporter: "UPLOAD SUCCEEDED with no errors" (23:52 UTC). Build 21 (id d7b80a56-9f7d-4463-a0d4-aa2a4c9f4d2f) registered in App Store Connect, processingState VALID, uploaded 23:53:35 UTC, expires 2027-02-13, min iOS 15.0. BuildUpload record COMPLETE with no errors and no warnings — the ITMS-90683 failure did not recur. Still needed (browser step): answer export compliance for build 21 and assign it to the Internal Testers group — a new build needs compliance answered again.
+
+## Build 65 — Copyright line (Nov 15, 2026)
+
+Rick: "Should we put some credits or copyright in" — yes, one line, in About under the version: "© 2026 Rick Demers". No separate credits screen: there is nothing third-party to credit in RollOnRV — the app is all his own work. Suite now **470 passed, 0 failed** (one new check: About carries the copyright line).
+
+TestFlight build 22: version stays 1.0; build number goes 21 → 22 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).
