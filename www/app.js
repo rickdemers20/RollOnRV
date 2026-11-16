@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "70";
+  var APP_VERSION = "71";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -250,6 +250,11 @@
   function addMonthsISO(iso, months) {
     var d = parseISO(iso); if (!d || !months) return null;
     var out = new Date(d.getFullYear(), d.getMonth() + months, d.getDate());
+    return out.getFullYear() + "-" + String(out.getMonth() + 1).padStart(2, "0") + "-" + String(out.getDate()).padStart(2, "0");
+  }
+  function addDaysISO(iso, days) {
+    var d = parseISO(iso); if (!d) return null;
+    var out = new Date(d.getFullYear(), d.getMonth(), d.getDate() + (days || 0));
     return out.getFullYear() + "-" + String(out.getMonth() + 1).padStart(2, "0") + "-" + String(out.getDate()).padStart(2, "0");
   }
   function daysBetween(aISO, bISO) {
@@ -564,6 +569,18 @@
   function snoozeTask(task) {
     var d = new Date(); d.setDate(d.getDate() + 7);
     task.snoozedUntil = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function skipTask(task) {
+    // Skip this round without logging it done: the next due moves one
+    // rhythm forward from the due date, and nothing is written in the
+    // history — last done stays exactly as it was.
+    var moved = false;
+    if (task.intervalMonths && task.nextDueDate) { var nd = addMonthsISO(task.nextDueDate, task.intervalMonths); if (nd) { task.nextDueDate = nd; moved = true; } }
+    if (task.intervalMiles != null && task.nextDueMileage != null) { task.nextDueMileage = Number(task.nextDueMileage) + task.intervalMiles; moved = true; }
+    if (task.intervalGenHours != null && task.nextDueGenHours != null) { task.nextDueGenHours = Number(task.nextDueGenHours) + task.intervalGenHours; moved = true; }
+    if (!moved) return false;
+    task.snoozedUntil = null;
+    return true;
   }
 
   /* ---------------- DOT tire age ------------------------------------------ */
@@ -2223,23 +2240,153 @@
   }
 
   /* ---------------- local reminders (native only) --------------------------- */
+  /* Rick (Nov 16, from his old app's screenshots): a Reminders screen —
+     on/off, the time, the day it is due or the day before, one reminder
+     covering the whole maintenance day, a two-week heads-up to book the
+     shop for jobs left to a pro, and a nudge every couple of weeks while
+     anything is overdue. The planner is pure (tasks in, notices out) so
+     the tests can run it without a phone; the scheduler is the thin
+     native wrapper around it. "Left to a pro" is the job sheet's own
+     "Leave it to the pro" switch (task.needsPro) — no second toggle. */
+  function reminderSettings() {
+    var s = store.settings || {};
+    return {
+      on: s.remindersOn !== false,
+      hour: (s.reminderHour != null && s.reminderHour >= 0 && s.reminderHour <= 23) ? s.reminderHour : 9,
+      when: s.reminderWhen === "before" ? "before" : "due"
+    };
+  }
+  function isOverdueForReminders(t, today) {
+    if (!t.nextDueDate) return false;
+    if (daysBetween(t.nextDueDate, today) <= 0) return false;
+    if (t.snoozedUntil && t.snoozedUntil > today) return false;
+    return true;
+  }
+  function planReminders(tasks, rigId, today, rs) {
+    // rs: { on, hour, when, catchupDue } — catchupDue is an ISO date or null.
+    var out = [];
+    if (!rs.on) return out;
+    var myTasks = tasks.filter(function (t) { return t.rigId === rigId && t.nextDueDate; });
+    // One reminder per maintenance day: every job due that day, in one notice.
+    var byDay = {};
+    myTasks.forEach(function (t) {
+      var remindDay = rs.when === "before" ? addDaysISO(t.nextDueDate, -1) : t.nextDueDate;
+      if (!remindDay) return;
+      var ahead = daysBetween(today, remindDay);
+      if (ahead == null || ahead < 0 || ahead > 30) return;
+      (byDay[remindDay] = byDay[remindDay] || []).push(t);
+    });
+    Object.keys(byDay).sort().forEach(function (day, i) {
+      var jobs = byDay[day];
+      var d = parseISO(day); if (!d) return;
+      var at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), rs.hour, 0, 0);
+      var label = day === today ? "today" : fmtDate(day);
+      var body = jobs.length === 1
+        ? jobs[0].title + " is due " + label + "."
+        : jobs.length + " jobs due " + label + ": " + jobs.slice(0, 3).map(function (j) { return j.title; }).join(", ") + (jobs.length > 3 ? ", and more" : "") + ".";
+      out.push({ id: 2000 + (i % 800), title: "RollOnRV — maintenance day", body: body, at: at });
+    });
+    // Two weeks ahead for work left to a pro, so there is time to book.
+    // Only jobs due 15–30 days out: any closer and the day digest covers it.
+    myTasks.forEach(function (t, i) {
+      if (!t.needsPro) return;
+      var ahead = daysBetween(today, t.nextDueDate);
+      if (ahead == null || ahead <= 14 || ahead > 30) return;
+      var bookDay = addDaysISO(t.nextDueDate, -14); if (!bookDay) return;
+      var d = parseISO(bookDay); if (!d) return;
+      var at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), rs.hour, 0, 0);
+      out.push({ id: 3000 + (i % 800), title: "RollOnRV — time to book", body: t.title + " is due in two weeks — time to book the shop.", at: at });
+    });
+    // One nudge every couple of weeks while anything is overdue.
+    var overdue = myTasks.filter(function (t) { return isOverdueForReminders(t, today); });
+    if (overdue.length && rs.catchupDue) {
+      var d = parseISO(rs.catchupDue); if (d) {
+        var at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), rs.hour, 0, 0);
+        out.push({ id: 4000, title: "RollOnRV — time to catch up", body: overdue.length === 1 ? overdue[0].title + " is still overdue." : overdue.length + " jobs are overdue — time to catch up.", at: at });
+      }
+    }
+    // Nothing in the past: a notice whose time has already gone by today
+    // would fire at once, so leave it out — the next day's run picks it up.
+    var now = new Date();
+    return out.filter(function (n) { return n.at > now; });
+  }
   function scheduleReminders() {
     if (!isNative) return;
     try {
       var LN = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications;
       if (!LN || !LN.schedule) return;
       var rig = activeRig(); if (!rig) return;
-      var notifs = [];
-      store.tasks.filter(function (t) { return t.rigId === rig.id && t.nextDueDate; }).forEach(function (t, i) {
-        var d = parseISO(t.nextDueDate); if (!d) return;
-        if (daysBetween(todayISO(), t.nextDueDate) > 30) return;
-        var at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 9, 0, 0);
-        if (at < new Date()) return;
-        var id = 1000 + (i % 900);
-        notifs.push({ id: id, title: "RollOnRV — " + t.title, body: "Due in the logbook: " + t.title, schedule: { at: at } });
-      });
+      var rs = reminderSettings();
+      store.settings = store.settings || {};
+      if (!rs.on) {
+        store.settings.catchupDue = null;
+        if (LN.cancelAll) LN.cancelAll();
+        return;
+      }
+      // The catch-up date holds steady across saves: set it once, move it
+      // only after it has gone by, clear it when nothing is overdue.
+      var today = todayISO();
+      var overdue = store.tasks.filter(function (t) { return t.rigId === rig.id && isOverdueForReminders(t, today); });
+      if (overdue.length) {
+        var cd = store.settings.catchupDue;
+        if (!cd || cd < today) { store.settings.catchupDue = addDaysISO(today, 14); save(); }
+      } else if (store.settings.catchupDue) { store.settings.catchupDue = null; save(); }
+      rs.catchupDue = store.settings.catchupDue || null;
+      var plan = planReminders(store.tasks, rig.id, today, rs);
+      // Rebuild the whole set each time, so a job that moved, finished,
+      // or was deleted never leaves a stale notice behind. The old
+      // per-task ids (1000+) are cleared with it.
+      if (LN.cancelAll) LN.cancelAll();
+      var notifs = plan.map(function (n) { return { id: n.id, title: n.title, body: n.body, schedule: { at: n.at } }; });
       if (notifs.length) LN.schedule({ notifications: notifs });
     } catch (e) {}
+  }
+
+  /* ---------------- Reminders screen ---------------------------------------- */
+  function openRemindersSheet() {
+    var rs = reminderSettings();
+    function draw(permLine) {
+      openSheet(
+        sheetHead("Reminders", "Get told when jobs are due — one notice for the whole day, not one per job.") +
+        '<div class="field"><label>Task reminders</label>' +
+        '<div class="btnrow"><button class="btn ' + (rs.on ? "" : "ghost") + ' block" id="rm-toggle" type="button">' + (rs.on ? "Reminders are on" : "Reminders are off") + '</button></div></div>' +
+        '<div class="field"><label for="rm-hour">Remind me at</label><select id="rm-hour">' +
+          [7, 8, 9, 10].map(function (h) { return '<option value="' + h + '"' + (rs.hour === h ? " selected" : "") + '>' + h + ':00 AM</option>'; }).join("") + '</select></div>' +
+        '<div class="field"><label for="rm-when">Remind me</label><select id="rm-when">' +
+          '<option value="due"' + (rs.when === "due" ? " selected" : "") + '>The day it is due</option>' +
+          '<option value="before"' + (rs.when === "before" ? " selected" : "") + '>The day before it is due</option></select></div>' +
+        '<p class="muted small">You\'ll get a reminder when it is…</p>' +
+        '<p class="small"><b>Your maintenance day.</b> One reminder covering everything due that day.</p>' +
+        '<p class="small"><b>Time to book something.</b> Two weeks ahead for work you\'ve left to a pro, so there is time to get an appointment.</p>' +
+        '<p class="small"><b>Time to catch up.</b> A single nudge every couple of weeks while anything is overdue.</p>' +
+        (permLine ? '<p class="muted small">' + permLine + '</p>' : '') +
+        '<div class="btnrow"><button class="btn block" data-close type="button">Done</button></div>'
+      );
+      wireClose(sheetHost);
+      $("#rm-toggle").addEventListener("click", function () {
+        rs.on = !rs.on; store.settings = store.settings || {}; store.settings.remindersOn = rs.on; save(); scheduleReminders(); draw(permLine);
+      });
+      $("#rm-hour").addEventListener("change", function () {
+        rs.hour = Number($("#rm-hour").value); store.settings = store.settings || {}; store.settings.reminderHour = rs.hour; save(); scheduleReminders();
+      });
+      $("#rm-when").addEventListener("change", function () {
+        rs.when = $("#rm-when").value; store.settings = store.settings || {}; store.settings.reminderWhen = rs.when; save(); scheduleReminders();
+      });
+    }
+    draw("");
+    // The phone's own switch is the last word: say plainly whether
+    // notices are allowed on this device.
+    if (isNative) {
+      try {
+        var LN = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications;
+        if (LN && LN.checkPermissions) LN.checkPermissions().then(function (p) {
+          var line = (p && p.display === "granted")
+            ? "Notifications are allowed on this device."
+            : "Notifications are off on this device — turn them on in your phone's Settings, then come back here.";
+          if (sheetHost && sheetHost.querySelector("#rm-toggle")) draw(line);
+        }).catch(function () {});
+      } catch (e) {}
+    }
   }
 
   /* ---------------- log-a-job sheet ----------------------------------------- */
@@ -2545,13 +2692,18 @@
       '<div class="btnrow"><button class="btn ghost block" id="ts-part">＋ Add a part for this job</button></div>' +
       '<div class="btnrow"><button class="btn ghost block" id="ts-edit">Edit task</button></div>' +
       '<div class="btnrow"><button class="btn ghost block" id="ts-snooze">Nudge me again in a week</button>' +
-      '<button class="btn ghost block" id="ts-delete">Delete task</button></div>'
+      '<button class="btn ghost block" id="ts-skip">Skip until next due</button></div>' +
+      '<div class="btnrow"><button class="btn ghost block" id="ts-delete">Delete task</button></div>'
     );
     wireClose(sheetHost);
     $("#ts-log").addEventListener("click", function () { closeSheet(); openLogSheet(null, task.id); });
     $("#ts-part").addEventListener("click", function () { closeSheet(); openPartSheet(null, task.id); });
     $("#ts-edit").addEventListener("click", function () { closeSheet(); openEditTaskSheet(task.id); });
     $("#ts-snooze").addEventListener("click", function () { snoozeTask(task); save(); closeSheet(); renderLogbook(); renderHome(); toast("Snoozed a week."); });
+    $("#ts-skip").addEventListener("click", function () {
+      if (skipTask(task)) { save(); scheduleReminders(); closeSheet(); renderLogbook(); renderHome(); toast("Skipped to next time."); }
+      else toast("No rhythm set — change the due date in Edit task.");
+    });
     $("#ts-delete").addEventListener("click", function () {
       if (!confirm("Delete this task from the book?")) return;
       store.tasks = store.tasks.filter(function (t) { return t.id !== task.id; });
@@ -2944,6 +3096,7 @@
     $("#parts-back-btn").addEventListener("click", function () { showScreen("home"); });
     $("#parts-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
     $("#pros-open-btn").addEventListener("click", function () { showScreen("pros"); });
+    $("#reminders-open-btn").addEventListener("click", openRemindersSheet);
     $("#pros-add-btn").addEventListener("click", function () { openProSheet(null); });
     $("#pros-back-btn").addEventListener("click", function () { showScreen("home"); });
     $("#pros-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
@@ -3059,7 +3212,8 @@
     newRig: newRig, newTask: newTask, newLog: newLog, newTire: newTire, newPart: newPart,
     partsForRig: partsForRig, togglePartBought: togglePartBought, boughtPartsCostForTask: boughtPartsCostForTask,
     exportPartsCSV: exportPartsCSV, printPartsList: printPartsList, partsListHTML: partsListHTML, renderParts: renderParts, openPartSheet: openPartSheet,
-    taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask,
+    taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask, skipTask: skipTask, openTaskSheet: openTaskSheet,
+    planReminders: planReminders, reminderSettings: reminderSettings, scheduleReminders: scheduleReminders, openRemindersSheet: openRemindersSheet,
     dotInfo: dotInfo, costsForYear: costsForYear, costPerMile: costPerMile,
     importTasksCSV: importTasksCSV, exportTasksCSV: exportTasksCSV, exportLogsCSV: exportLogsCSV, dedupeTasks: dedupeTasks,
     exportFuelCSV: exportFuelCSV, fuelStats: fuelStats, fuelMpg: fuelMpg, fuelForRig: fuelForRig,

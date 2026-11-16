@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 70"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 71"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1562,6 +1562,90 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("dismissed today stays hidden", doc.querySelector("#home-tip-card").hidden);
   delete R.store().settings.tipsDismissed; R.renderHome(); await sleep(20);
   check("card comes back another day", !doc.querySelector("#home-tip-card").hidden);
+
+  /* ---- 62. Reminders screen + Skip ---- */
+  console.log("== 62. reminders screen and skip ==");
+  // Nov 16: Rick — a Reminders screen like his old app's (on/off, the time,
+  // the day it is due or the day before, one notice for the whole day,
+  // two weeks ahead for jobs left to a pro, a nudge while anything is
+  // overdue), plus "Skip until next due" on the job sheet. Snooze was
+  // already in the app ("Nudge me again in a week"), and "left to a
+  // pro" is the job sheet's own switch — no second toggle was needed.
+  function isoPlus62(days) { var d = new Date(); d.setDate(d.getDate() + days); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function today62() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  const rig62 = R.activeRig();
+  const mkTask62 = (title, due, extra) => Object.assign(R.newTask({ rigId: rig62.id, title: title, category: "Tires", nextDueDate: due }), extra || {});
+  const planTasks62 = [
+    mkTask62("Job A", isoPlus62(1)),
+    mkTask62("Job B", isoPlus62(1)),
+    mkTask62("Job C", isoPlus62(5)),
+    mkTask62("Pro job", isoPlus62(20), { needsPro: true }),
+    mkTask62("Soon pro job", isoPlus62(10), { needsPro: true }),
+    mkTask62("Old job", isoPlus62(-1)),
+  ];
+  const plan62 = R.planReminders(planTasks62, rig62.id, today62(), { on: true, hour: 23, when: "due", catchupDue: isoPlus62(14) });
+  const digests62 = plan62.filter(function (n) { return n.title.indexOf("maintenance day") === 11; });
+  check("two jobs due the same day share one reminder", digests62.length === 4 && digests62.some(function (n) { return n.body.indexOf("Job A") !== -1 && n.body.indexOf("Job B") !== -1; }));
+  check("a job due another day gets its own reminder", digests62.some(function (n) { return n.body.indexOf("Job C") !== -1; }));
+  const book62 = plan62.filter(function (n) { return n.title.indexOf("time to book") === 11; });
+  check("a pro job due in 20 days gets a book-ahead nudge", book62.length === 1 && book62[0].body.indexOf("Pro job") !== -1);
+  check("a pro job due in 10 days is covered by the day reminder, not a book-ahead", !plan62.some(function (n) { return n.body.indexOf("Soon pro job") !== -1 && n.title.indexOf("time to book") === 11; }));
+  const catch62 = plan62.filter(function (n) { return n.id === 4000; });
+  check("an overdue job gets one catch-up nudge", catch62.length === 1 && catch62[0].body.indexOf("Old job") !== -1);
+  check("an overdue job gets no day reminder of its own", !digests62.some(function (n) { return n.body.indexOf("Old job") !== -1; }));
+  check("reminders off plans nothing", R.planReminders(planTasks62, rig62.id, today62(), { on: false, hour: 23, when: "due", catchupDue: isoPlus62(14) }).length === 0);
+  const before62 = R.planReminders([mkTask62("Early job", isoPlus62(2))], rig62.id, today62(), { on: true, hour: 23, when: "before", catchupDue: null });
+  check("'the day before' reminds the day before it is due", before62.length === 1 && before62[0].at.getDate() === new Date(new Date().setDate(new Date().getDate() + 1)).getDate());
+  // Skip: the next due moves one rhythm forward, history untouched.
+  const logsBefore62 = R.store().logs.length;
+  const skipTask62 = R.newTask({ rigId: rig62.id, title: "Skip me", category: "Tires", intervalMonths: 6, nextDueDate: "2026-06-01", lastDoneAt: "2025-12-01" });
+  R.store().tasks.push(skipTask62);
+  check("skip moves the due date one rhythm forward", R.skipTask(skipTask62) && skipTask62.nextDueDate === "2026-12-01");
+  check("skip leaves last done alone and writes no log", skipTask62.lastDoneAt === "2025-12-01" && R.store().logs.length === logsBefore62);
+  check("a job with no rhythm cannot be skipped", !R.skipTask(R.newTask({ rigId: rig62.id, title: "No rhythm", category: "Tires" })));
+  // The job sheet carries both buttons; snooze was already there.
+  R.openTaskSheet(skipTask62.id); await sleep(20);
+  check("the job sheet has a Skip button", !!doc.querySelector("#ts-skip"));
+  check("the job sheet still has its Snooze button", !!doc.querySelector("#ts-snooze"));
+  click(doc.querySelector("#ts-skip")); await sleep(20);
+  check("Skip on the sheet moves the due date again", skipTask62.nextDueDate === "2027-06-01");
+  // The Reminders sheet on More.
+  R.showScreen("more"); R.renderMore(); await sleep(20);
+  check("More has a Reminders button", !!doc.querySelector("#reminders-open-btn"));
+  click(doc.querySelector("#reminders-open-btn")); await sleep(20);
+  check("the Reminders sheet opens switched on", !!doc.querySelector("#rm-toggle") && doc.querySelector("#rm-toggle").textContent.indexOf("on") !== -1);
+  check("the sheet explains the day digest, the book-ahead and the catch-up", doc.querySelector(".sheet").textContent.indexOf("maintenance day") !== -1 && doc.querySelector(".sheet").textContent.indexOf("book") !== -1 && doc.querySelector(".sheet").textContent.indexOf("catch up") !== -1);
+  click(doc.querySelector("#rm-toggle")); await sleep(20);
+  check("the switch turns reminders off and saves it", R.store().settings.remindersOn === false && doc.querySelector("#rm-toggle").textContent.indexOf("off") !== -1);
+  click(doc.querySelector("#rm-toggle")); await sleep(20);
+  check("the switch turns them back on", R.store().settings.remindersOn === true);
+  doc.querySelector("#rm-hour").value = "8"; doc.querySelector("#rm-hour").dispatchEvent(new window.Event("change", { bubbles: true })); await sleep(20);
+  check("picking 8 AM saves the hour", R.store().settings.reminderHour === 8);
+  doc.querySelector("#rm-when").value = "before"; doc.querySelector("#rm-when").dispatchEvent(new window.Event("change", { bubbles: true })); await sleep(20);
+  check("picking 'the day before' saves it", R.store().settings.reminderWhen === "before");
+  // Native scheduling: the plan reaches the phone's notification plugin.
+  const lnCalls62 = { scheduled: null, cancelled: 0 };
+  win2.Capacitor.Plugins.LocalNotifications = {
+    schedule: function (opts) { lnCalls62.scheduled = opts.notifications; return Promise.resolve({}); },
+    cancelAll: function () { lnCalls62.cancelled++; return Promise.resolve(); },
+    checkPermissions: function () { return Promise.resolve({ display: "granted" }); },
+  };
+  R2.store().settings.reminderHour = 23; R2.store().settings.reminderWhen = "due"; R2.store().settings.remindersOn = true;
+  const rig2_62 = R2.activeRig();
+  R2.store().tasks.push(R2.newTask({ rigId: rig2_62.id, title: "Native A", category: "Tires", nextDueDate: isoPlus62(1) }));
+  R2.store().tasks.push(R2.newTask({ rigId: rig2_62.id, title: "Native B", category: "Tires", nextDueDate: isoPlus62(1) }));
+  R2.store().tasks.push(R2.newTask({ rigId: rig2_62.id, title: "Native pro", category: "Tires", nextDueDate: isoPlus62(20), needsPro: true }));
+  R2.store().tasks.push(R2.newTask({ rigId: rig2_62.id, title: "Native old", category: "Tires", nextDueDate: isoPlus62(-2) }));
+  R2.scheduleReminders(); await sleep(50);
+  check("scheduling clears the old notices first", lnCalls62.cancelled >= 1);
+  check("the phone gets one digest for the two same-day jobs", !!lnCalls62.scheduled && lnCalls62.scheduled.some(function (n) { return n.body.indexOf("Native A") !== -1 && n.body.indexOf("Native B") !== -1; }));
+  check("the phone gets the book-ahead for the pro job", !!lnCalls62.scheduled && lnCalls62.scheduled.some(function (n) { return n.title.indexOf("time to book") === 11 && n.body.indexOf("Native pro") !== -1; }));
+  check("the phone gets the catch-up nudge for the overdue job", !!lnCalls62.scheduled && lnCalls62.scheduled.some(function (n) { return n.id === 4000; }));
+  check("the catch-up date is remembered so it does not drift", !!R2.store().settings.catchupDue);
+  R2.openRemindersSheet(); await sleep(80);
+  check("the sheet says when notifications are allowed on this device", doc2.querySelector(".sheet").textContent.indexOf("Notifications are allowed on this device") !== -1);
+  R2.store().settings.remindersOn = false; R2.scheduleReminders(); await sleep(50);
+  check("switching reminders off cancels everything on the phone", lnCalls62.cancelled >= 2 && R2.store().settings.catchupDue === null);
 
   /* ---- 47. double-tap never zooms the screen ---- */
   console.log("== 47. double-tap zoom is off ==");

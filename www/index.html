@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="RollOnRV" />
-<link rel="stylesheet" href="styles.css?v=70" />
+<link rel="stylesheet" href="styles.css?v=71" />
 <script>try{var _t=localStorage.getItem("rollonrv-theme");if(_t==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
 </head>
 <body>
@@ -152,6 +152,7 @@
       <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
       <h1>Tires, by age <span class="hand">— not tread</span></h1>
       <p>Blowouts come from old tires, not worn tread. Enter each DOT code once; the book watches the birthdays. Flags start at 5 years, turn serious at 7. The bar fills toward the 10-year hard limit.</p>
+      <p class="small">Tread still counts: DOT calls for 4/32&Prime; on steer tires, 2/32&Prime; on the rest. The penny test — if you can see the top of Lincoln&rsquo;s head, it&rsquo;s time.</p>
     </div>
     <div class="btnrow" style="padding:0 .2rem">
       <button class="btn" id="tire-add-btn">＋ Add a tire</button>
@@ -254,6 +255,13 @@
       <p class="muted small">The shops and techs you trust — name, what they do, phone, town. Pick one from a task when the job belongs to a shop.</p>
       <div class="btnrow">
         <button class="btn small secondary" id="pros-open-btn">My pros</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Reminders</h2>
+      <p class="muted small">One notice for the whole maintenance day, a two-week heads-up to book the shop, and a nudge while anything is overdue.</p>
+      <div class="btnrow">
+        <button class="btn small secondary" id="reminders-open-btn">Reminders</button>
       </div>
     </div>
     <div class="card">
@@ -372,6 +380,6 @@
      stylesheet hides the app itself, so only this page comes out -->
 <div id="print-sheet" aria-hidden="true"></div>
 
-<script src="app.js?v=70"></script>
+<script src="app.js?v=71"></script>
 </body>
 </html>
