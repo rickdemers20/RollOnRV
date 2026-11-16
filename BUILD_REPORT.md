@@ -538,3 +538,17 @@ TestFlight build 21 outcome (Nov 15, 2026): pushed as commit 44bcd701; workflow 
 Rick: "Should we put some credits or copyright in" — yes, one line, in About under the version: "© 2026 Rick Demers". No separate credits screen: there is nothing third-party to credit in RollOnRV — the app is all his own work. Suite now **470 passed, 0 failed** (one new check: About carries the copyright line).
 
 TestFlight build 22: version stays 1.0; build number goes 21 → 22 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).
+
+**Build 22 (v65) VALID Nov 15 18:10** (run 43778290011, commit `cd808a4a`, uploaded 00:09:40 UTC, expires 2027-02-13; buildUpload COMPLETE errors [] — ITMS-90683 did not recur).
+
+## Build 66 — Tow mode (Nov 15, 2026)
+
+Rick: "Add in tow mode" (confirmed after "Where's the toad"). A switch at the top of the Before You Roll run: "Tow mode: off — tap when you're towing a car". Off, the toad line ("Toad hooked up — tow bar, cables, lights, brakes") is hidden and does not count; on, it joins the list and counts like the rest. Per trip, not a rig setting — flip it on the days the car is behind the coach. Turning it off clears any check on the toad line. The picker totals and the printed sheet follow the switch. Suite now **484 passed, 0 failed** (new section 59 — tow mode; sections 5/5b/57/58 turn tow mode on where they count the full list).
+
+TestFlight build 23: version stays 1.0; build number goes 22 → 23 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release).
+
+## Build 67 — Truck in flat tow mode (Nov 15, 2026)
+
+Rick corrected v66: no separate tow-mode switch — the check belongs ON the toad line. v66's toggle was reverted (it never shipped to TestFlight; the v66 preview deploy was already in flight and will be overwritten by v67). Before You Roll's Outside group now has a second line right after the toad hookup: "Truck in flat tow mode". Before You Roll is now 19 built-ins. Suite **472 passed, 0 failed** (section 59 removed; section 57 now proves the flat-tow line sits right after the toad line).
+
+TestFlight build 23: version stays 1.0; build number goes 22 → 23 (`CURRENT_PROJECT_VERSION` in the pbxproj, Debug and Release). Build 23 carries v67, not v66.

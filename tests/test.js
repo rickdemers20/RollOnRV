@@ -130,19 +130,19 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("photo renders in the entry", logHtml.includes("data:image/png;base64"));
   check("parts total shown in entry", /Test filter/.test(logHtml) || true); // parts show on detail sheet
 
-  /* ---- 5. checklist run: pre-trip, all 18 items ---- */
+  /* ---- 5. checklist run: pre-trip, all 19 items ---- */
   console.log("== 5. pre-trip checklist ==");
   R.showScreen("checklists");
   const startBtn = doc.querySelector('[data-start="pretrip"]');
   click(startBtn);
   await sleep(20);
   let boxes = doc.querySelectorAll("#checklist-run .check-item");
-  check("pre-trip has 18 items", boxes.length === 18, "got " + boxes.length);
+  check("pre-trip has 19 items", boxes.length === 19, "got " + boxes.length);
   check("tire pressure item shows rig PSI (80/75)", doc.querySelector("#checklist-run").textContent.includes("80 psi front"));
   boxes.forEach((b) => click(b));
   await sleep(20);
   const runText = doc.querySelector("#checklist-run").textContent;
-  check("all 18 checked, progress full", runText.includes("18 of 18 checked"));
+  check("all 19 checked, progress full", runText.includes("19 of 19 checked"));
   check("DONE stamp appears when complete", /Done/.test(runText));
   click(doc.querySelector("#run-finish"));
   await sleep(20);
@@ -159,11 +159,11 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   await sleep(20);
   check("custom item appears in the run", doc.querySelector("#checklist-run").textContent.includes("Test AGS check"));
   check("custom item saved to the rig's list", R.store().customItems.some((c) => c.label === "Test AGS check" && c.templateId === "pretrip"));
-  check("total counts the custom item", doc.querySelector("#checklist-run").textContent.includes("0 of 19 checked"));
+  check("total counts the custom item", doc.querySelector("#checklist-run").textContent.includes("0 of 20 checked"));
   const customBox = Array.from(doc.querySelectorAll("#checklist-run .check-item")).find((b) => b.textContent.includes("Test AGS check"));
   click(customBox);
   await sleep(20);
-  check("custom item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 19 checked"));
+  check("custom item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 20 checked"));
   click(doc.querySelector("#run-back"));
   await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]'));
@@ -176,7 +176,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("[data-del-custom]"));
   await sleep(20);
   check("second tap takes it off", !doc.querySelector("#checklist-run").textContent.includes("Test AGS check") && !R.store().customItems.some((c) => c.label === "Test AGS check"));
-  check("total is back to 18 built-ins", doc.querySelector("#checklist-run").textContent.includes("0 of 18 checked"));
+  check("total is back to 19 built-ins", doc.querySelector("#checklist-run").textContent.includes("0 of 19 checked"));
 
   /* ---- 5c. custom groups inside a checklist ---- */
   console.log("== 5c. custom groups ==");
@@ -195,11 +195,11 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc.querySelector("[data-group-input]").value = "Test group item";
   click(doc.querySelector("[data-group-add]"));
   await sleep(20);
-  check("group item appears and counts", doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 19 checked"));
+  check("group item appears and counts", doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 20 checked"));
   const groupBox = Array.from(doc.querySelectorAll("#checklist-run .check-item")).find((b) => b.textContent.includes("Test group item"));
   click(groupBox);
   await sleep(20);
-  check("group item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 19 checked"));
+  check("group item checks off like the rest", doc.querySelector("#checklist-run").textContent.includes("1 of 20 checked"));
   click(doc.querySelector("#run-back"));
   await sleep(20);
   click(doc.querySelector('[data-start="pretrip"]'));
@@ -214,7 +214,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("one tap only arms the item delete", !!doc.querySelector("[data-del-custom].armed") && doc.querySelector("#checklist-run").textContent.includes("Test group item"));
   click(doc.querySelector("[data-del-custom].armed"));
   await sleep(20);
-  check("second tap takes the group item off", !doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 18 checked"));
+  check("second tap takes the group item off", !doc.querySelector("#checklist-run").textContent.includes("Test group item") && doc.querySelector("#checklist-run").textContent.includes("0 of 19 checked"));
   click(doc.querySelector("[data-del-group]"));
   await sleep(20);
   check("one tap only arms the group delete", !!doc.querySelector("[data-del-group].armed") && doc.querySelector("#checklist-run").textContent.includes("Test group"));
@@ -734,7 +734,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 65"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 67"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1459,6 +1459,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const run57 = doc.querySelector("#checklist-run").textContent;
   check("Before You Roll checks the toad", run57.includes("Toad hooked up — tow bar, cables, lights, brakes"));
   check("the toad check sits in Outside", run57.indexOf("Toad hooked up") > run57.indexOf("Jacks up, pads stowed") && run57.indexOf("Toad hooked up") < run57.indexOf("Shore power cord stowed"));
+  check("the flat tow check rides with the toad", run57.includes("Truck in flat tow mode"));
+  check("the flat tow check sits right after the toad", run57.indexOf("Truck in flat tow mode") > run57.indexOf("Toad hooked up") && run57.indexOf("Truck in flat tow mode") < run57.indexOf("Shore power cord stowed"));
   click(doc.querySelector("#run-back")); await sleep(20);
   click(doc.querySelector('[data-start="boondock"]')); await sleep(20);
   const run57b = doc.querySelector("#checklist-run").textContent;
@@ -1482,10 +1484,10 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   R.showScreen("checklists");
   click(doc.querySelector('[data-start="pretrip"]')); await sleep(20);
   /* Earlier sections leave two of their own items on this list ("Test
-     words changed", "Heading test item"), so the baseline is 18 built-ins
+     words changed", "Heading test item"), so the baseline is 19 built-ins
      plus whatever of theirs is still there — count deltas, not absolutes. */
   var base = doc.querySelectorAll("#checklist-run .check-item").length;
-  check("pre-trip starts with all 18 built-ins", doc.querySelectorAll("[data-del-builtin]").length === 18 && base >= 18);
+  check("pre-trip starts with all 19 built-ins", doc.querySelectorAll("[data-del-builtin]").length === 19 && base >= 19);
   var toadBox = Array.from(doc.querySelectorAll("#checklist-run .check-item")).find(function (b) { return b.textContent.includes("Toad hooked up"); });
   check("the toad line is on the run", !!toadBox);
   // Check it first, so a stale check is sitting in the run.
