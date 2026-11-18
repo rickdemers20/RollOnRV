@@ -9,6 +9,7 @@ const { JSDOM } = require("jsdom");
 const ROOT = path.join(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "www", "index.html"), "utf8");
 const appJs = fs.readFileSync(path.join(ROOT, "www", "app.js"), "utf8");
+const plansJs = fs.readFileSync(path.join(ROOT, "www", "plans.js"), "utf8");
 const css = fs.readFileSync(path.join(ROOT, "www", "styles.css"), "utf8");
 const sampleCsv = fs.readFileSync(path.join(__dirname, "sample-tasks.csv"), "utf8");
 
@@ -24,12 +25,13 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
   /* ---- static guardrails: no copying, no AI, no seed data (store code is the v73 Pro foundation) ---- */
   console.log("== guardrails ==");
-  const wwwText = html + appJs + css;
+  const wwwText = html + appJs + css + plansJs;
   check("no 'Keeper' anywhere in the app", !/keeper/i.test(wwwText));
   check("no Schedule Mode / Focus Mode", !/schedule mode|focus mode/i.test(wwwText));
-  // Nov 16 (v73): "Rig Binder" is the decided name of the Pro document
-  // vault — the paywall names it plainly. The old "never say it" check
-  // ended when the name was chosen.
+  // Nov 17 (v74): "Document Vault" is the decided name of the Pro document
+  // vault — "Rig Binder" is a competitor's term and never appears.
+  check("the vault is always Document Vault, never Rig Binder", !/rig binder/i.test(wwwText));
+  check("the prebuilt plans are wired into the page", html.indexOf("plans.js") !== -1);
   check("store bundle is wired into the page", html.indexOf("cdv-purchase-store.js") !== -1);
   // Nov 16 (v73): the Pro foundation ADDS store code — the old "no
   // store/paywall code" guardrail ended with it. What stays forbidden is
@@ -55,6 +57,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   window.confirm = () => true;
   window.scrollTo = () => {}; // jsdom does not implement scrollTo; silence the noise
   // jsdom has no canvas: photo downscale degrades to the original data URL.
+  window.eval(plansJs);
   window.eval(appJs);
   await sleep(50);
   const R = window.RollOnRV;
@@ -741,7 +744,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 73"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 74"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -830,8 +833,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#at-starters")); await sleep(20);
   check("the picker offers to fit the jobs to the rig", !!doc.querySelector("#st-fit"));
   click(doc.querySelector("#st-fit")); await sleep(20);
-  check("the questions sheet asks fourteen questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 46);
-  check("every question offers Not sure", doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 14);
+  check("the questions sheet asks seventeen questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 55);
+  check("every question offers Not sure", doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 17);
   click(doc.querySelector('[data-eq="roof"][data-val="tpo"]')); await sleep(20);
   click(doc.querySelector('[data-eq="waterHeater"][data-val="tankless"]')); await sleep(20);
   click(doc.querySelector('[data-eq="fridge"][data-val="residential"]')); await sleep(20);
@@ -962,7 +965,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#log-add-task-btn")); await sleep(20);
   click(doc.querySelector("#at-starters")); await sleep(20);
   click(doc.querySelector("#st-fit")); await sleep(20);
-  check("a trailer is asked thirteen questions, not fourteen", doc.querySelectorAll("#sheet-host [data-eq]").length === 43);
+  check("a trailer is asked sixteen questions, not seventeen", doc.querySelectorAll("#sheet-host [data-eq]").length === 52);
   check("a trailer is never asked gas or diesel", !doc.querySelector('#sheet-host [data-eq="fuel"]'));
   click(doc.querySelector("[data-close]")); await sleep(20);
   R.activeRig().type = "Class C"; R.activeRig().equipment = {}; R.save();
@@ -1146,6 +1149,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     isNativePlatform: () => true,
     Plugins: { Camera: { getPhoto: () => Promise.reject(new Error("plugin boom")) } },
   };
+  win2.eval(plansJs);
   win2.eval(appJs);
   await sleep(50);
   const doc2 = win2.document;
@@ -1658,7 +1662,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   console.log("== 63. per-job guidance ==");
   // Nov 16: Rick — every job in his old app's book carried the same
   // two-part template, so ours does too, in our own words, no links out.
-  check("guidance covers 18 entries", R.GUIDANCE && R.GUIDANCE.length === 18);
+  check("guidance covers 36 entries", R.GUIDANCE && R.GUIDANCE.length === 36);
   const gBrakes = R.guidanceFor("Inspect Brake Pads, Rotors, and Calipers");
   check("guidance matches a job title exactly", !!gBrakes && gBrakes.why.indexOf("Pads wear quietly") !== -1 && gBrakes.look.indexOf("Look for pad thickness") !== -1);
   check("guidance matches regardless of case", R.guidanceFor("RECORD YOUR TIRE DATES") && R.guidanceFor("RECORD YOUR TIRE DATES").why.indexOf("birthday is stamped") !== -1 && R.guidanceFor("inspect brake pads, rotors, and calipers") === gBrakes);
@@ -1690,10 +1694,10 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   // free trial, pay from day one.
   check("premium starts free, not Pro", R.getPremium().status === "free" && R.isPro() === false);
   check("dev unlock is off in this build", R.PRO_CONFIG.devUnlock === false);
-  check("three Pro products, right prices", R.PRO_PRODUCT_IDS.monthly === "rollonrv_premium_monthly" && R.PRO_PRODUCT_IDS.yearly === "rollonrv_premium_yearly" && R.PRO_PRODUCT_IDS.lifetime === "rollonrv_premium_lifetime" && R.PRO_PRICES.monthly === "$3.99/mo" && R.PRO_PRICES.yearly === "$39.99/yr" && R.PRO_PRICES.lifetime === "$79.99");
+  check("three Pro products, right prices", R.PRO_PRODUCT_IDS.monthly === "rollonrv_premium_monthly" && R.PRO_PRODUCT_IDS.yearly === "rollonrv_premium_yearly" && R.PRO_PRODUCT_IDS.lifetime === "rollonrv_premium_lifetime" && R.PRO_PRICES.monthly === "$4.99/mo" && R.PRO_PRICES.yearly === "$39.99/yr" && R.PRO_PRICES.lifetime === "$79.99");
   const pwFree = R.proPaywallHTML();
-  check("paywall names every Pro feature plainly", ["Ownership report", "Rig Binder", "Parts &amp; warranty tracking", "More than one rig", "Backup"].every(function (f) { return pwFree.indexOf(f) !== -1; }));
-  check("paywall shows the three prices", pwFree.indexOf("$3.99") !== -1 && pwFree.indexOf("$39.99") !== -1 && pwFree.indexOf("$79.99") !== -1);
+  check("paywall names every Pro feature plainly", ["Ownership report", "Document Vault", "Parts &amp; warranty tracking", "More than one rig", "Backup"].every(function (f) { return pwFree.indexOf(f) !== -1; }));
+  check("paywall shows the three prices", pwFree.indexOf("$4.99") !== -1 && pwFree.indexOf("$39.99") !== -1 && pwFree.indexOf("$79.99") !== -1);
   check("paywall carries the grandfathered-rate line", pwFree.indexOf("Subscribe now and your rate never goes up") !== -1);
   check("paywall has a Restore Purchases button", pwFree.indexOf("Restore Purchases") !== -1);
   check("paywall never mentions a free trial", !/trial/i.test(pwFree));
@@ -1719,8 +1723,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const fakeChain = {};
   const fakeStore = {
     _owned: [], ordered: null, restored: false, readyCb: null,
-    registered: null, initialized: false,
-    register(list) { this.registered = list; },
+    registered: null, initialized: false, registerCalls: 0,
+    register(list) { this.registered = list; this.registerCalls++; },
     when() { return fakeChain; },
     initialize() { this.initialized = true; },
     order(id) { this.ordered = id; },
@@ -1745,14 +1749,31 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     fakeStore.registered[1].id === "rollonrv_premium_yearly" && fakeStore.registered[1].type === "PAID_SUBSCRIPTION" &&
     fakeStore.registered[2].id === "rollonrv_premium_lifetime" && fakeStore.registered[2].type === "NON_CONSUMABLE");
   check("init starts the store and arms the ownership re-check", fakeStore.initialized === true && typeof fakeStore.readyCb === "function");
+  check("init has not made the store ready yet", R.proStoreState().initialized === true && R.proStoreState().ready === false);
+  // v74: the store has not said ready, so subscribing must not order yet —
+  // it says "Opening the store…" and waits for ready instead of hanging.
+  R.proSubscribe("yearly"); await sleep(20);
+  check("subscribing before ready waits instead of ordering", fakeStore.ordered === null && doc.querySelector(".pro-note").textContent.indexOf("Opening the store") !== -1);
+  check("waiting for a store that never answers resolves false", (await R.proStoreWaitReady(300)) === false);
+  fakeStore.readyCb();
+  check("ready firing marks the store ready", R.proStoreState().ready === true);
+  await sleep(400);
+  check("the waiting subscribe orders once ready fires", fakeStore.ordered === "rollonrv_premium_yearly");
+  R.proStoreInit();
+  check("a second init does not register twice", fakeStore.registerCalls === 1);
+  R.openProPaywall(); await sleep(20);
+  check("reopening the paywall does not re-register", fakeStore.registerCalls === 1);
   let verifyCalled = false;
   fakeStore.approvedFn({ verify() { verifyCalled = true; } });
   check("an approved purchase is sent to verify", verifyCalled === true);
   let finishCalled = false;
   fakeStore.verifiedFn({ sourceReceipt: { transactions: [{ products: [{ id: "rollonrv_premium_lifetime" }] }] }, finish() { finishCalled = true; } });
   check("a verified receipt grants Pro at once, with the right plan", R.isPro() === true && R.getPremium().productId === "rollonrv_premium_lifetime" && finishCalled === true);
-  R.proSubscribe("yearly");
-  check("subscribing orders the yearly product", fakeStore.ordered === "rollonrv_premium_yearly");
+  // Ready has fired by now (see the wait checks above), so a fresh
+  // subscribe orders at once instead of waiting.
+  fakeStore.ordered = null;
+  R.proSubscribe("monthly");
+  check("subscribing once ready orders at once", fakeStore.ordered === "rollonrv_premium_monthly");
   R.proRestorePurchases();
   check("restore asks the store for purchases", fakeStore.restored === true);
   R.openProPaywall(); await sleep(20);
@@ -1790,6 +1811,156 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc.querySelector("#guide-back-btn").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("the guide's Back button returns to Home", doc.querySelector("#screen-home").classList.contains("active"));
+
+  /* ---- 65. the store says so when it never answers (v74) ---- */
+  console.log("== 65. store timeout message ==");
+  // A third dom: a native store that never fires ready. The Nov 17 sandbox
+  // failure was exactly this — "Opening the store…" forever, no sheet, no
+  // error. The fix must say so plainly and let the user retry.
+  const dom3 = new JSDOM(html, { url: "http://localhost/", runScripts: "outside-only", pretendToBeVisual: true });
+  const win3 = dom3.window;
+  win3.confirm = () => true;
+  win3.scrollTo = () => {};
+  win3.eval(plansJs);
+  win3.eval(appJs);
+  await sleep(50);
+  const doc3 = win3.document;
+  const R3 = win3.RollOnRV;
+  const fakeChain3 = {};
+  const fakeStore3 = {
+    _owned: [], ordered: null, restored: false, readyCb: null,
+    registered: null, initialized: false,
+    register(list) { this.registered = list; },
+    when() { return fakeChain3; },
+    initialize() { this.initialized = true; },
+    order(id) { this.ordered = id; },
+    restorePurchases() { this.restored = true; },
+    ready(cb) { this.readyCb = cb; },
+    owned(id) { return this._owned.indexOf(id) !== -1; },
+  };
+  fakeChain3.approved = function (fn) { fakeStore3.approvedFn = fn; return fakeChain3; };
+  fakeChain3.verified = function (fn) { fakeStore3.verifiedFn = fn; return fakeChain3; };
+  fakeChain3.error = function (fn) { fakeStore3.errorFn = fn; return fakeChain3; };
+  win3.CdvPurchase = {
+    store: fakeStore3,
+    ProductType: { PAID_SUBSCRIPTION: "PAID_SUBSCRIPTION", NON_CONSUMABLE: "NON_CONSUMABLE" },
+    Platform: { APPLE_APPSTORE: "APPLE_APPSTORE", GOOGLE_PLAY: "GOOGLE_PLAY" },
+    ErrorCode: { PAYMENT_CANCELLED: "PAYMENT_CANCELLED" },
+  };
+  win3.Capacitor = { isNativePlatform: () => true, getPlatform: () => "ios" };
+  R3.openProPaywall(); await sleep(20);
+  check("a fresh native store is not ready yet", R3.proStoreState().initialized === true && R3.proStoreState().ready === false);
+  R3.proSubscribe("monthly", 300); await sleep(20);
+  check("a store that never answers says Opening the store first", doc3.querySelector(".pro-note").textContent.indexOf("Opening the store") !== -1 && fakeStore3.ordered === null);
+  await sleep(700);
+  check("a store that never answers says so plainly, never hangs", doc3.querySelector(".pro-note").textContent.indexOf("isn't responding right now") !== -1 && fakeStore3.ordered === null);
+  // And the retry works once the store does answer.
+  fakeStore3.readyCb();
+  R3.proSubscribe("monthly"); await sleep(20);
+  check("retrying after ready orders at once", fakeStore3.ordered === "rollonrv_premium_monthly");
+
+  /* ---- 66. deleting a logbook entry takes two taps (v74) ---- */
+  console.log("== 66. logbook armed delete ==");
+  R.showScreen("logbook"); await sleep(20);
+  click(doc.querySelector("#log-add-btn")); await sleep(20);
+  setVal("#lj-title", "Test delete-me job");
+  setVal("#lj-cost", "35.00");
+  click(doc.querySelector("#lj-save")); await sleep(800);
+  const delLog = R.store().logs.find((l) => l.title === "Test delete-me job");
+  check("the entry to delete exists", !!delLog);
+  R.showScreen("logbook"); await sleep(20);
+  const delEntry = Array.from(doc.querySelectorAll("[data-log]")).find((el) => el.textContent.includes("Test delete-me job"));
+  click(delEntry); await sleep(20);
+  check("the entry opens for editing", !!doc.querySelector("#lj-delete"));
+  click(doc.querySelector("#lj-delete")); await sleep(20);
+  check("one tap only arms it — the entry is still there", R.store().logs.some((l) => l.id === delLog.id) && doc.querySelector("#lj-delete").textContent.indexOf("Tap again to delete") !== -1);
+  click(doc.querySelector("#lj-delete")); await sleep(20);
+  check("the second tap deletes it", !R.store().logs.some((l) => l.id === delLog.id));
+
+  /* ---- 67. prebuilt plans (v74) ---- */
+  console.log("== 67. prebuilt plans ==");
+  check("thirteen prebuilt plans", R.PREBUILT_PLANS.length === 13);
+  check("every plan has a label, rig types, and over a hundred jobs", R.PREBUILT_PLANS.every((p) => p.id && p.label && p.rigTypes.length && p.jobs.length > 100));
+  check("no plan job carries a placeholder or a competitor's name", R.PREBUILT_PLANS.every((p) => p.jobs.every((j) => j.title && j.category && !/\(Type Unknown\)/i.test(j.title) && !/Keeper/i.test(j.title))));
+  check("plans carry no personal data at all", !/@|Newmar|Dutch Star|Plateau|Travato|Redhawk|Montana|Coleman|Bay Star|hotmail|gmail/.test(JSON.stringify(R.PREBUILT_PLANS)));
+  check("a Class C rig is offered both Class C plans", R.plansForRig(rig).map((p) => p.id).sort().join(",") === "class-c-diesel,class-c-gas");
+  const cGas = R.PREBUILT_PLANS.find((p) => p.id === "class-c-gas");
+  rig.equipment = { sparetire: "no", waterHeater: "tank", slides: "yes" }; R.save();
+  const gated = R.planJobsFor(rig, cGas);
+  check("no spare hides the spare-tire job", !gated.some((j) => j.title === "Inspect Spare Tire"));
+  check("a tank water heater shows the flush, not the descale", gated.some((j) => j.title === "Flush Water Heater Tank") && !gated.some((j) => j.title === "Descale Heat Exchanger"));
+  rig.equipment = { sparetire: "yes", waterHeater: "tankless", slides: "yes" }; R.save();
+  const gated2 = R.planJobsFor(rig, cGas);
+  check("a spare shows the spare-tire job", gated2.some((j) => j.title === "Inspect Spare Tire"));
+  check("a tankless heater shows the descale, not the flush", gated2.some((j) => j.title === "Descale Heat Exchanger") && !gated2.some((j) => j.title === "Flush Water Heater Tank"));
+  // Build it: spread across 90 days, Mondays only.
+  rig.maintDays = [1]; rig.planSchedule = "spread"; R.save();
+  const beforeCount = R.store().tasks.filter((t) => t.rigId === rig.id).length;
+  const beforeIds = new Set(R.store().tasks.map((t) => t.id));
+  const planRes = R.buildPlan(rig, cGas);
+  check("building a plan writes the fitting jobs, nothing twice", planRes.added + planRes.skipped === gated2.length && planRes.added > 100 && R.store().tasks.filter((t) => t.rigId === rig.id).length === beforeCount + planRes.added);
+  const builtTasks = R.store().tasks.filter((t) => t.rigId === rig.id && !beforeIds.has(t.id));
+  const spareBuilt = builtTasks.filter((t) => t.title === "Inspect Spare Tire");
+  check("a built job keeps its rhythm", spareBuilt.length === 1 && spareBuilt[0].intervalMonths === 6);
+  const todayLocal = (function () { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); })();
+  const spreadDates = builtTasks.filter((t) => t.nextDueDate).map((t) => t.nextDueDate);
+  check("spread first dues land on the chosen maintenance day", spreadDates.filter((d) => d !== todayLocal).every((d) => new Date(d + "T12:00:00").getDay() === 1));
+  check("spread first dues land inside 90 days", spreadDates.every((d) => d <= isoPlus(90)));
+  const planRes2 = R.buildPlan(rig, cGas);
+  check("building the same plan twice adds nothing", planRes2.added === 0 && planRes2.skipped === gated2.length);
+  // First-due math, direct.
+  function isoPlusMonthsLocal(months) { const d = new Date(); const out = new Date(d.getFullYear(), d.getMonth() + months, d.getDate()); return out.getFullYear() + "-" + String(out.getMonth() + 1).padStart(2, "0") + "-" + String(out.getDate()).padStart(2, "0"); }
+  check("age starts a job halfway through its rhythm", R.planFirstDue(rig, { intervalMonths: 12 }, "age", 0, 1).date === isoPlusMonthsLocal(6));
+  check("fresh starts a full rhythm", R.planFirstDue(rig, { intervalMonths: 12 }, "fresh", 0, 1).date === isoPlusMonthsLocal(12));
+  check("age halves the miles to the next due", R.planFirstDue(rig, { intervalMiles: 5000 }, "age", 0, 1).miles === (Number(rig.mileage) || 0) + 2500);
+
+  /* ---- 68. the plan setup flow, end to end (v74) ---- */
+  console.log("== 68. plan setup flow ==");
+  R.openPlanChoiceSheet(rig); await sleep(20);
+  check("the choice sheet lists the Class C plans", doc.querySelector("#sheet-host").textContent.includes("Full Class C gas plan") && doc.querySelector("#sheet-host").textContent.includes("Full Class C diesel plan"));
+  check("the choice sheet offers starting empty", !!doc.querySelector("#plan-empty"));
+  click(doc.querySelector('[data-plan="1"]')); await sleep(20);
+  check("loading a plan asks what the rig has", doc.querySelector("#sheet-host").textContent.includes("What does your rig have?"));
+  click(doc.querySelector('[data-eq="centralvac"][data-val="no"]')); await sleep(20);
+  click(doc.querySelector("#eq-save")); await sleep(20);
+  check("after the questions come the plan choices", doc.querySelector("#sheet-host").textContent.includes("How should the plan land?"));
+  click(doc.querySelector('[data-sched="fresh"]')); await sleep(20);
+  click(doc.querySelector("#plan-opts-next")); await sleep(20);
+  check("the review step shows the plan and asks yes", doc.querySelector("#sheet-host").textContent.includes("Full Class C diesel plan") && !!doc.querySelector("#plan-build") && !!doc.querySelector("#plan-wrong"));
+  click(doc.querySelector("#plan-build")); await sleep(20);
+  check("building opens the welcome screen", doc.querySelector("#sheet-host").textContent.includes("Your plan is ready"));
+  check("the welcome names the top priority and offers one today", doc.querySelector("#sheet-host").textContent.includes("Your top priority") && !!doc.querySelector("#plan-do-one"));
+  click(doc.querySelector("#plan-do-one")); await sleep(20);
+  check("Do one today opens the top job", !!doc.querySelector("#ts-log"));
+
+  /* ---- 69. parts on the Add Task form (v74) ---- */
+  console.log("== 69. parts on add task ==");
+  R.showScreen("logbook"); await sleep(20);
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  check("the add sheet has a Parts needed field", !!doc.querySelector("#at-parts") && !!doc.querySelector("#at-add-part"));
+  setVal("#at-title", "Test parts job");
+  doc.querySelector("[data-at-pname]").value = "Oil filter";
+  doc.querySelector("[data-at-ppart]").value = "LF16035";
+  click(doc.querySelector("#at-add-part")); await sleep(20);
+  const pnameEls = doc.querySelectorAll("[data-at-pname]");
+  check("another part row can be added", pnameEls.length === 2);
+  pnameEls[1].value = "Engine oil";
+  click(doc.querySelector("#at-save")); await sleep(20);
+  const partsJob = R.store().tasks.find((t) => t.title === "Test parts job");
+  check("the task is written in the book", !!partsJob);
+  const jobParts = R.store().parts.filter((p) => partsJob && p.taskId === partsJob.id);
+  check("both parts land on Parts to get, not bought", jobParts.length === 2 && jobParts.every((p) => p.bought === false) && jobParts.some((p) => p.name === "Oil filter" && p.partNo === "LF16035") && jobParts.some((p) => p.name === "Engine oil"));
+
+  /* ---- 70. guidance batch two + the caution flag (v74) ---- */
+  console.log("== 70. guidance batch two, caution ==");
+  check("guidance covers the generator exercise", R.guidanceFor("Run Generator Exercise Cycle") && R.guidanceFor("Run Generator Exercise Cycle").why.indexOf("goes stale") !== -1);
+  check("guidance covers GFCI and fresh water", R.guidanceFor("Test GFCI Outlets") && R.guidanceFor("Sanitize Fresh Water System"));
+  check("guidance covers DEF and the fire extinguisher", R.guidanceFor("Check DEF Level") && R.guidanceFor("Inspect Fire Extinguisher"));
+  check("a renamed plan job still finds its guidance", R.guidanceFor("Inspect Brake Pads and Rotors") && R.guidanceFor("Inspect Roof Sealant") && R.guidanceFor("Replace Brake Fluid"));
+  const cautionTask = R.store().tasks.find((t) => t.title === "Inspect Battery Terminals" && t.rigId === rig.id);
+  check("a plan-built battery job carries the caution flag", cautionTask && cautionTask.caution === true);
+  R.openTaskSheet(cautionTask.id); await sleep(20);
+  check("a caution job says so on its sheet", doc.querySelector("#sheet-host").textContent.indexOf("Needs care") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

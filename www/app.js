@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "73";
+  var APP_VERSION = "74";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -276,21 +276,24 @@
     {
         "look": "Look for pad thickness, scoring or rust on the rotors, and calipers that move freely. Any grinding, pulling to one side, or a pedal that feels soft is a stop-and-fix-now sign.",
         "titles": [
-            "Inspect Brake Pads, Rotors, and Calipers"
+            "Inspect Brake Pads, Rotors, and Calipers",
+            "Inspect Brake Pads and Rotors"
         ],
         "why": "Brakes are the one system you never want to find out about late. Pads wear quietly, and by the time you hear them, the rotors are paying for it."
     },
     {
         "look": "Flex every hose and look for cracks, swelling, or wet spots, and follow the steel lines for rust or rubbing. Any hose that feels soft or looks wet gets replaced.",
         "titles": [
-            "Inspect Hydraulic Brake Hoses and Lines"
+            "Inspect Hydraulic Brake Hoses and Lines",
+            "Inspect Brake Hoses and Lines"
         ],
         "why": "Rubber brake hoses age like tires do — they crack and swell from the inside, and a burst hose takes the brakes with it. Steel lines rust where you can't see them."
     },
     {
         "look": "Flush it on schedule and use the fluid type your manual calls for. If the fluid in the reservoir looks dark or cloudy, it's already overdue.",
         "titles": [
-            "Replace Hydraulic Brake Fluid"
+            "Replace Hydraulic Brake Fluid",
+            "Replace Brake Fluid"
         ],
         "why": "Brake fluid soaks up water over time, and water in the lines lowers the boiling point — on a long downhill, that can mean a pedal that goes to the floor. Old fluid also corrodes the system from inside."
     },
@@ -336,7 +339,8 @@
         "look": "Walk the roof and every outside seam — sidewalls, windows, vents — and touch up anything cracked or lifted with the right sealant for that surface. Check after every long trip and every hailstorm.",
         "titles": [
             "Outside seams — inspect & caulk",
-            "Inspect All Roof Sealant"
+            "Inspect All Roof Sealant",
+            "Inspect Roof Sealant"
         ],
         "why": "Water gets in through the smallest crack in a seam and does its damage where you can't see it — rot in the roof, stains on the ceiling, delamination on the walls. By the time you see it inside, it's been leaking a while."
     },
@@ -350,9 +354,100 @@
     {
         "look": "Follow every line for cracks, swelling, or wet spots, and check the clamps are tight. Any smell of fuel with no visible leak still means stop and find it.",
         "titles": [
-            "Inspect Gas Fuel Lines"
+            "Inspect Gas Fuel Lines",
+            "Inspect Fuel Lines"
         ],
         "why": "A fuel leak is a fire waiting for a spark, and rubber fuel lines crack with age and heat. The lines run where you rarely look."
+    },
+    {
+        "look": "Run it under load \u2014 the air conditioner is the usual test \u2014 for at least half an hour, long enough to get properly warm. Listen for surging or hunting, watch for smoke, and check underneath for drips when you shut it down.",
+        "titles": ["Run Generator Exercise Cycle", "Perform Pre-use Generator Inspection"],
+        "why": "A generator that sits for months goes stale \u2014 fuel gums up, seals dry out, and the day you need it is the day it won't start. A regular run keeps the fuel moving, the oil on the bearings, and proves it will actually carry a load when the power goes out."
+    },
+    {
+        "look": "Change it warm so it drains fully, and check the level on the dipstick after \u2014 not over the top, not below the mark. Write the hours down so the next change is on the book, not on a guess.",
+        "titles": ["Change Built-in Gasoline Generator Oil", "Change Built-in Propane Generator Oil"],
+        "why": "A generator works harder than the engine \u2014 it spins at one speed, hot, for hours, on a small sump of oil. Dirty oil is the most common reason a generator quits in the middle of a trip."
+    },
+    {
+        "look": "Drain it fully, flush until the water runs clear, and pull the anode rod \u2014 if it's down to the wire core or coated in crust, put a new one in. Never open the drain while the water is hot.",
+        "titles": ["Flush Water Heater Tank", "Inspect and Replace Anode Rod"],
+        "why": "Sediment settles at the bottom of the tank and the anode rod gives itself up so the tank doesn't rust. When the rod is gone, the tank is next \u2014 and a tank that rusts through floods the rig."
+    },
+    {
+        "look": "Run a descaling solution through it with a small pump, following the heater's own procedure, and flush it clean after. If the water where you fill up is hard, this is a yearly job, not a when-it-breaks one.",
+        "titles": ["Descale Heat Exchanger", "Schedule Annual Tankless Service"],
+        "why": "A tankless heater boils water through a small exchanger, and hard water leaves scale inside it. Scale narrows the passages, the heater works harder, and one day the water runs lukewarm and the burner throws an error."
+    },
+    {
+        "look": "Lift the lever briefly with the water hot and let it snap shut \u2014 a little water should come out the drain pipe, then stop. If nothing comes out, or it keeps dripping, replace the valve. Stand clear of the drain when you test it.",
+        "titles": ["Test Pressure Relief Valve"],
+        "why": "The relief valve is the one thing standing between a water heater and a steam explosion. It sits there for years, and mineral scale can glue it shut \u2014 the day you need it is the day it has to move."
+    },
+    {
+        "look": "Clean the terminals until they're bright, tighten every connection until it doesn't move, and on flooded batteries top up with distilled water only, just over the plates. Never smoke or spark near a battery \u2014 they give off hydrogen while charging.",
+        "titles": ["Inspect Battery Connections", "Inspect Battery Terminals", "Torque Battery Connections", "Check Water Level and Top Off"],
+        "why": "A loose or corroded battery connection is the most common reason a rig goes dark for no reason \u2014 and a bad connection gets hot enough to melt a terminal. Flooded batteries also drink water as they work, and plates left dry are ruined for good."
+    },
+    {
+        "look": "Press TEST \u2014 the power should cut off \u2014 then press RESET and the power should come back. If TEST doesn't trip it, or RESET won't hold, replace the outlet before you use it again.",
+        "titles": ["Test GFCI Outlets"],
+        "why": "A GFCI is the outlet that saves your life in a wet bathroom or a damp kitchen \u2014 it cuts the power in a fraction of a second when current leaks where it shouldn't. They wear out, and a dead one looks exactly like a live one."
+    },
+    {
+        "look": "Check the gauge is in the green, the pin is in place, and the body has no dents or rust. Shake it once \u2014 the powder inside settles and packs down over time. If the gauge is low or the date has passed, replace it.",
+        "titles": ["Inspect Fire Extinguisher"],
+        "why": "A fire in a rig doubles in size in under a minute, and the extinguisher is your one chance to stop it while it's small. An extinguisher that's lost its charge or is past its date is just a red ornament on the wall."
+    },
+    {
+        "look": "Look at every joint for torn boots, grease leaking out, or play when the wheel is rocked. Grease the fittings until fresh grease shows, and any joint that moves when it shouldn't goes to a shop before the next trip.",
+        "titles": ["Inspect Steering Linkage", "Inspect Steering Linkage and Boot Seals", "Lubricate Steering Linkage"],
+        "why": "The steering linkage is what keeps the rig going where you point it, and it lives under the rig in road spray and grit. A worn tie rod end shows up as wandering on the highway \u2014 and a failed one shows up as no steering at all."
+    },
+    {
+        "look": "Run the room out and walk every seal, top and sides, looking for tears, curling, or gaps where it doesn't touch. Clean the seals and the sweeps, treat them so they stay soft, and clear leaves and grit from the top of the room before you bring it in.",
+        "titles": ["Inspect Slide Seals", "Clean Slide Box and Sweeps", "Inspect Slide Seals (Hydraulic) (Hydraulic)", "Inspect Slide Seals (Schwintek in-Wall) (Schwintek in-wall)", "Clean Slide Box and Sweeps (Hydraulic) (Hydraulic)", "Clean Slide Box and Sweeps (Schwintek in-Wall) (Schwintek in-wall)"],
+        "why": "Slide seals are the only thing between the rain and your floor, and they fold, rub, and bake in the sun every time the room moves. A seal that curls or tears lets water in quietly \u2014 and the floor rots from the inside out."
+    },
+    {
+        "look": "Look at every hose and fitting for wet spots, and check the cylinders for scored rods or leaking seals. Extend the jacks, leave them overnight, and measure \u2014 if a corner has sunk by morning, have it fixed before you trust it again.",
+        "titles": ["Inspect Hydraulic Leveling Hoses and Fittings", "Perform Hydraulic Leveling System Pressure and Hold Test"],
+        "why": "The leveling system holds the whole rig up on four small rams, at pressure, for days at a time. A weeping hose or a cylinder that creeps down overnight is the system telling you it's about to drop a corner."
+    },
+    {
+        "look": "Run a weak bleach solution through the whole system, let it sit, then flush until the smell is gone \u2014 every tap, the shower, and the outside shower too. Do it after any long sit, and at least once a season.",
+        "titles": ["Sanitize Fresh Water System"],
+        "why": "Warm water sitting in a tank grows things \u2014 and the water you drink, cook with, and wash in comes out of that tank. A system that's never sanitized can taste fine and still not be."
+    },
+    {
+        "look": "Flush with plenty of water until it runs clear, and use the built-in rinser if you have one. If the sensors read full on an empty tank, the probes are coated \u2014 a proper flush and a tank treatment will usually bring them back.",
+        "titles": ["Black Tank Treatment & Flush", "Clean Black Tank Sensors"],
+        "why": "A black tank that isn't flushed properly leaves solids behind, and the sensors lie about the level \u2014 which is how a tank gets overfilled. A clean tank is the difference between a routine dump and a mess you can't unsee."
+    },
+    {
+        "look": "Change it warm so it drains fully, fit a new filter, and fill to the mark \u2014 then check the level again after a short run. Write the mileage down; the next change is on the book, not on a guess.",
+        "titles": ["Change Engine Oil and Filter", "Change Engine Oil and Oil Filter"],
+        "why": "Oil is the only thing between your engine's moving parts and each other. It picks up soot, fuel, and grit, and after enough miles it can't hold any more \u2014 that's when wear starts, quietly, every mile."
+    },
+    {
+        "look": "Hold the filter up to the light \u2014 if you can't see through it, replace it. Tap the dust out of a serviceable one, but never blow it out with compressed air from the clean side. Check the housing seal sits flat, or dust gets past the filter entirely.",
+        "titles": ["Replace Engine Air Filter", "Inspect and Clean Air Filter", "Inspect Air Filter in Dusty Service"],
+        "why": "An engine breathes through its air filter, and a clogged one makes it work harder, burn more fuel, and run hotter. In dusty country a filter can load up in one trip."
+    },
+    {
+        "look": "Check the level cold, in the reservoir, and test the freeze protection with a hydrometer. When you change it, flush until the water runs clear and refill with the right mix \u2014 and never open a hot radiator cap.",
+        "titles": ["Change Engine Coolant", "Replace Engine Coolant", "Check Coolant Level and Concentration"],
+        "why": "Coolant keeps the engine from boiling over in summer and cracking in winter, and the additives that stop rust wear out long before the coolant looks dirty. An engine that overheats on a grade is usually an engine whose coolant was overdue."
+    },
+    {
+        "look": "Keep the tank topped up with certified fluid only, from a sealed container \u2014 never from an open jug that's been sitting around. Check the lines and the pump for white crust or leaks, and keep the filler cap clean so grit can't get in.",
+        "titles": ["Check DEF Level", "Refill DEF with Certified Fluid", "Inspect DEF Lines and Pump", "Inspect DEF Tank and Heater"],
+        "why": "DEF is what lets a diesel run clean, and the system watches it closely \u2014 run dry and the engine cuts power to a crawl, right when you're merging onto the highway. Contaminated DEF is worse: it can kill the injector and the catalyst in one go."
+    },
+    {
+        "look": "Clean the filters and the condenser fins, check the drain isn't clogged, and listen for a fan that grinds or a compressor that won't start. On the furnace, look at the burner flame \u2014 it should be steady and blue \u2014 and check the vent outside is clear of nests and debris.",
+        "titles": ["Inspect Rooftop AC Unit", "Schedule Annual AC Service", "Schedule Annual Furnace Service", "Inspect Furnace and Ducting"],
+        "why": "The rooftop unit and the furnace are the two things that make the rig livable in bad weather, and both of them fail at the worst moment \u2014 the first hot weekend, the first cold night. A yearly look catches a tired capacitor or a dirty burner before the season does."
     }
   ];
   function guidanceFor(title) {
@@ -550,7 +645,7 @@
       nextDueDate: o.nextDueDate || null, nextDueMileage: o.nextDueMileage != null ? Number(o.nextDueMileage) : null,
       nextDueGenHours: o.nextDueGenHours != null ? Number(o.nextDueGenHours) : null,
       note: o.note || "", lastDoneAt: o.lastDoneAt || null,
-      needsPro: !!o.needsPro, proId: o.proId || null, proShop: (o.proShop || "").trim(),
+      needsPro: !!o.needsPro, caution: !!o.caution, proId: o.proId || null, proShop: (o.proShop || "").trim(),
       lastDoneMileage: o.lastDoneMileage != null ? Number(o.lastDoneMileage) : null,
       lastDoneGenHours: o.lastDoneGenHours != null ? Number(o.lastDoneGenHours) : null,
       snoozedUntil: null, createdAt: todayISO()
@@ -1299,7 +1394,7 @@
   ];
 
   /* ---------------- rig questions (fit the jobs to the rig) --------------- */
-  /* Fourteen quick questions, asked in plain words, so the usual-jobs list
+  /* Seventeen quick questions, asked in plain words, so the usual-jobs list
      only shows work this rig actually has. No data to import? This is
      the quick way to build the book instead. "Not sure" is always a
      fine answer — it never hides a job. */
@@ -1317,7 +1412,10 @@
     { key: "fuel", label: "Gas or diesel?", options: [["gas", "Gas"], ["diesel", "Diesel"]], motorized: true },
     { key: "washerdryer", label: "Washer/dryer?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "icemaker", label: "Fridge ice maker?", options: [["yes", "Yes"], ["no", "No"]] },
-    { key: "dishwasher", label: "Dishwasher?", options: [["yes", "Yes"], ["no", "No"]] }
+    { key: "dishwasher", label: "Dishwasher?", options: [["yes", "Yes"], ["no", "No"]] },
+    { key: "centralvac", label: "Central vacuum?", options: [["yes", "Yes"], ["no", "No"]] },
+    { key: "sparetire", label: "Spare tire?", options: [["yes", "Yes"], ["no", "No"]] },
+    { key: "slidetoppers", label: "Slide toppers?", options: [["yes", "Yes"], ["no", "No"]] }
   ];
   var ROOF_NOTES = {
     /* Rubber roofs come in two kinds (Nov 15: Rick — it matters).
@@ -1340,9 +1438,17 @@
     agm: "No water to top up — just clean the terminals and check the connections.",
     lithium: "No water to top up — check the connections and the battery monitor."
   };
-  function openEquipmentSheet() {
+  /* next: what to open after the answers are saved (or skipped). No next
+     means the usual-jobs list — the old path. The prebuilt-plan flow
+     passes its own next, so the answers feed straight into the plan. */
+  function openEquipmentSheet(next) {
     var rig = activeRig(); if (!rig) return;
     var draft = JSON.parse(JSON.stringify(rig.equipment || {}));
+    function done() {
+      closeSheet();
+      if (typeof next === "function") next();
+      else openStarterTasksSheet();
+    }
     function draw() {
       // Gas or diesel only makes sense on a motorhome — a trailer has no engine.
       var qs = EQUIPMENT_QUESTIONS.filter(function (q) { return !q.motorized || /class [abc]/i.test(rig.type || ""); });
@@ -1364,9 +1470,9 @@
         b.addEventListener("click", function () { draft[b.getAttribute("data-eq")] = b.getAttribute("data-val"); draw(); });
       });
       $("#eq-save").addEventListener("click", function () {
-        rig.equipment = draft; save(); closeSheet(); openStarterTasksSheet(); toast("The usual jobs now fit your rig.");
+        rig.equipment = draft; save(); done(); toast("The usual jobs now fit your rig.");
       });
-      $("#eq-skip").addEventListener("click", function () { closeSheet(); openStarterTasksSheet(); });
+      $("#eq-skip").addEventListener("click", done);
     }
     draw();
   }
@@ -2565,7 +2671,7 @@
     yearly: "rollonrv_premium_yearly",
     lifetime: "rollonrv_premium_lifetime"
   };
-  var PRO_PRICES = { monthly: "$3.99/mo", yearly: "$39.99/yr", lifetime: "$79.99" };
+  var PRO_PRICES = { monthly: "$4.99/mo", yearly: "$39.99/yr", lifetime: "$79.99" };
   var PRO_CONFIG = {
     // dev builds only: true unlocks Pro locally for testing. Always false
     // in release. (Same pattern as the Bible app's NOVA_CONFIG.devUnlock.)
@@ -2576,7 +2682,16 @@
     // grants it. No account, no backdoor, nothing special in the code.
     devUnlock: false
   };
-  var proStoreReady = false;
+  /* Two separate facts about the store, tracked separately — that is the
+     v74 fix for the Nov 17 sandbox test, where tapping a plan sat on
+     "Opening the store…" forever. "Initialized" means we called
+     initialize() once (registering twice is a bug, so this is guarded).
+     "Ready" means the store's ready() callback actually fired, which is
+     the only moment order() can be trusted to reach Apple. v73 set one
+     flag right after initialize() and never looked back, so a store that
+     never became ready left the user stuck with no error and no retry. */
+  var proStoreInitialized = false;
+  var proStoreReadyFired = false;
   function getPremium() {
     var s = store.settings || {};
     var p = s.premium;
@@ -2671,11 +2786,11 @@
       blurb.textContent = "Pro is on" +
         (p.productId ? " — " + proPlanLabel(p.productId) : "") +
         (p.since ? " since " + fmtDate(new Date(p.since).toISOString().slice(0, 10)) : "") +
-        ". The ownership report, the Rig Binder, parts & warranty tracking, more rigs, and backup are yours.";
+        ". The ownership report, the Document Vault, parts & warranty tracking, more rigs, and backup are yours.";
       btn.textContent = "Pro is active";
     } else {
       title.innerHTML = 'Premium <span class="hand">— a drawer for later</span>';
-      blurb.textContent = "The free core is the whole book, and it stays free. Pro adds the extras behind the door: the ownership report, the Rig Binder document vault, parts & warranty tracking, more than one rig, and backup.";
+      blurb.textContent = "The free core is the whole book, and it stays free. Pro adds the extras behind the door: the ownership report, the Document Vault, parts & warranty tracking, more than one rig, and backup.";
       btn.textContent = "See Pro plans";
     }
   }
@@ -2684,7 +2799,7 @@
     if ($("#pro-paywall")) openProPaywall();
   }
   function proStoreInit() {
-    if (!proStoreAvailable() || proStoreReady) return;
+    if (!proStoreAvailable() || proStoreInitialized) return;
     try {
       var S = window.CdvPurchase;
       var platform = window.Capacitor.getPlatform() === "ios" ? S.Platform.APPLE_APPSTORE : S.Platform.GOOGLE_PLAY;
@@ -2705,10 +2820,25 @@
           if (err && err.code === S.ErrorCode.PAYMENT_CANCELLED) proStoreNote("Purchase cancelled — nothing was charged.");
           else proStoreNote("The store reported a problem. Please try again.");
         });
-      S.store.ready(function () { proRecheckOwnership(); });
+      S.store.ready(function () { proStoreReadyFired = true; proRecheckOwnership(); });
       S.store.initialize();
-      proStoreReady = true;
-    } catch (e) { /* store unavailable — subscribe falls back to the note */ }
+      proStoreInitialized = true;
+    } catch (e) { /* store unavailable — init stays unflagged, so a later
+                     tap can try again instead of giving up forever */ }
+  }
+  /* Wait for the store's ready() callback, up to timeoutMs. Resolves true
+     the moment ready has fired, false if it never does — the caller then
+     says so plainly instead of leaving "Opening the store…" on screen. */
+  function proStoreWaitReady(timeoutMs) {
+    if (proStoreReadyFired) return Promise.resolve(true);
+    return new Promise(function (resolve) {
+      var waited = 0;
+      var timer = setInterval(function () {
+        if (proStoreReadyFired) { clearInterval(timer); resolve(true); return; }
+        waited += 250;
+        if (waited >= timeoutMs) { clearInterval(timer); resolve(false); }
+      }, 250);
+    });
   }
   function proRestorePurchases() {
     if (!proStoreAvailable()) {
@@ -2722,7 +2852,7 @@
       proStoreNote("Restore couldn't run right now. Please try again.");
     }
   }
-  function proSubscribe(plan) {
+  function proSubscribe(plan, timeoutMs) {
     if (!proStoreAvailable()) {
       // No native store (web, or products not wired yet): say so plainly
       // instead of taking anyone's money or failing quietly.
@@ -2730,12 +2860,35 @@
       return;
     }
     var productId = PRO_PRODUCT_IDS[plan] || PRO_PRODUCT_IDS.monthly;
-    proStoreNote("Opening the store…");
-    try {
-      window.CdvPurchase.store.order(productId);
-    } catch (e) {
-      proStoreNote("The store couldn't open the purchase. Please try again.");
+    // If initialization never ran (or threw at boot), try it now — the
+    // guard inside proStoreInit keeps a second call from registering twice.
+    proStoreInit();
+    if (proStoreReadyFired) {
+      try {
+        window.CdvPurchase.store.order(productId);
+      } catch (e) {
+        proStoreNote("The store couldn't open the purchase. Please try again.");
+      }
+      return;
     }
+    // The store hasn't said it's ready yet. order() before ready waits
+    // forever with no error — that is the Nov 17 sandbox failure — so
+    // wait for ready up to 15 seconds, and if it never comes, say so
+    // plainly and let the user try again. Never leave them on
+    // "Opening the store…" with no way out. (timeoutMs is a test hook —
+    // the app always calls with the default.)
+    proStoreNote("Opening the store…");
+    proStoreWaitReady(timeoutMs || 15000).then(function (ok) {
+      if (ok) {
+        try {
+          window.CdvPurchase.store.order(productId);
+        } catch (e) {
+          proStoreNote("The store couldn't open the purchase. Please try again.");
+        }
+      } else {
+        proStoreNote("The store isn't responding right now. Check your connection, then try again.");
+      }
+    });
   }
   // The paywall has to do the selling — there is no free trial, so the
   // door has a window: every Pro feature is named plainly, with what it
@@ -2746,7 +2899,7 @@
     var html = sheetHead("RollOnRV Pro", "The free core is the whole book, and it stays free. Pro opens the extras behind the door.") +
       '<div id="pro-paywall">' +
       '<p class="small"><b>Ownership report.</b> One clean PDF of the whole book, ready to hand a buyer when you sell the rig.</p>' +
-      '<p class="small"><b>Rig Binder.</b> Your document vault — registration, insurance, warranties, manuals — with expiry alerts so nothing lapses quietly.</p>' +
+      '<p class="small"><b>Document Vault.</b> Your document vault — registration, insurance, warranties, manuals — with expiry alerts so nothing lapses quietly.</p>' +
       '<p class="small"><b>Parts &amp; warranty tracking.</b> Every part you bought, what it cost, and when its warranty runs out.</p>' +
       '<p class="small"><b>More than one rig.</b> A book for each rig you own, in the same app.</p>' +
       '<p class="small"><b>Backup.</b> A copy of your book, safe if the phone is lost or replaced.</p>' +
@@ -2758,7 +2911,7 @@
         '.</b> The extras above are yours.</p>';
     } else {
       html += '<div class="field"><label>Choose a plan</label>' +
-        '<div class="btnrow"><button class="btn block" id="pro-buy-monthly" type="button">Monthly — $3.99 a month</button></div>' +
+        '<div class="btnrow"><button class="btn block" id="pro-buy-monthly" type="button">Monthly — $4.99 a month</button></div>' +
         '<div class="btnrow"><button class="btn block" id="pro-buy-yearly" type="button">Yearly — $39.99 a year</button></div>' +
         '<div class="btnrow"><button class="btn block" id="pro-buy-lifetime" type="button">Lifetime — $79.99 once, yours forever</button></div></div>';
     }
@@ -2768,6 +2921,10 @@
     return html;
   }
   function openProPaywall() {
+    // Warm the store up while the user reads — initialization may not
+    // have run at boot (web preview) or may have thrown; the guard inside
+    // proStoreInit keeps this from registering twice.
+    proStoreInit();
     openSheet(proPaywallHTML());
     wireClose(sheetHost);
     var m = $("#pro-buy-monthly"); if (m) m.addEventListener("click", function () { proSubscribe("monthly"); });
@@ -2799,6 +2956,7 @@
       });
     }
     function draw() {
+      var deleteArmed = false;
       var partsHtml = draft.parts.map(function (p, i) {
         var row = '<div class="fieldrow" data-part="' + i + '" data-counted="' + (p.counted === false ? "0" : "1") + '">' +
           '<div class="field" style="flex:2;margin-top:.4rem"><input data-pname placeholder="Part — e.g. Oil filter" value="' + esc(p.name || "") + '" /></div>' +
@@ -2930,7 +3088,17 @@
       });
       var del = $("#lj-delete");
       if (del) del.addEventListener("click", function () {
-        if (!confirm("Delete this entry from the book?")) return;
+        // Armed two-tap, no confirm(): one tap only arms it ("Tap again
+        // to delete"), a second tap deletes. v73 deleted on a confirm()
+        // right after a single tap, and a tap on a logbook cost opened
+        // this sheet with the delete button right there — too easy to
+        // lose a real entry. Deleting is still allowed; it just has to
+        // be deliberate.
+        if (!deleteArmed) {
+          deleteArmed = true;
+          del.textContent = "Tap again to delete this entry";
+          return;
+        }
         store.logs = store.logs.filter(function (l) { return l.id !== existing.id; });
         save(); closeSheet(); renderLogbook();
       });
@@ -3071,6 +3239,7 @@
       sheetHead(esc(task.title), esc(task.category)) +
       '<p><span class="pill ' + (st.level === "overdue" ? "red" : st.level === "soon" ? "amber" : "green") + '">' + esc(st.text) + '</span></p>' +
       (task.note ? '<p>' + esc(task.note) + '</p>' : '') +
+      (task.caution ? '<p><b>⚠️ Needs care.</b> Read the guidance below before you start this one.</p>' : '') +
       (task.needsPro ? proLine(task) : '') +
       guidanceHTML(task) +
       '<div class="row"><div class="grow"><div class="title">Every</div><div class="sub">Cadence, when it repeats</div></div><b>' +
@@ -3204,6 +3373,182 @@
     draw();
   }
 
+  /* ---------------- prebuilt plans ---------------------------------------- */
+  /* Thirteen plans built from seven exported maintenance plans (Nov 16):
+     one per rig type, plus six derived from those (Class C diesel, teardrop,
+     pop-up, destination trailer, truck camper, toy hauler). The data lives
+     in plans.js as PREBUILT_PLANS — titles, components, intervals, caution
+     and hire-out flags only. No dates, no odometer readings, no personal
+     data of any kind: a plan is a shape, and the first due dates are
+     figured out here, from this rig, when it is built. */
+  var PLAN_SCHEDULES = [
+    ["age", "Estimate based on my RV's age", "Jobs that repeat every few months land about halfway through their rhythm — the rig is partway there already."],
+    ["fresh", "Start fresh, as if everything was just serviced", "Every job starts a full rhythm from today."],
+    ["spread", "Spread everything across my first 90 days", "Jobs land a few at a time over the next three months, so the first week isn't a wall of work."]
+  ];
+  var WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  function plansForRig(rig) {
+    var all = (typeof PREBUILT_PLANS !== "undefined" ? PREBUILT_PLANS : []);
+    if (!rig || !rig.type || rig.type === "Other") return all;
+    var fit = all.filter(function (p) { return (p.rigTypes || []).indexOf(rig.type) !== -1; });
+    return fit.length ? fit : all;
+  }
+  function planJobsFor(rig, plan) {
+    return (plan.jobs || []).filter(function (j) { return starterApplies(j, rig); });
+  }
+  /* First due for one plan job, from the starting-schedule choice. Age
+     starts a job halfway through its rhythm; fresh starts a full rhythm;
+     spread deals the date-based jobs out evenly across 90 days, then
+     nudges each one forward to the next chosen maintenance day. Miles
+     and generator hours work the same way, from the rig's own readings. */
+  function planFirstDue(rig, job, schedule, index, total) {
+    var date = null, miles = null, hours = null;
+    var today = todayISO();
+    if (job.intervalMonths) {
+      if (schedule === "spread") {
+        var day = Math.floor(index / Math.max(1, total) * 90);
+        date = addDaysISO(today, day);
+        var days = (rig.maintDays && rig.maintDays.length) ? rig.maintDays : [0, 1, 2, 3, 4, 5, 6];
+        var d = new Date(date + "T12:00:00");
+        for (var k = 0; k < 7; k++) { if (days.indexOf(d.getDay()) !== -1) break; d.setDate(d.getDate() + 1); }
+        date = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      } else {
+        var months = schedule === "age" ? Math.max(1, Math.round(job.intervalMonths / 2)) : job.intervalMonths;
+        date = addMonthsISO(today, months);
+      }
+    }
+    if (job.intervalMiles) miles = (Number(rig.mileage) || 0) + (schedule === "age" ? Math.round(job.intervalMiles / 2) : job.intervalMiles);
+    if (job.intervalGenHours) hours = (Number(rig.genHours) || 0) + (schedule === "age" ? Math.round(job.intervalGenHours / 2) : job.intervalGenHours);
+    if (!date && !miles && !hours) date = today;
+    return { date: date, miles: miles, hours: hours };
+  }
+  function buildPlan(rig, plan) {
+    var schedule = rig.planSchedule || "spread";
+    var jobs = planJobsFor(rig, plan);
+    var added = 0, skipped = 0;
+    jobs.forEach(function (j, i) {
+      var dup = store.tasks.some(function (t) {
+        return t.rigId === rig.id && cleanTaskTitle(t.title).toLowerCase() === cleanTaskTitle(j.title).toLowerCase() && t.category === j.category;
+      });
+      if (dup) { skipped++; return; }
+      var due = planFirstDue(rig, j, schedule, i, jobs.length);
+      store.tasks.push(newTask({
+        rigId: rig.id, title: j.title, category: j.category,
+        intervalMonths: j.intervalMonths, intervalMiles: j.intervalMiles, intervalGenHours: j.intervalGenHours,
+        needsPro: !!j.pro, caution: !!j.caution,
+        nextDueDate: due.date, nextDueMileage: due.miles, nextDueGenHours: due.hours
+      }));
+      added++;
+    });
+    save(); scheduleReminders();
+    return { added: added, skipped: skipped, total: jobs.length };
+  }
+  function openPlanChoiceSheet(rig, opts) {
+    opts = opts || {};
+    var plans = plansForRig(rig);
+    openSheet(
+      sheetHead("Start with a full plan", "A whole maintenance plan for a rig like yours — every job, rhythms already set. It loads in seconds, and you can take anything out after.") +
+      plans.map(function (p, i) {
+        return '<div class="row"><div class="grow"><div class="title">' + esc(p.label) + '</div>' +
+          '<div class="sub">' + (p.jobs || []).length + ' jobs</div></div>' +
+          '<button class="btn ghost" type="button" data-plan="' + i + '">Load</button></div>';
+      }).join("") +
+      '<div class="btnrow"><button class="btn ghost block" id="plan-empty" type="button">Start empty — I\'ll add jobs myself</button></div>' +
+      '<div class="btnrow"><button class="btn secondary block" data-close type="button">Not now</button></div>'
+    );
+    wireClose(sheetHost);
+    $all("[data-plan]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var plan = plans[Number(b.getAttribute("data-plan"))];
+        closeSheet();
+        // What does your rig have? The plan only loads the jobs that fit.
+        openEquipmentSheet(function () { openPlanOptionsSheet(rig, plan); });
+      });
+    });
+    $("#plan-empty").addEventListener("click", function () { closeSheet(); if (opts.afterSetup) toast("Empty book — add your first job whenever."); });
+  }
+  function openPlanOptionsSheet(rig, plan) {
+    var days = [0, 1, 2, 3, 4, 5, 6];
+    var schedule = "spread";
+    function draw() {
+      openSheet(
+        sheetHead("How should the plan land?", "Two quick choices, then a look before it goes in the book.") +
+        '<div class="field"><label>Which days work for maintenance?</label><div class="btnrow">' +
+        WEEKDAYS.map(function (d, i) {
+          var sel = days.indexOf(i) !== -1;
+          return '<button class="btn small ' + (sel ? "" : "ghost") + '" type="button" data-day="' + i + '">' + d.slice(0, 3) + '</button>';
+        }).join("") + '</div></div>' +
+        '<div class="field"><label>How should we build your starting schedule?</label>' +
+        PLAN_SCHEDULES.map(function (s) {
+          return '<div class="btnrow"><button class="btn block ' + (schedule === s[0] ? "" : "ghost") + '" type="button" data-sched="' + s[0] + '">' + s[1] + '</button></div>' +
+            (schedule === s[0] ? '<p class="small muted">' + s[2] + '</p>' : '');
+        }).join("") + '</div>' +
+        '<div class="btnrow"><button class="btn block" id="plan-opts-next" type="button">Look before it goes in</button></div>'
+      );
+      wireClose(sheetHost);
+      $all("[data-day]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var i = Number(b.getAttribute("data-day"));
+          if (days.indexOf(i) !== -1) { if (days.length > 1) days = days.filter(function (x) { return x !== i; }); }
+          else days.push(i);
+          draw();
+        });
+      });
+      $all("[data-sched]").forEach(function (b) {
+        b.addEventListener("click", function () { schedule = b.getAttribute("data-sched"); draw(); });
+      });
+      $("#plan-opts-next").addEventListener("click", function () {
+        rig.maintDays = days.slice().sort(); rig.planSchedule = schedule; save();
+        closeSheet(); openPlanConfirmSheet(rig, plan);
+      });
+    }
+    draw();
+  }
+  function openPlanConfirmSheet(rig, plan) {
+    var jobs = planJobsFor(rig, plan);
+    var systems = {};
+    jobs.forEach(function (j) { systems[j.category] = true; });
+    var sched = PLAN_SCHEDULES.filter(function (s) { return s[0] === (rig.planSchedule || "spread"); })[0];
+    var days = (rig.maintDays || [0, 1, 2, 3, 4, 5, 6]).map(function (i) { return WEEKDAYS[i].slice(0, 3); }).join(", ");
+    var rigName = [rig.year, rig.make, rig.model].filter(Boolean).join(" ") || rig.nickname || "Your rig";
+    openSheet(
+      sheetHead("Your plan is ready to build", "Check it over — nothing goes in the book until you say yes.") +
+      '<div class="card"><div class="row"><div class="grow"><div class="title">' + esc(rigName) + '</div><div class="sub">' + esc(rig.type || "") + '</div></div></div>' +
+      '<div class="row"><div class="grow"><div class="title">' + esc(plan.label) + '</div><div class="sub">' + jobs.length + ' jobs across ' + Object.keys(systems).length + ' systems</div></div></div>' +
+      '<p class="small">' + esc(sched ? sched[1] : "") + '</p>' +
+      '<p class="small muted">Maintenance days: ' + esc(days) + '</p></div>' +
+      '<div class="btnrow"><button class="btn block" id="plan-build" type="button">Yes, build my plan</button></div>' +
+      '<div class="btnrow"><button class="btn ghost block" id="plan-wrong" type="button">Something is wrong</button></div>'
+    );
+    wireClose(sheetHost);
+    $("#plan-build").addEventListener("click", function () {
+      var res = buildPlan(rig, plan);
+      closeSheet(); renderLogbook(); renderHome();
+      openPlanWelcomeSheet(rig, plan, res);
+    });
+    $("#plan-wrong").addEventListener("click", function () {
+      closeSheet();
+      openEquipmentSheet(function () { openPlanOptionsSheet(rig, plan); });
+    });
+  }
+  function openPlanWelcomeSheet(rig, plan, res) {
+    var systems = {};
+    planJobsFor(rig, plan).forEach(function (j) { systems[j.category] = true; });
+    var top = nextUpTasks(rig, 1)[0];
+    openSheet(
+      sheetHead("Your plan is ready", plan.label + " — " + res.added + " jobs across " + Object.keys(systems).length + " systems, in the book.") +
+      (top ? '<div class="card"><div class="sub">Your top priority</div><div class="title">' + esc(top.task.title) + '</div><div class="sub">' + esc(top.task.category) + ' · ' + esc(top.status.text) + '</div></div>' : "") +
+      '<div class="btnrow"><button class="btn block" id="plan-do-one" type="button">Do one today</button></div>' +
+      '<div class="btnrow"><button class="btn secondary block" data-close type="button">Not now</button></div>'
+    );
+    wireClose(sheetHost);
+    var btn = $("#plan-do-one");
+    if (btn) btn.addEventListener("click", function () {
+      closeSheet();
+      if (top) openTaskSheet(top.task.id); else showScreen("logbook");
+    });
+  }
+
   /* The pro picker inside a task sheet: pick one of your pros, or add a
      new one right here — the name, number and town join My pros when the
      task is written in the book. A job from before the list existed
@@ -3260,16 +3605,29 @@
       '<div class="fieldrow"><div class="field"><label for="at-due-date">Due date</label><input id="at-due-date" type="date" /></div>' +
       '<div class="field"><label for="at-due-miles">Due at (miles)</label><input id="at-due-miles" inputmode="numeric" placeholder="" /></div></div>' +
       '<div class="field"><label for="at-note">Note</label><textarea id="at-note" placeholder="What to look for, what it takes."></textarea></div>' +
+      '<div class="field"><label>Parts needed — what this job takes (optional)</label><div id="at-parts">' +
+      '<div class="fieldrow"><div class="field" style="flex:2"><input data-at-pname placeholder="Part — e.g. Oil filter" /></div>' +
+      '<div class="field" style="flex:1.4"><input data-at-ppart placeholder="Part no." /></div></div></div>' +
+      '<button class="btn small ghost" id="at-add-part" type="button">＋ Add another part</button></div>' +
       '<div class="btnrow"><button class="btn ghost block" id="at-pro" type="button">🔧 Leave it to the pro — not for this one</button></div>' +
       '<div id="at-pro-wrap" hidden>' + proAreaHTML("at", null) + '</div>' +
       '<div class="btnrow"><button class="btn block" id="at-save" type="button">Write it in the book</button></div>' +
-      '<div class="btnrow"><button class="btn ghost block" id="at-starters" type="button">Or start with the usual jobs</button></div>'
+      '<div class="btnrow"><button class="btn ghost block" id="at-starters" type="button">Or start with the usual jobs</button></div>' +
+      '<div class="btnrow"><button class="btn ghost block" id="at-plan" type="button">Or load a prebuilt plan</button></div>'
     );
     wireClose(sheetHost);
     var pro = false;
     wireProArea("at");
     $("#at-pro").addEventListener("click", function () { pro = !pro; $("#at-pro").textContent = pro ? "🔧 Leave it to the pro — this one's for a shop" : "🔧 Leave it to the pro — not for this one"; $("#at-pro-wrap").hidden = !pro; });
     $("#at-starters").addEventListener("click", function () { closeSheet(); openStarterTasksSheet(); });
+    $("#at-plan").addEventListener("click", function () { closeSheet(); openPlanChoiceSheet(rig); });
+    $("#at-add-part").addEventListener("click", function () {
+      var row = document.createElement("div");
+      row.className = "fieldrow";
+      row.innerHTML = '<div class="field" style="flex:2"><input data-at-pname placeholder="Part — e.g. Oil filter" /></div>' +
+        '<div class="field" style="flex:1.4"><input data-at-ppart placeholder="Part no." /></div>';
+      $("#at-parts").appendChild(row);
+    });
     $("#at-save").addEventListener("click", function () {
       var title = $("#at-title").value.trim();
       if (!title) { toast("Give the task a name first."); return; }
@@ -3284,7 +3642,16 @@
         note: $("#at-note").value.trim(), needsPro: pro,
         proId: proPick.proId, proShop: proPick.proShop
       });
-      store.tasks.push(task); save(); scheduleReminders();
+      store.tasks.push(task);
+      // Parts named here go straight onto "Parts to get" — not bought
+      // yet, tied to this job, so they show up when the job comes due.
+      $all("[data-at-pname]").forEach(function (nameEl, i) {
+        var name = nameEl.value.trim();
+        if (!name) return;
+        var noEl = $all("[data-at-ppart]")[i];
+        store.parts.push(newPart({ rigId: rig.id, taskId: task.id, name: name, partNo: noEl ? noEl.value.trim() : "" }));
+      });
+      save(); scheduleReminders();
       closeSheet(); renderLogbook(); toast("Written in the book.");
     });
   }
@@ -3452,11 +3819,12 @@
       store.rigs.push(rig); store.activeRigId = rig.id;
       // Tasks imported before the rig existed attach to it now.
       store.tasks.forEach(function (t) { if (t.rigId === "pending") t.rigId = rig.id; });
-      // Offer the starter list? No — keep setup honest: rig is in, book is open.
       save();
       $("#tabbar").style.display = "";
       showScreen("home");
-      toast("Welcome to the logbook.");
+      // A new rig starts empty — offer a full prebuilt plan before
+      // anything else. Starting empty is one tap away on the same sheet.
+      openPlanChoiceSheet(rig, { afterSetup: true });
     });
     $("#su-type").addEventListener("change", function () { $("#setup-type-art").innerHTML = rigSilhouette($("#su-type").value); });
     $("#setup-type-art").innerHTML = rigSilhouette($("#su-type").value);
@@ -3613,9 +3981,16 @@
     GUIDANCE: GUIDANCE, guidanceFor: guidanceFor,
     getPremium: getPremium, isPro: isPro, grantPremium: grantPremium,
     proStoreAvailable: proStoreAvailable, proStoreInit: proStoreInit,
+    proStoreWaitReady: proStoreWaitReady,
+    proStoreState: function () { return { initialized: proStoreInitialized, ready: proStoreReadyFired }; },
     proSubscribe: proSubscribe, proRestorePurchases: proRestorePurchases,
     proPaywallHTML: proPaywallHTML, openProPaywall: openProPaywall,
     proRecheckOwnership: proRecheckOwnership, proProductIdFromReceipt: proProductIdFromReceipt,
+    plansForRig: plansForRig, planJobsFor: planJobsFor, buildPlan: buildPlan, planFirstDue: planFirstDue,
+    openPlanChoiceSheet: openPlanChoiceSheet, openPlanOptionsSheet: openPlanOptionsSheet,
+    openPlanConfirmSheet: openPlanConfirmSheet, openPlanWelcomeSheet: openPlanWelcomeSheet,
+    openEquipmentSheet: openEquipmentSheet, openStarterTasksSheet: openStarterTasksSheet, openAddTaskSheet: openAddTaskSheet,
+    PREBUILT_PLANS: (typeof PREBUILT_PLANS !== "undefined" ? PREBUILT_PLANS : []),
     PRO_PRODUCT_IDS: PRO_PRODUCT_IDS, PRO_PRICES: PRO_PRICES, PRO_CONFIG: PRO_CONFIG,
     rigSilhouette: rigSilhouette, setRigPhoto: setRigPhoto,
     photoPendingSet: function () { return !!photoPending; },
