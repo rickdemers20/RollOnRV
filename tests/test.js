@@ -767,7 +767,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 82"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 83"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1768,7 +1768,10 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   };
   fakeChain.approved = function (fn) { fakeStore.approvedFn = fn; return fakeChain; };
   fakeChain.verified = function (fn) { fakeStore.verifiedFn = fn; return fakeChain; };
-  fakeChain.error = function (fn) { fakeStore.errorFn = fn; return fakeChain; };
+  // No .error() on the fake chain: the real plugin's when() chain has
+  // none either (Nov 19, build 39 — the old fake had it, which hid the
+  // throw that kept the store from ever initializing). If app code
+  // chains .error() again, this fake throws exactly like the real one.
   window.CdvPurchase = {
     store: fakeStore,
     ProductType: { PAID_SUBSCRIPTION: "PAID_SUBSCRIPTION", NON_CONSUMABLE: "NON_CONSUMABLE" },
@@ -1816,7 +1819,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   R.proRestorePurchases();
   check("restore asks the store for purchases", fakeStore.restored === true);
   R.openProPaywall(); await sleep(20);
-  fakeStore.errorFn({ code: "PAYMENT_CANCELLED" });
+  fakeStore.globalErrorFn({ code: "PAYMENT_CANCELLED" });
   check("a cancelled purchase says nothing was charged", doc.querySelector(".pro-note").textContent.indexOf("nothing was charged") !== -1);
   fakeStore._owned = [];
   R.proRecheckOwnership();
@@ -1881,7 +1884,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   };
   fakeChain3.approved = function (fn) { fakeStore3.approvedFn = fn; return fakeChain3; };
   fakeChain3.verified = function (fn) { fakeStore3.verifiedFn = fn; return fakeChain3; };
-  fakeChain3.error = function (fn) { fakeStore3.errorFn = fn; return fakeChain3; };
+  // No .error() here either — the real when() chain has none (see the
+  // note above fakeChain).
   win3.CdvPurchase = {
     store: fakeStore3,
     ProductType: { PAID_SUBSCRIPTION: "PAID_SUBSCRIPTION", NON_CONSUMABLE: "NON_CONSUMABLE" },
@@ -2605,7 +2609,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     };
     chain.approved = function (fn) { fake.approvedFn = fn; return chain; };
     chain.verified = function (fn) { fake.verifiedFn = fn; return chain; };
-    chain.error = function (fn) { fake.errorFn = fn; return chain; };
+    // No .error() on this chain either — the real one has none.
     win.CdvPurchase = {
       store: fake,
       ProductType: { PAID_SUBSCRIPTION: "PAID_SUBSCRIPTION", NON_CONSUMABLE: "NON_CONSUMABLE" },
@@ -2667,6 +2671,25 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   domE.R.openProPaywall(); await sleep(20);
   domE.R.proSubscribe("monthly", 300); await sleep(900);
   check("with no native plugin, the check says the plugin isn't in the app", domE.doc.querySelector(".pro-note").textContent.indexOf("Store check: the store plugin isn't in the app.") !== -1);
+
+  /* ---- 83. the store actually initializes (v83) ---- */
+  console.log("== 83. store init regression ==");
+  // Nov 19: the when() chain has no .error() in the real plugin, but
+  // the app chained it — so proStoreInit threw on every launch, before
+  // initialize() was ever called, and the paywall always said the
+  // store never answered (builds 31–38). The fakes had .error(), so
+  // the suite never caught it. These two checks pin the fix.
+  const domF = makeStoreDom(function () { return new Promise(function () {}); });
+  await sleep(50);
+  domF.R.proSubscribe("monthly", 300); await sleep(20);
+  check("init reaches initialize() with a chain that has no .error()", domF.fake.initialized === true);
+  // A setup throw is now named on the paywall, never swallowed.
+  const domG = makeStoreDom(function () { return Promise.resolve([]); });
+  domG.fake.initialize = function () { throw new Error("boom"); };
+  await sleep(50);
+  domG.R.openProPaywall(); await sleep(20);
+  domG.R.proSubscribe("monthly", 300); await sleep(700);
+  check("a setup throw names itself instead of saying the store never answered", domG.doc.querySelector(".pro-note").textContent.indexOf("Store problem: setup: boom") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "82";
+  var APP_VERSION = "83";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -3060,19 +3060,26 @@
           // after the grant, so a purchase is never paid for and lost.
           grantPremium(proProductIdFromReceipt(receipt));
           receipt.finish();
-        })
-        .error(function (err) {
-          if (err && err.code === S.ErrorCode.PAYMENT_CANCELLED) proStoreNote("Purchase cancelled — nothing was charged.");
-          else proStoreNote("The store reported a problem. Please try again.");
         });
+      // NOTE (Nov 19, build 39 — the store bug): the when() chain has
+      // NO .error() method in the real plugin (approved, verified,
+      // finished... but no error). The old code chained .error() here,
+      // which threw on every init, so initialize() was never called,
+      // ready() never fired, and the paywall always said the store
+      // never answered — in every build. The test fakes had .error(),
+      // which is why the suite never caught it. Transaction errors go
+      // through the global handler below instead.
       S.store.ready(function () { proStoreReadyFired = true; proRecheckOwnership(); });
       // A global error handler: initialize/load failures never reach the
       // transaction chain, so without this the store fails silently and
-      // ready() simply never fires. (A cancelled purchase is skipped
-      // here — the when() chain above already says so, kindly.)
+      // ready() simply never fires. A cancelled purchase gets its kind
+      // note here (the chain has no error method to say it).
       if (typeof S.store.error === "function") {
         S.store.error(function (err) {
-          if (err && S.ErrorCode && err.code === S.ErrorCode.PAYMENT_CANCELLED) return;
+          if (err && S.ErrorCode && err.code === S.ErrorCode.PAYMENT_CANCELLED) {
+            proStoreNote("Purchase cancelled — nothing was charged.");
+            return;
+          }
           proStoreLastError = proStoreErrorText(err);
           proStoreNote(proStoreFailNote());
         });
@@ -3094,8 +3101,14 @@
         });
       }
       proStoreInitialized = true;
-    } catch (e) { /* store unavailable — init stays unflagged, so a later
-                     tap can try again instead of giving up forever */ }
+    } catch (e) {
+      /* A setup throw must be VISIBLE, not swallowed: the v81–v82
+         "never answered" mystery was a throw here (the when-chain
+         .error() call) that no note ever named. Record it so the
+         paywall says why, and leave init unflagged so a later tap can
+         try again instead of giving up forever. */
+      try { proStoreLastError = "setup: " + ((e && e.message) || "store setup failed"); } catch (e2) {}
+    }
   }
   /* Race one native store call against a timeout. Resolves {ok:true}
      when the call settles, {ok:false, timedOut:true} when the timeout
