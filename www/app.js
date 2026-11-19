@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "93";
+  var APP_VERSION = "94";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -654,9 +654,11 @@
             c.width = img.width; c.height = img.height;
             var ctx = c.getContext("2d");
             ctx.drawImage(img, 0, 0);
-            /* A little navy plate behind the tag, so it reads on any
-               photo — white text on light gravel washes out (Nov 19:
-               Rick's FLO123 on the driveway was hard to see). */
+            /* A little plate that looks like an auto tag — white with a
+               navy border and navy letters (Nov 19: Rick wanted the
+               tag to read like a license plate, not just a colored
+               box). The border defines it on a light photo, the white
+               pops on a dark one. */
             var size = Math.max(18, Math.round(img.height * 0.045));
             var label = text.toUpperCase();
             ctx.font = "bold " + size + "px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
@@ -667,7 +669,6 @@
             var by = img.height - Math.round(img.height * 0.03) - bh;
             var bw = Math.ceil(tw) + padX * 2;
             var r = Math.round(size * 0.3);
-            ctx.fillStyle = "#172242";
             ctx.beginPath();
             ctx.moveTo(bx + r, by);
             ctx.arcTo(bx + bw, by, bx + bw, by + bh, r);
@@ -675,8 +676,12 @@
             ctx.arcTo(bx, by + bh, bx, by, r);
             ctx.arcTo(bx, by, bx + bw, by, r);
             ctx.closePath();
-            ctx.fill();
             ctx.fillStyle = "#fff";
+            ctx.fill();
+            ctx.strokeStyle = "#172242";
+            ctx.lineWidth = Math.max(2, Math.round(size * 0.09));
+            ctx.stroke();
+            ctx.fillStyle = "#172242";
             ctx.textBaseline = "middle";
             ctx.fillText(label, bx + padX, by + bh / 2);
             finish(c.toDataURL("image/jpeg", 0.85));
