@@ -783,7 +783,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 85"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 86"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1777,7 +1777,11 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     initialize() { this.initialized = true; },
     error(fn) { this.globalErrorFn = fn; },
     get(id) { return (this._products || {})[id]; },
-    order(id) { this.ordered = id; },
+    // The real store.order() takes an OFFER, not a bare id (Nov 19,
+    // build 42 — passing the id string made offer.productId
+    // undefined and the native purchase rejected with "productId is
+    // required"). The fake records the offer it receives.
+    order(offer) { this.ordered = offer; },
     restorePurchases() { this.restored = true; },
     ready(cb) { this.readyCb = cb; },
     owned(id) { return this._owned.indexOf(id) !== -1; },
@@ -1813,10 +1817,17 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   R.proSubscribe("yearly"); await sleep(20);
   check("subscribing before ready waits instead of ordering", fakeStore.ordered === null && doc.querySelector(".pro-note").textContent.indexOf("Opening the store") !== -1);
   check("waiting for a store that never answers resolves false", (await R.proStoreWaitReady(300)) === false);
+  // The products arrive with ready: each product's default offer
+  // carries the product id and platform the order needs.
+  fakeStore._products = {
+    rollonrv_premium_monthly: { id: "rollonrv_premium_monthly", getOffer() { return { id: "$", productId: "rollonrv_premium_monthly", platform: "APPLE_APPSTORE" }; } },
+    rollonrv_premium_yearly: { id: "rollonrv_premium_yearly", getOffer() { return { id: "$", productId: "rollonrv_premium_yearly", platform: "APPLE_APPSTORE" }; } },
+    rollonrv_premium_lifetime: { id: "rollonrv_premium_lifetime", getOffer() { return { id: "$", productId: "rollonrv_premium_lifetime", platform: "APPLE_APPSTORE" }; } },
+  };
   fakeStore.readyCb();
   check("ready firing marks the store ready", R.proStoreState().ready === true);
   await sleep(400);
-  check("the waiting subscribe orders once ready fires", fakeStore.ordered === "rollonrv_premium_yearly");
+  check("the waiting subscribe orders the product's offer once ready fires", fakeStore.ordered && fakeStore.ordered.productId === "rollonrv_premium_yearly" && fakeStore.ordered.platform === "APPLE_APPSTORE");
   R.proStoreInit();
   check("a second init does not register twice", fakeStore.registerCalls === 1);
   R.openProPaywall(); await sleep(20);
@@ -1831,7 +1842,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   // subscribe orders at once instead of waiting.
   fakeStore.ordered = null;
   R.proSubscribe("monthly");
-  check("subscribing once ready orders at once", fakeStore.ordered === "rollonrv_premium_monthly");
+  check("subscribing once ready orders the product's offer at once", fakeStore.ordered && fakeStore.ordered.productId === "rollonrv_premium_monthly" && fakeStore.ordered.platform === "APPLE_APPSTORE");
   R.proRestorePurchases();
   check("restore asks the store for purchases", fakeStore.restored === true);
   R.openProPaywall(); await sleep(20);
@@ -1893,7 +1904,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     initialize() { this.initialized = true; return Promise.resolve(this._initErrors || []); },
     error(fn) { this.globalErrorFn = fn; },
     get(id) { return (this._products || {})[id]; },
-    order(id) { this.ordered = id; },
+    order(offer) { this.ordered = offer; },
     restorePurchases() { this.restored = true; },
     ready(cb) { this.readyCb = cb; },
     owned(id) { return this._owned.indexOf(id) !== -1; },
@@ -1922,9 +1933,10 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   await sleep(700);
   check("a store that never answers says so plainly, never hangs", doc3.querySelector(".pro-note").textContent.indexOf("isn't responding right now") !== -1 && fakeStore3.ordered === null);
   // And the retry works once the store does answer.
+  fakeStore3._products = { rollonrv_premium_monthly: { id: "rollonrv_premium_monthly", getOffer() { return { id: "$", productId: "rollonrv_premium_monthly", platform: "APPLE_APPSTORE" }; } } };
   fakeStore3.readyCb();
   R3.proSubscribe("monthly"); await sleep(20);
-  check("retrying after ready orders at once", fakeStore3.ordered === "rollonrv_premium_monthly");
+  check("retrying after ready orders the product's offer at once", fakeStore3.ordered && fakeStore3.ordered.productId === "rollonrv_premium_monthly");
 
   /* ---- 66. deleting a logbook entry takes two taps (v74) ---- */
   console.log("== 66. logbook armed delete ==");
@@ -2618,7 +2630,10 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
       initialize() { this.initialized = true; return initFn(); },
       error(fn) { this.globalErrorFn = fn; },
       get(id) { return (this._products || {})[id]; },
-      order(id) { this.ordered = id; },
+      // The real store.order() takes an offer object (see the main
+      // fake above) — a bare id string makes offer.productId
+      // undefined and the native purchase rejects.
+      order(offer) { this.ordered = offer; },
       restorePurchases() { this.restored = true; },
       ready(cb) { this.readyCb = cb; },
       owned(id) { return this._owned.indexOf(id) !== -1; },
@@ -2718,6 +2733,34 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   domH.fake.globalErrorFn({ code: "PURCHASE", message: "Purchase failed: Cannot connect to iTunes Store" });
   await sleep(20);
   check("a purchase failure shows the native reason on the paywall", domH.doc.querySelector(".pro-note").textContent.indexOf("Purchase failed: Cannot connect to iTunes Store") !== -1);
+
+  console.log("== 85. subscribing orders the product's offer ==");
+  // Nov 19: build 41's diagnostic finally showed the native reason
+  // for the instant Monthly failure — "productId is required". The
+  // app passed a bare id string to store.order(), but order() takes
+  // an offer; a string has no .productId, so the native purchase
+  // call was rejected before any sign-in sheet could appear.
+  function fakeProduct(id) {
+    return { id: id, getOffer() { return { id: "$", productId: id, platform: "APPLE_APPSTORE" }; } };
+  }
+  const domI = makeStoreDom(function () { return Promise.resolve([]); });
+  domI.fake._products = {
+    rollonrv_premium_monthly: fakeProduct("rollonrv_premium_monthly"),
+    rollonrv_premium_yearly: fakeProduct("rollonrv_premium_yearly"),
+    rollonrv_premium_lifetime: fakeProduct("rollonrv_premium_lifetime"),
+  };
+  await sleep(50);
+  domI.R.openProPaywall(); await sleep(20);
+  domI.R.proSubscribe("monthly"); await sleep(20);
+  domI.fake.readyCb(); await sleep(400);
+  check("subscribing orders the product's default offer, not the bare id", domI.fake.ordered && typeof domI.fake.ordered === "object" && domI.fake.ordered.productId === "rollonrv_premium_monthly" && domI.fake.ordered.platform === "APPLE_APPSTORE");
+  // And when no product has loaded, it says so instead of ordering.
+  const domJ = makeStoreDom(function () { return Promise.resolve([]); });
+  await sleep(50);
+  domJ.R.openProPaywall(); await sleep(20);
+  domJ.R.proSubscribe("monthly"); await sleep(20);
+  domJ.fake.readyCb(); await sleep(400);
+  check("with no product loaded, subscribing says it couldn't open the purchase instead of ordering", domJ.fake.ordered === null && domJ.doc.querySelector(".pro-note").textContent.indexOf("couldn't open the purchase") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "85";
+  var APP_VERSION = "86";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -3196,6 +3196,27 @@
       proStoreNote("Restore couldn't run right now. Please try again.");
     }
   }
+  // Nov 19 (v86): store.order() takes an OFFER, not a product id.
+  // The app passed a bare id string, so offer.productId was undefined
+  // and the native purchase call rejected with "productId is required"
+  // — before any sign-in sheet could appear. (Build 41's diagnostic
+  // is what finally showed that message.) Resolve the product's
+  // default offer first — the plugin's own pattern:
+  // store.get(id).getOffer().order().
+  function proStoreOrder(productId) {
+    try {
+      var S = window.CdvPurchase;
+      var product = S.store.get(productId);
+      var offer = product && typeof product.getOffer === "function" ? product.getOffer() : null;
+      if (!offer) {
+        proStoreNote("The store couldn't open the purchase. Please try again.");
+        return;
+      }
+      S.store.order(offer);
+    } catch (e) {
+      proStoreNote("The store couldn't open the purchase. Please try again.");
+    }
+  }
   function proSubscribe(plan, timeoutMs) {
     if (!proStoreAvailable()) {
       // No native store (web, or products not wired yet): say so plainly
@@ -3208,11 +3229,7 @@
     // guard inside proStoreInit keeps a second call from registering twice.
     proStoreInit();
     if (proStoreReadyFired) {
-      try {
-        window.CdvPurchase.store.order(productId);
-      } catch (e) {
-        proStoreNote("The store couldn't open the purchase. Please try again.");
-      }
+      proStoreOrder(productId);
       return;
     }
     // The store hasn't said it's ready yet. order() before ready waits
@@ -3229,11 +3246,7 @@
     proStoreDiagnose(timeoutMs || 10000);
     proStoreWaitReady(timeoutMs || 15000).then(function (ok) {
       if (ok) {
-        try {
-          window.CdvPurchase.store.order(productId);
-        } catch (e) {
-          proStoreNote("The store couldn't open the purchase. Please try again.");
-        }
+        proStoreOrder(productId);
       } else {
         proStoreDiagnose().then(function () { proStoreNote(proStoreFailNote()); });
       }
