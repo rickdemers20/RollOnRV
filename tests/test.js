@@ -64,6 +64,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("page stays light by default (no dark-mode flip)", !/@media \(prefers-color-scheme: dark\)/.test(css));
   check("dark theme is opt-in via a button, not automatic", /\[data-theme="dark"\]/.test(css) && !/@media \(prefers-color-scheme: dark\)/.test(css));
   check("secondary button readable in dark mode", /\[data-theme="dark"\][\s\S]*\.btn\.secondary/.test(css));
+  check("active mode pill goes red in night mode", /\[data-theme="dark"\]\s*\.modeswitch button\.active\{[^}]*background:var\(--red\)[^}]*color:#fff/.test(css));
 
   /* ---- boot the app in jsdom ---- */
   console.log("== boot ==");
@@ -787,7 +788,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 101"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 102"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -3020,13 +3021,13 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   var bugBtn94 = doc.querySelector("#bug-report-btn");
   check("More has the Report a bug pill", !!bugBtn94);
   check("the pill shows no email address", bugBtn94.textContent.indexOf("@") === -1 && bugBtn94.textContent.toLowerCase().indexOf("rick") === -1);
-  check("the mail link carries the build number", decodeURIComponent(R.bugReportMailto()).indexOf("build 101") !== -1);
+  check("the mail link carries the build number", decodeURIComponent(R.bugReportMailto()).indexOf("build 102") !== -1);
   check("the mail link is a mailto", R.bugReportMailto().indexOf("mailto:") === 0);
   // Same pill for ideas, Rick's follow-up the same minute.
   var ideaBtn94 = doc.querySelector("#idea-btn");
   check("More has the Share an idea pill", !!ideaBtn94);
   check("the idea pill shows no email address", ideaBtn94.textContent.indexOf("@") === -1 && ideaBtn94.textContent.toLowerCase().indexOf("rick") === -1);
-  check("the idea mail link carries the build number", decodeURIComponent(R.ideaMailto()).indexOf("build 101") !== -1);
+  check("the idea mail link carries the build number", decodeURIComponent(R.ideaMailto()).indexOf("build 102") !== -1);
   check("the idea mail link is a mailto", R.ideaMailto().indexOf("mailto:") === 0);
 
   console.log("\n" + pass + " passed, " + fail + " failed");

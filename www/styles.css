@@ -347,6 +347,11 @@ a.pill{ color:var(--ink); text-decoration:none; margin-left:0; }
 .modeswitch{ display:flex; gap:.6rem; margin:.5rem 0 .8rem; }
 .modeswitch button{ flex:1 1 0; padding:.45rem .8rem; font-family:var(--sans); font-size:.9rem; font-weight:700; line-height:1.35; border-radius:10px; border:2px solid var(--red); background:transparent; color:var(--red); text-align:center; }
 .modeswitch button.active{ background:var(--ink); border-color:var(--red); color:var(--bg-page); }
+/* In night mode --ink turns cream, so the active pill came out a pale
+   cream slab on a dark screen (Nov 19 — Rick: make the Schedule pill
+   red in night mode). The active pill goes red with white letters
+   instead; the unpicked pill already reads red-on-dark. */
+[data-theme="dark"] .modeswitch button.active{ background:var(--red); border-color:var(--red); color:#fff; }
 #home-update-miles{ border:2px solid var(--red); }
 .focus-label{ font-size:.78rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:.2rem 0 .4rem; }
 .priority-card{ border:2px solid var(--ink); border-radius:12px; padding:.8rem; margin:.2rem 0 .6rem; background:var(--bg-page); }
