@@ -4105,9 +4105,13 @@ var CdvPurchase;
                             this.log.info('order.success');
                             // We'll monitor the payment before resolving.
                         };
-                        const error = () => {
+                        const error = (message) => {
                             this.log.info('order.error');
-                            callResolve(appStoreError(CdvPurchase.ErrorCode.PURCHASE, 'Failed to place order', offer.productId));
+                            // RollOnRV patch (Nov 19, build 41): use the
+                            // native message the bridge now passes through,
+                            // so the paywall shows the real reason a
+                            // purchase failed instead of the generic text.
+                            callResolve(appStoreError(CdvPurchase.ErrorCode.PURCHASE, message || 'Failed to place order', offer.productId));
                         };
                         // When we switch AppStore user, the cached receipt isn't from the new user.
                         // so after a purchase, we want to make sure we're using the receipt from the logged in user.
@@ -4477,7 +4481,11 @@ var CdvPurchase;
                 purchase(productId, quantity, applicationUsername, discount, success, error) {
                     this.plugin.purchase({ productId, quantity, applicationUsername, discount })
                         .then(() => success())
-                        .catch(() => error());
+                        // RollOnRV patch (Nov 19, build 41): the stock bridge
+                        // swallowed the native rejection, so every purchase
+                        // failure showed the same generic text on the
+                        // paywall. Pass the native message through.
+                        .catch((err) => error((err === null || err === void 0 ? void 0 : err.message) || 'purchase failed'));
                 }
                 finish(transactionId, success, error) {
                     this.plugin.finish({ transactionId })

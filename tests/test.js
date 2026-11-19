@@ -12,6 +12,7 @@ const appJs = fs.readFileSync(path.join(ROOT, "www", "app.js"), "utf8");
 const plansJs = fs.readFileSync(path.join(ROOT, "www", "plans.js"), "utf8");
 const css = fs.readFileSync(path.join(ROOT, "www", "styles.css"), "utf8");
 const capacitorPluginJs = fs.readFileSync(path.join(ROOT, "www", "capacitor-plugin.js"), "utf8");
+const storeBundleJs = fs.readFileSync(path.join(ROOT, "www", "cdv-purchase-store.js"), "utf8");
 const sampleCsv = fs.readFileSync(path.join(__dirname, "sample-tasks.csv"), "utf8");
 
 let pass = 0, fail = 0;
@@ -40,6 +41,14 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   // and load BEFORE the store bundle.
   check("the Capacitor bridge marker loads before the store bundle", html.indexOf("capacitor-plugin.js") !== -1 && html.indexOf("capacitor-plugin.js") < html.indexOf("cdv-purchase-store.js"));
   check("the Capacitor bridge marker says installed", /window\.CdvPurchaseCapacitor\s*=\s*\{\s*installed:\s*true/.test(capacitorPluginJs));
+  // Nov 19 (v85): the stock purchase bridge swallowed the native
+  // rejection (.catch(() => error())), so every purchase failure
+  // showed the same generic "Failed to place order" — even with a
+  // verified sandbox tester, with no sign-in sheet ever appearing.
+  // The vendored bundle now passes the native message through, and
+  // the order error uses it. These two checks pin the patch.
+  check("the purchase bridge passes the native error through", storeBundleJs.indexOf(".catch((err) => error((err === null") !== -1 && storeBundleJs.indexOf(".catch(() => error())") === -1);
+  check("the order error uses the native message when one arrives", storeBundleJs.indexOf("message || 'Failed to place order'") !== -1);
   // Nov 16 (v73): the Pro foundation ADDS store code — the old "no
   // store/paywall code" guardrail ended with it. What stays forbidden is
   // reaching past the plugin to the native store APIs directly.
@@ -774,7 +783,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 84"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 85"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -2697,6 +2706,18 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   domG.R.openProPaywall(); await sleep(20);
   domG.R.proSubscribe("monthly", 300); await sleep(700);
   check("a setup throw names itself instead of saying the store never answered", domG.doc.querySelector(".pro-note").textContent.indexOf("Store problem: setup: boom") !== -1);
+
+  console.log("== 84. purchase failure shows the native reason ==");
+  // Nov 19: with the new verified tester, Monthly still failed
+  // instantly with no sign-in sheet — "Failed to place order" — and
+  // the note gave no reason. The bridge patch (above) surfaces the
+  // native message; this check pins that the app displays it.
+  const domH = makeStoreDom(function () { return Promise.resolve([]); });
+  await sleep(50);
+  domH.R.openProPaywall(); await sleep(20);
+  domH.fake.globalErrorFn({ code: "PURCHASE", message: "Purchase failed: Cannot connect to iTunes Store" });
+  await sleep(20);
+  check("a purchase failure shows the native reason on the paywall", domH.doc.querySelector(".pro-note").textContent.indexOf("Purchase failed: Cannot connect to iTunes Store") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);
