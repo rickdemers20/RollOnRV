@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "91";
+  var APP_VERSION = "92";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general

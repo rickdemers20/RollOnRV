@@ -336,9 +336,14 @@ a.pill{ color:var(--ink); text-decoration:none; margin-left:0; }
 }
 
 /* ---------- Focus mode (v90) ---------- */
-.modeswitch{ display:flex; border:1.5px solid var(--line); border-radius:10px; overflow:hidden; margin:.5rem 0 .2rem; max-width:320px; }
-.modeswitch button{ flex:1; padding:.45rem .6rem; background:transparent; border:0; font:inherit; font-weight:600; color:var(--ink-soft); }
-.modeswitch button.active{ background:var(--ink); color:var(--bg-page); }
+/* The switch is two pills above the rig photo, the same size as the
+   Change photo / How to use this app pills under it (Nov 19: Rick
+   wanted them resized to match those, keeping the navy active
+   highlight he liked, and kept on top of the photo). Each pill is half
+   the row, like the photo row. */
+.modeswitch{ display:flex; gap:.6rem; margin:.5rem 0 .8rem; }
+.modeswitch button{ flex:1 1 0; padding:.45rem .8rem; font-family:var(--sans); font-size:.9rem; font-weight:700; line-height:1.35; border-radius:10px; border:2px solid var(--line); background:transparent; color:var(--ink-soft); text-align:center; }
+.modeswitch button.active{ background:var(--ink); border-color:var(--ink); color:var(--bg-page); }
 .focus-label{ font-size:.78rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:.2rem 0 .4rem; }
 .priority-card{ border:2px solid var(--ink); border-radius:12px; padding:.8rem; margin:.2rem 0 .6rem; background:var(--bg-page); }
 .priority-card .title{ font-size:1.2rem; font-weight:700; }

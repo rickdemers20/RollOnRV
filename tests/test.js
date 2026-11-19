@@ -786,7 +786,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 91"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 92"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
