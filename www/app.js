@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "96";
+  var APP_VERSION = "97";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -755,7 +755,7 @@
     };
   }
   function newTire(o) {
-    return { id: uid(), rigId: o.rigId, position: o.position || "", dotCode: (o.dotCode || "").trim(), note: o.note || "" };
+    return { id: uid(), rigId: o.rigId, position: o.position || "", dotCode: (o.dotCode || "").trim(), unreadable: !!o.unreadable, note: o.note || "" };
   }
 
   /* ---------------- parts to get (the shopping list — free) ---------------- */
@@ -2433,31 +2433,99 @@
   }
 
   /* ---------------- Tires --------------------------------------------------- */
+  /* ---------------- Tires — six positions, one form ----------------------- */
+  /* Nov 19: the Tires page is one form — the six standard positions in
+     order, each with its DOT field and a "Can't read this one" flag.
+     Tag and Spare stay extras under "+ Add a tire". Old position names
+     ("Steer — left", "Drive — outer left"…) are renamed to the new ones
+     the first time the page renders, so nobody has to retype anything. */
+  var TIRE_POSITIONS = ["Front Left", "Front Right", "Rear Left Outer", "Rear Left Inner", "Rear Right Outer", "Rear Right Inner"];
+  var TIRE_POSITION_MAP = {
+    "Steer — left": "Front Left", "Steer - left": "Front Left",
+    "Steer — right": "Front Right", "Steer - right": "Front Right",
+    "Drive — outer left": "Rear Left Outer", "Drive - outer left": "Rear Left Outer",
+    "Drive — inner left": "Rear Left Inner", "Drive - inner left": "Rear Left Inner",
+    "Drive — outer right": "Rear Right Outer", "Drive - outer right": "Rear Right Outer",
+    "Drive — inner right": "Rear Right Inner", "Drive - inner right": "Rear Right Inner"
+  };
+
+  /* Where to find the DOT code, with a worked example. The diagram is
+     drawn for this app (Nov 19) — a real photo is coming once the
+     Wikimedia download clears: "DOT tire code" by Chrismeraz,
+     CC BY-SA 4.0, free to use with credit. */
+  function dotCodeDiagram() {
+    return '<svg viewBox="0 0 360 190" role="img" aria-label="A tire sidewall with the DOT code circled" style="width:100%;height:auto;display:block">' +
+      '<circle cx="150" cy="95" r="82" fill="#1f2937"/>' +
+      '<circle cx="150" cy="95" r="80" fill="none" stroke="#374151" stroke-width="2"/>' +
+      '<circle cx="150" cy="95" r="48" fill="#9aa3ad"/>' +
+      '<circle cx="150" cy="95" r="46" fill="none" stroke="#6b7280" stroke-width="2"/>' +
+      '<circle cx="150" cy="95" r="16" fill="#6b7280"/>' +
+      '<rect x="196" y="128" width="150" height="40" rx="9" fill="#374151"/>' +
+      '<text x="208" y="154" font-family="inherit" font-size="19" fill="#f3f4f6">DOT</text>' +
+      '<text x="258" y="154" font-family="inherit" font-size="19" font-weight="700" fill="#f87171">3221</text>' +
+      '<ellipse cx="278" cy="148" rx="36" ry="17" fill="none" stroke="#b3372c" stroke-width="2.5"/>' +
+      '</svg>';
+  }
+  function dotHelpHtml() {
+    return dotCodeDiagram() +
+      '<p>Look on the sidewall for the letters DOT, followed by letters and numbers. The last four digits are the date: the first two are the week of the year, and the last two are the year.</p>' +
+      '<p><b>Example:</b> 3221 means week 32 of 2021, so the tire was made in August 2021.</p>' +
+      '<p>If you don\'t see the code on the first try, check the other sidewall. Some tires have the DOT stamp facing inward, toward the wheel well, and you may need to crawl underneath or have a tire shop read it for you.</p>';
+  }
+  function openDotHelpSheet() {
+    openSheet(
+      sheetHead("Where to find your DOT code", "Stamped into the sidewall — no tools needed, just good light.") +
+      dotHelpHtml()
+    );
+    wireClose(sheetHost);
+  }
+
   function renderTires() {
     var rig = activeRig(); if (!rig) { showScreen("setup"); return; }
     var host = $("#tire-list");
     var tires = store.tires.filter(function (t) { return t.rigId === rig.id; });
-    if (!tires.length) {
-      host.innerHTML = '<div class="card"><div class="empty"><span class="hand">No tires in the book yet.</span>Add each tire with its DOT code — the last four digits on the sidewall — and the book will watch its birthday.</div></div>';
-      return;
+    var migrated = false;
+    tires.forEach(function (t) {
+      if (TIRE_POSITION_MAP[t.position]) { t.position = TIRE_POSITION_MAP[t.position]; migrated = true; }
+    });
+    if (migrated) save();
+    function tireFor(pos) {
+      return tires.find(function (t) { return t.position === pos; }) || null;
     }
-    host.innerHTML = tires.map(function (t) {
-      var info = dotInfo(t.dotCode);
-      var cls = info.ok ? (info.flag === "good" ? "green" : info.flag === "old" ? "amber" : "red") : "amber";
-      var pill = info.ok ? (info.flag === "good" ? "Good" : info.flag === "old" ? "Getting old" : "Replace") : "Check code";
-      return '<div class="card" data-tire="' + t.id + '" style="cursor:pointer">' +
+    function rowHtml(t, pos) {
+      var head, body = "";
+      if (!t) {
+        head = '<span class="pill">Not recorded</span>';
+        body = '<p class="muted" style="margin:.2rem 0">Tap to add the DOT code for this tire.</p>';
+      } else if (t.unreadable) {
+        head = '<span class="pill amber">Can\'t read</span>';
+        body = '<p class="muted" style="margin:.2rem 0">Can\'t read — have a tire shop read it.</p>';
+        if (t.note) body += '<p class="small muted">' + esc(t.note) + '</p>';
+      } else {
+        var info = dotInfo(t.dotCode);
+        var cls = info.ok ? (info.flag === "good" ? "green" : info.flag === "old" ? "amber" : "red") : "amber";
+        var pill = info.ok ? (info.flag === "good" ? "Good" : info.flag === "old" ? "Getting old" : "Replace") : "Check code";
+        head = '<span class="pill ' + cls + '">' + pill + '</span>';
+        if (info.ok) {
+          body = '<div class="age">' + esc(info.ageText) + '</div>' +
+            '<p class="muted" style="margin:.2rem 0">DOT ' + esc(String(t.dotCode || "").replace(/\D/g, "").slice(-4)) + ' · ' + esc(info.madeText) + '</p>' +
+            '<div class="tire-bar"><div class="' + cls + '" style="width:' + info.pctToTen + '%"></div></div>' +
+            '<p class="small muted">The bar fills toward 10 years — the hard limit.</p>' +
+            '<p>' + esc(info.flagText) + '</p>';
+        } else {
+          body = '<p class="muted" style="margin:.2rem 0">' + esc(info.text) + '</p>';
+        }
+        if (t.note) body += '<p class="small muted">' + esc(t.note) + '</p>';
+      }
+      return '<div class="card" data-tire-pos="' + esc(pos) + '"' + (t ? ' data-tire="' + t.id + '"' : '') + ' style="cursor:pointer">' +
         '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:.6rem">' +
-        '<h2 style="margin:0">' + esc(t.position || "Tire") + '</h2><span class="pill ' + cls + '">' + pill + '</span></div>' +
-        '<div class="age">' + (info.ok ? esc(info.ageText) : "—") + '</div>' +
-        '<p class="muted" style="margin:.2rem 0">DOT ···· ' + esc(String(t.dotCode || "").replace(/\D/g, "").slice(-4)) +
-        (info.ok && info.madeText ? ' — ' + esc(info.madeText) : '') + '</p>' +
-        (info.ok ? '<div class="tire-bar"><div class="' + cls + '" style="width:' + info.pctToTen + '%"></div></div>' +
-        '<p class="small muted">The bar fills toward 10 years — the hard limit.</p>' : '') +
-        '<p>' + esc(info.ok ? info.flagText : info.text) + '</p>' +
-        (t.note ? '<p class="small muted">' + esc(t.note) + '</p>' : '') + '</div>';
-    }).join("");
-    $all("[data-tire]", host).forEach(function (el) {
-      el.addEventListener("click", function () { openTireSheet(el.getAttribute("data-tire")); });
+        '<h2 style="margin:0">' + esc(pos) + '</h2>' + head + '</div>' + body + '</div>';
+    }
+    var extras = tires.filter(function (t) { return TIRE_POSITIONS.indexOf(t.position) === -1; });
+    host.innerHTML = TIRE_POSITIONS.map(function (pos) { return rowHtml(tireFor(pos), pos); }).join("") +
+      (extras.length ? '<h2 style="margin:1rem 0 .2rem">More tires</h2>' + extras.map(function (t) { return rowHtml(t, t.position); }).join("") : "");
+    $all("[data-tire-pos]", host).forEach(function (el) {
+      el.addEventListener("click", function () { openTireSheet(el.getAttribute("data-tire") || null, el.getAttribute("data-tire-pos")); });
     });
   }
 
@@ -4655,14 +4723,17 @@
   }
 
   /* ---------------- tire sheet ---------------------------------------------- */
-  function openTireSheet(tireId) {
+  function openTireSheet(tireId, position) {
     var rig = activeRig();
     var tire = tireId ? store.tires.find(function (t) { return t.id === tireId; }) : null;
-    var draft = tire ? JSON.parse(JSON.stringify(tire)) : newTire({ rigId: rig.id });
+    var draft = tire ? JSON.parse(JSON.stringify(tire)) : newTire({ rigId: rig.id, position: position || "" });
+    if (typeof draft.unreadable !== "boolean") draft.unreadable = false;
+    var isStandard = TIRE_POSITIONS.indexOf(draft.position) !== -1;
     /* The age preview under the DOT field, updated in place as you type.
        The field itself is never rebuilt, so the keyboard stays up and
        focus never leaves while you type the four digits. */
     function ageHtml() {
+      if (draft.unreadable) return '<p class="muted">Can\'t read — have a tire shop read it. The book keeps the tire listed without an age until the code is in.</p>';
       var info = dotInfo(draft.dotCode);
       return info.ok
         ? '<div class="card"><div class="age">' + esc(info.ageText) + '</div><p>' + esc(info.flagText) + '</p><div class="tire-bar"><div class="' + (info.flag === "good" ? "green" : info.flag === "old" ? "amber" : "red") + '" style="width:' + info.pctToTen + '%"></div></div><p class="small muted">The bar fills toward 10 years — the hard limit.</p></div>'
@@ -4670,22 +4741,40 @@
     }
     function draw() {
       openSheet(
-        sheetHead(tire ? "Tire — " + esc(tire.position || "") : "Add a tire", "The DOT code is the last four digits on the sidewall — week, then year. 3222 means week 32 of 2022.") +
-        '<div class="field"><label for="ti-pos">Position</label><input id="ti-pos" list="ti-positions" value="' + esc(draft.position) + '" placeholder="e.g. Steer — left" />' +
-        '<datalist id="ti-positions"><option>Steer — left</option><option>Steer — right</option><option>Drive — outer left</option><option>Drive — outer right</option><option>Drive — inner left</option><option>Drive — inner right</option><option>Tag — left</option><option>Tag — right</option><option>Spare</option></datalist></div>' +
-        '<div class="field"><label for="ti-dot">DOT code (last 4 digits)</label><input id="ti-dot" inputmode="numeric" maxlength="4" value="' + esc(draft.dotCode) + '" placeholder="3222" /></div>' +
+        sheetHead(tire ? "Tire — " + esc(draft.position) : (isStandard ? "Tire — " + esc(draft.position) : "Add a tire"), "The DOT code is the last four digits on the sidewall — week, then year. 3221 means week 32 of 2021.") +
+        (isStandard
+          ? '<p class="muted">Position: <b>' + esc(draft.position) + '</b></p>'
+          : '<div class="field"><label for="ti-pos">Position</label><input id="ti-pos" list="ti-positions" value="' + esc(draft.position) + '" placeholder="e.g. Tag — left" />' +
+            '<datalist id="ti-positions"><option>Tag — left</option><option>Tag — right</option><option>Spare</option></datalist></div>') +
+        '<div class="field"><label for="ti-dot">DOT code (last 4 digits)</label><input id="ti-dot" inputmode="numeric" maxlength="4" value="' + esc(draft.dotCode) + '"' + (draft.unreadable ? ' disabled' : '') + ' placeholder="3221" /></div>' +
+        '<div class="field"><label><input type="checkbox" id="ti-unreadable"' + (draft.unreadable ? ' checked' : '') + ' /> I can\'t read this one</label></div>' +
+        '<div class="btnrow"><button class="btn small ghost" id="ti-dot-help" type="button">Where do I find the DOT code?</button></div>' +
+        '<div id="ti-dot-help-body" hidden>' + dotHelpHtml() + '</div>' +
         '<div id="ti-age">' + ageHtml() + '</div>' +
         '<div class="field"><label for="ti-note">Note</label><input id="ti-note" value="' + esc(draft.note || "") + '" placeholder="e.g. Michelin, bought at..." /></div>' +
         '<div class="btnrow"><button class="btn block" id="ti-save" type="button">Save tire</button></div>' +
         (tire ? '<div class="btnrow"><button class="btn ghost block" id="ti-delete" type="button">Remove tire</button></div>' : "")
       );
       wireClose(sheetHost);
+      $("#ti-unreadable").addEventListener("change", function () {
+        draft.unreadable = $("#ti-unreadable").checked;
+        var dot = $("#ti-dot");
+        dot.disabled = draft.unreadable;
+        if (draft.unreadable) { draft.dotCode = ""; dot.value = ""; }
+        $("#ti-age").innerHTML = ageHtml();
+      });
       $("#ti-dot").addEventListener("input", function () { draft.dotCode = $("#ti-dot").value; $("#ti-age").innerHTML = ageHtml(); });
+      $("#ti-dot-help").addEventListener("click", function () {
+        var body = $("#ti-dot-help-body");
+        body.hidden = !body.hidden;
+        $("#ti-dot-help").textContent = body.hidden ? "Where do I find the DOT code?" : "Hide the DOT guide";
+      });
       $("#ti-save").addEventListener("click", function () {
-        draft.position = $("#ti-pos").value.trim() || "Tire";
+        if (!isStandard) draft.position = $("#ti-pos").value.trim() || "Tire";
         draft.dotCode = $("#ti-dot").value.trim();
         draft.note = $("#ti-note").value.trim();
-        if (!dotInfo(draft.dotCode).ok) { toast("Check the DOT code — four digits, week then year."); return; }
+        if (draft.unreadable) draft.dotCode = "";
+        if (!draft.unreadable && !dotInfo(draft.dotCode).ok) { toast("Check the DOT code — four digits, week then year."); return; }
         if (tire) { var i = store.tires.findIndex(function (t) { return t.id === tire.id; }); store.tires[i] = draft; }
         else store.tires.push(draft);
         save(); closeSheet(); renderTires(); toast("Tire written in the book.");
@@ -4824,6 +4913,7 @@
     $("#home-search").addEventListener("input", function (e) { homeSearchQuery = e.target.value.trim().toLowerCase(); renderHomeSearch(); });
     $("#log-add-task-btn").addEventListener("click", openAddTaskSheet);
     $("#tire-add-btn").addEventListener("click", function () { openTireSheet(null); });
+    $("#tire-dot-help-btn").addEventListener("click", openDotHelpSheet);
     $("#parts-add-btn").addEventListener("click", function () { openPartSheet(null, null); });
     $("#parts-print-btn").addEventListener("click", function () { printPartsList(); });
     $("#parts-csv-btn").addEventListener("click", function () {

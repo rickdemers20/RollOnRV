@@ -278,7 +278,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const tire = R.newTire({ rigId: rig.id, position: "Steer — left", dotCode: dotYearsAgo(2), note: "Fake test tire" });
   R.store().tires.push(tire); R.save();
   R.renderTires();
-  check("tire renders with age", doc.querySelector("#tire-list").textContent.includes("Steer — left"));
+  check("tire renders with age", doc.querySelector("#tire-list").textContent.includes("Front Left"));
+  check("old position name is renamed to the new one", R.store().tires[0].position === "Front Left" && !doc.querySelector("#tire-list").textContent.includes("Steer — left"));
 
   /* ---- 6b. tire sheet: typing the DOT code keeps focus ---- */
   console.log("== 6b. DOT code typing keeps focus ==");
@@ -786,7 +787,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 96"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 97"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -2936,6 +2937,45 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("More shows the tag", doc.querySelector("#rig-body").textContent.indexOf("ABC 1234") !== -1);
   check("the photo still stands after the re-stamp", !!R.activeRig().photo && R.activeRig().photoOriginal === "data:image/jpeg;base64,/9j/FAKE2");
   check("the guide teaches the tag stamp", doc.body.textContent.indexOf("Your tag, stamped on the photo") !== -1);
+
+  /* ---- 92. Tires redesign: six positions, unreadable flag, DOT help ---- */
+  console.log("== 92. tires redesign ==");
+  // Nov 19: the Tires page is one form — six standard positions in
+  // order, a "Can't read this one" flag, and a DOT guide with a
+  // diagram and a worked example. Rick asked for the guide after
+  // seeing RVKeeper's Tire Dates screen.
+  R.store().activeRigId = rig.id;
+  const rig92 = R.activeRig();
+  R.showScreen("tires"); R.renderTires(); await sleep(20);
+  const tireRows = Array.from(doc.querySelectorAll("#tire-list [data-tire-pos]")).filter(function (el) { return ["Front Left", "Front Right", "Rear Left Outer", "Rear Left Inner", "Rear Right Outer", "Rear Right Inner"].indexOf(el.getAttribute("data-tire-pos")) !== -1; });
+  check("six standard tire positions", tireRows.length === 6);
+  check("positions in order", tireRows.map(function (el) { return el.getAttribute("data-tire-pos"); }).join("|") === "Front Left|Front Right|Rear Left Outer|Rear Left Inner|Rear Right Outer|Rear Right Inner");
+  check("unrecorded positions say so", doc.querySelector("#tire-list").textContent.indexOf("Not recorded") !== -1);
+  // The section 6 tire migrated to Front Left and shows its age.
+  check("migrated tire keeps its age", doc.querySelector("#tire-list").textContent.indexOf("Front Left") !== -1 && /yrs/.test(doc.querySelector("#tire-list").textContent));
+  // Open the Front Right row, mark it unreadable, save.
+  click(tireRows[1]); await sleep(20);
+  check("tire sheet shows the position", doc.querySelector("#sheet-host").textContent.indexOf("Front Right") !== -1);
+  check("tire sheet offers the unreadable flag", !!doc.querySelector("#ti-unreadable"));
+  click(doc.querySelector("#ti-unreadable")); await sleep(10);
+  check("marking unreadable clears the age preview", doc.querySelector("#ti-age").textContent.indexOf("have a tire shop read it") !== -1);
+  check("marking unreadable disables the DOT field", doc.querySelector("#ti-dot").disabled);
+  click(doc.querySelector("#ti-save")); await sleep(20);
+  const unread92 = R.store().tires.find(function (t) { return t.rigId === rig92.id && t.position === "Front Right"; });
+  check("unreadable tire saves without a code", !!unread92 && unread92.unreadable === true && !unread92.dotCode);
+  R.renderTires(); await sleep(20);
+  check("unreadable tire renders with the shop line", doc.querySelector("#tire-list").textContent.indexOf("have a tire shop read it") !== -1);
+  // The DOT guide: from the Tires page button.
+  click(doc.querySelector("#tire-dot-help-btn")); await sleep(20);
+  check("DOT help sheet opens", doc.querySelector("#sheet-host").textContent.indexOf("Where to find your DOT code") !== -1);
+  check("DOT help shows the diagram", !!doc.querySelector("#sheet-host svg"));
+  check("DOT help shows the worked example", doc.querySelector("#sheet-host").textContent.indexOf("3221 means week 32 of 2021") !== -1);
+  check("DOT help covers the other sidewall", doc.querySelector("#sheet-host").textContent.indexOf("check the other sidewall") !== -1);
+  // And from inside the tire sheet, inline, without losing the draft.
+  R.renderTires(); await sleep(20);
+  click(doc.querySelectorAll("#tire-list [data-tire-pos]")[0]); await sleep(20);
+  click(doc.querySelector("#ti-dot-help")); await sleep(10);
+  check("DOT guide opens inline in the tire sheet", !doc.querySelector("#ti-dot-help-body").hidden && doc.querySelector("#ti-dot-help-body").textContent.indexOf("3221 means week 32 of 2021") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

@@ -275,6 +275,9 @@ a.pill{ color:var(--ink); text-decoration:none; margin-left:0; }
 .parts-table tr.total td{ border-top:2px solid var(--line); border-bottom:none; font-size:1.1rem; }
 
 /* ---------- tires ---------- */
+/* The Night mode pill on the Tires screen sits a little lower, clear of
+   the status-bar time (Nov 19: Rick saw it riding high on this screen). */
+#screen-tires .theme-btn{ margin-top:.5rem; }
 .tire-bar{ height:.6rem; background:var(--line-soft); border-radius:999px; overflow:hidden; margin:.4rem 0 .2rem; }
 .tire-bar > div{ height:100%; border-radius:999px; }
 .tire-bar > div.green{ background:var(--green); }
@@ -342,8 +345,8 @@ a.pill{ color:var(--ink); text-decoration:none; margin-left:0; }
    highlight he liked, and kept on top of the photo). Each pill is half
    the row, like the photo row. */
 .modeswitch{ display:flex; gap:.6rem; margin:.5rem 0 .8rem; }
-.modeswitch button{ flex:1 1 0; padding:.45rem .8rem; font-family:var(--sans); font-size:.9rem; font-weight:700; line-height:1.35; border-radius:10px; border:2px solid var(--line); background:transparent; color:var(--ink-soft); text-align:center; }
-.modeswitch button.active{ background:var(--ink); border-color:var(--ink); color:var(--bg-page); }
+.modeswitch button{ flex:1 1 0; padding:.45rem .8rem; font-family:var(--sans); font-size:.9rem; font-weight:700; line-height:1.35; border-radius:10px; border:2px solid var(--red); background:transparent; color:var(--red); text-align:center; }
+.modeswitch button.active{ background:var(--ink); border-color:var(--red); color:var(--bg-page); }
 .focus-label{ font-size:.78rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:.2rem 0 .4rem; }
 .priority-card{ border:2px solid var(--ink); border-radius:12px; padding:.8rem; margin:.2rem 0 .6rem; background:var(--bg-page); }
 .priority-card .title{ font-size:1.2rem; font-weight:700; }
