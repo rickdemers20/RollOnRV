@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "80";
+  var APP_VERSION = "81";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -2878,6 +2878,11 @@
      never became ready left the user stuck with no error and no retry. */
   var proStoreInitialized = false;
   var proStoreReadyFired = false;
+  /* Whether the store's setup (initialize()) ever answered — v81: the
+     paywall could not tell "the store never answered" from "it
+     answered with no products". This flag is the difference: it is set
+     the moment initialize()'s promise settles, either way. */
+  var proStoreInitSettled = false;
   /* The last store error, in plain words (Nov 19 — build 32 still showed
      "The store isn't responding" with the IAP capability in place: the
      store was failing silently, initialize() swallowing its own errors.
@@ -2911,6 +2916,14 @@
   }
   function proStoreFailNote() {
     var bits = ["The store isn't responding right now."];
+    /* Only while ready has never fired: say which side of the fork this
+       is. If setup never settled, the store never answered. If it
+       settled cleanly, the store answered but never became ready and no
+       products came back. (Once ready has fired, say nothing about
+       readiness — the note is about a later failure then.) */
+    if (!proStoreReadyFired) {
+      bits.push(proStoreInitSettled ? "The store answered, but it never became ready." : "The store never answered — its setup did not finish.");
+    }
     if (proStoreLastError) bits.push("Store problem: " + proStoreLastError + ".");
     var states = proStoreProductStates();
     if (states) bits.push(states + ".");
@@ -3062,11 +3075,13 @@
       var initResult = S.store.initialize();
       if (initResult && typeof initResult.then === "function") {
         initResult.then(function (errs) {
+          proStoreInitSettled = true;
           if (errs && errs.length) {
             proStoreLastError = errs.map(proStoreErrorText).join("; ");
             proStoreNote(proStoreFailNote());
           }
         }, function (err) {
+          proStoreInitSettled = true;
           proStoreLastError = proStoreErrorText(err);
           proStoreNote(proStoreFailNote());
         });
@@ -4314,7 +4329,7 @@
     getPremium: getPremium, isPro: isPro, grantPremium: grantPremium,
     proStoreAvailable: proStoreAvailable, proStoreInit: proStoreInit,
     proStoreWaitReady: proStoreWaitReady,
-    proStoreState: function () { return { initialized: proStoreInitialized, ready: proStoreReadyFired }; },
+    proStoreState: function () { return { initialized: proStoreInitialized, ready: proStoreReadyFired, initSettled: proStoreInitSettled }; },
     proSubscribe: proSubscribe, proRestorePurchases: proRestorePurchases,
     proPaywallHTML: proPaywallHTML, openProPaywall: openProPaywall,
     proRecheckOwnership: proRecheckOwnership, proProductIdFromReceipt: proProductIdFromReceipt,

@@ -767,7 +767,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 80"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 81"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -2575,6 +2575,62 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   R.openStorageCompartmentSheet(null);
   check("the bay sheet puts the caret in the bay name field", doc.activeElement && doc.activeElement.id === "sb-name");
   click(doc.querySelector("[data-close]")); await sleep(20);
+
+  /* ---- 81. the paywall tells us WHICH store failure it is (v81) ---- */
+  console.log("== 81. store failure diagnosis ==");
+  // Nov 19: build 36 still shows "not found" with no error — the note
+  // couldn't tell "the store never answered" from "it answered with
+  // nothing". Two fresh stores, one per side of that fork.
+  function makeStoreDom(initFn) {
+    const dom = new JSDOM(html, { url: "http://localhost/", runScripts: "outside-only", pretendToBeVisual: true });
+    const win = dom.window;
+    win.confirm = () => true;
+    win.scrollTo = () => {};
+    win.eval(plansJs);
+    win.eval(appJs);
+    const doc = win.document;
+    const R = win.RollOnRV;
+    const chain = {};
+    const fake = {
+      _owned: [], ordered: null, readyCb: null, registered: null, initialized: false,
+      register(list) { this.registered = list; },
+      when() { return chain; },
+      initialize() { this.initialized = true; return initFn(); },
+      error(fn) { this.globalErrorFn = fn; },
+      get(id) { return (this._products || {})[id]; },
+      order(id) { this.ordered = id; },
+      restorePurchases() { this.restored = true; },
+      ready(cb) { this.readyCb = cb; },
+      owned(id) { return this._owned.indexOf(id) !== -1; },
+    };
+    chain.approved = function (fn) { fake.approvedFn = fn; return chain; };
+    chain.verified = function (fn) { fake.verifiedFn = fn; return chain; };
+    chain.error = function (fn) { fake.errorFn = fn; return chain; };
+    win.CdvPurchase = {
+      store: fake,
+      ProductType: { PAID_SUBSCRIPTION: "PAID_SUBSCRIPTION", NON_CONSUMABLE: "NON_CONSUMABLE" },
+      Platform: { APPLE_APPSTORE: "APPLE_APPSTORE", GOOGLE_PLAY: "GOOGLE_PLAY" },
+      ErrorCode: { PAYMENT_CANCELLED: "PAYMENT_CANCELLED" },
+    };
+    win.Capacitor = { isNativePlatform: () => true, getPlatform: () => "ios" };
+    return { win, doc, R, fake };
+  }
+  // A: initialize never settles — the store never answers.
+  const domA = makeStoreDom(function () { return new Promise(function () {}); });
+  await sleep(50);
+  domA.R.openProPaywall(); await sleep(20);
+  domA.R.proSubscribe("monthly", 300); await sleep(700);
+  check("a store whose setup never finishes says it never answered", domA.doc.querySelector(".pro-note").textContent.indexOf("never answered") !== -1);
+  check("the hanging store still names the missing products", domA.doc.querySelector(".pro-note").textContent.indexOf("Monthly: not found") !== -1);
+  check("the hanging store leaves init unsettled", domA.R.proStoreState().initSettled === false);
+  // B: initialize settles cleanly, but ready never fires and no products come back.
+  const domB = makeStoreDom(function () { return Promise.resolve([]); });
+  await sleep(50);
+  domB.R.openProPaywall(); await sleep(20);
+  domB.R.proSubscribe("monthly", 300); await sleep(700);
+  check("a store that answered but never became ready says so", domB.doc.querySelector(".pro-note").textContent.indexOf("answered, but it never became ready") !== -1);
+  check("the answered store still names the missing products", domB.doc.querySelector(".pro-note").textContent.indexOf("Monthly: not found") !== -1);
+  check("the answered store leaves init settled", domB.R.proStoreState().initSettled === true);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);
