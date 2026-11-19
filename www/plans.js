@@ -3,9 +3,11 @@
 // do not edit by hand; change the generator (or the sources) and rerun it.
 // Each plan: { id, label, rigTypes, jobs }. Each job: { title, category,
 // intervalMonths, intervalMiles, intervalGenHours, caution, pro,
-// needs?, isDefault? }. `needs` holds one setup-question answer; a job
-// with `needs` shows on an exact match, or when the answer is missing
-// or "Not sure" and the job is the usual one (`isDefault`).
+// needs?, isDefault?, note? }. `needs` holds setup-question answers; a job
+// with `needs` shows when every answer fits — an exact match, or a
+// missing / "Not sure" answer on the usual job (`isDefault`). The
+// generator-fuel answer (`genfuel`) is the one exception: it only
+// hides a job when it names a different fuel outright.
 var PREBUILT_PLANS = [
   {
     "id": "class-a-gas",
@@ -974,7 +976,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check DC Input Connections",
@@ -983,7 +992,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Inverter Fault History",
@@ -992,7 +1008,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect and Clean Inverter Vents",
@@ -1001,7 +1024,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Remote Panel",
@@ -1010,7 +1040,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Run Tub Cleaning Cycle",
@@ -1154,7 +1191,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -1163,7 +1207,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -1172,7 +1223,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -1181,7 +1239,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -1190,7 +1251,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -1199,7 +1267,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Clean Slide Topper Fabric",
@@ -1292,7 +1367,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Fuse & Breaker Panel",
@@ -1435,7 +1521,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Room Alignment",
@@ -1734,7 +1827,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -1821,7 +1915,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Chassis Ground",
@@ -1830,7 +1931,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Inverter Settings",
@@ -1839,7 +1947,15 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Mounting Security",
@@ -1848,7 +1964,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Update Inverter Firmware",
@@ -1857,7 +1980,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Awning Rail and Fabric Alignment",
@@ -2027,7 +2157,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -2040,7 +2171,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -2053,7 +2185,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -2066,7 +2199,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -2266,6 +2400,417 @@ var PREBUILT_PLANS = [
         "pro": true,
         "needs": {
           "roof": "aluminum"
+        }
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
         }
       }
     ]
@@ -2513,8 +3058,10 @@ var PREBUILT_PLANS = [
         "intervalGenHours": null,
         "caution": true,
         "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
         "needs": {
-          "slides": "yes"
+          "slides": "yes",
+          "slidetype": "hydraulic"
         },
         "isDefault": true
       },
@@ -2819,7 +3366,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Shore Power Cord",
@@ -3121,7 +3679,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "slides": "yes"
+          "slides": "yes",
+          "slidetype": "hydraulic"
         },
         "isDefault": true
       },
@@ -3160,7 +3719,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "slides": "yes"
+          "slides": "yes",
+          "slidetype": "hydraulic"
         },
         "isDefault": true
       },
@@ -3967,7 +4527,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect DC Fuse or Breaker",
@@ -3976,7 +4543,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Chassis Ground",
@@ -3985,7 +4559,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Inverter Settings",
@@ -3994,7 +4575,15 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check DC Input Connections",
@@ -4003,7 +4592,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Inverter Fault History",
@@ -4012,7 +4608,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect and Clean Inverter Vents",
@@ -4021,7 +4624,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Mounting Security",
@@ -4030,7 +4640,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Remote Panel",
@@ -4039,7 +4656,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Update Inverter Firmware",
@@ -4048,7 +4672,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Run Tub Cleaning Cycle",
@@ -4201,7 +4832,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -4210,7 +4848,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -4219,7 +4864,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -4228,7 +4880,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Lubricate Pivot Points per Manufacturer Spec",
@@ -4237,7 +4892,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -4246,7 +4908,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -4255,7 +4924,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Clean Slide Topper Fabric",
@@ -4715,7 +5391,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4728,7 +5405,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4741,7 +5419,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4754,7 +5433,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4767,7 +5447,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4780,7 +5461,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4793,7 +5475,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4806,7 +5489,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4819,7 +5503,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4832,7 +5517,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4845,7 +5531,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -4910,7 +5597,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "diesel"
         },
         "isDefault": true
       },
@@ -5064,6 +5752,305 @@ var PREBUILT_PLANS = [
           "fuel": "diesel"
         },
         "isDefault": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check High Altitude Carburetor Setup",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Gasoline or Propane Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 300,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Gasoline Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Built-in Gasoline Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 450,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Gasoline Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Clean Gasoline Carburetor System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 300,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Clean Spark Arrestor",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 100,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
       }
     ]
   },
@@ -5257,7 +6244,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "propane"
         }
       },
       {
@@ -5899,7 +6887,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Renew Coolant After First Replacement",
@@ -5917,7 +6912,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check DC Input Connections",
@@ -5926,7 +6928,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Inverter Fault History",
@@ -5935,7 +6944,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect and Clean Inverter Vents",
@@ -5944,7 +6960,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Transfer Switching",
@@ -5962,7 +6985,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Lubricate Pivot Points per Manufacturer Spec",
@@ -5971,7 +7001,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -5980,7 +7017,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -5989,7 +7033,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -5998,7 +7049,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -6007,7 +7061,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -6016,7 +7077,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Emergency Escape Windows",
@@ -6091,7 +7159,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Propane Regulator",
@@ -6460,7 +7539,15 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Chassis Ground",
@@ -6469,7 +7556,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect AC Wiring",
@@ -6478,7 +7572,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Transfer Contacts",
@@ -6505,7 +7606,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Mounting Security",
@@ -6514,7 +7622,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "De-winterization",
@@ -6866,7 +7981,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "propane"
         }
       },
       {
@@ -6890,7 +8006,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "propane"
         }
       },
       {
@@ -7060,6 +8177,428 @@ var PREBUILT_PLANS = [
         "pro": true,
         "needs": {
           "roof": "aluminum"
+        }
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check High Altitude Carburetor Setup",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Change Built-in Gasoline Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Replace Built-in Gasoline Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 450,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Replace Gasoline Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Clean Gasoline Carburetor System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 300,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
         }
       }
     ]
@@ -7763,7 +9302,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Inverter Fault History",
@@ -7772,7 +9318,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect DC Fuse or Breaker",
@@ -7781,7 +9334,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect and Clean Inverter Vents",
@@ -7790,7 +9350,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Remote Panel",
@@ -7799,7 +9366,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -7808,7 +9382,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -7817,7 +9398,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -7826,7 +9414,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Inspect Support Arms and Joints",
@@ -7835,7 +9426,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -7844,7 +9442,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -7853,7 +9458,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Wax Painted Roof Surfaces",
@@ -7887,7 +9499,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Black Tank Vent",
@@ -8007,7 +9626,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Shock Absorbers",
@@ -8326,7 +9956,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Inverter Settings",
@@ -8335,7 +9972,15 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect AC Wiring",
@@ -8344,7 +9989,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Chassis Ground",
@@ -8353,7 +10005,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Update Inverter Firmware",
@@ -8362,7 +10021,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "De-winterization",
@@ -8589,7 +10255,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         }
       },
       {
@@ -8661,7 +10328,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         }
       },
       {
@@ -8673,7 +10341,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         }
       },
       {
@@ -8685,7 +10354,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         }
       },
       {
@@ -8697,7 +10367,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         }
       },
       {
@@ -8937,6 +10608,402 @@ var PREBUILT_PLANS = [
           "roof": "aluminum"
         },
         "isDefault": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        }
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        }
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        }
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
       }
     ]
   },
@@ -9375,7 +11442,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "slides": "yes"
+          "slides": "yes",
+          "slidetype": "schwintek"
         },
         "isDefault": true
       },
@@ -9388,7 +11456,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "slides": "yes"
+          "slides": "yes",
+          "slidetype": "schwintek"
         },
         "isDefault": true
       },
@@ -9841,7 +11910,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Black Tank Vent",
@@ -9883,7 +11959,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect DC Fuse or Breaker",
@@ -9892,7 +11975,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check DC Input Connections",
@@ -9901,7 +11991,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Inverter Fault History",
@@ -9910,7 +12007,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Water Pressure Regulator",
@@ -9937,7 +12041,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -9946,7 +12057,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -9955,7 +12073,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -9964,7 +12089,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -9973,7 +12101,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -9982,7 +12117,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Emergency Escape Windows",
@@ -10045,7 +12187,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Charger Profile",
@@ -10232,7 +12385,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Transmission Fluid Level",
@@ -10457,7 +12617,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -10557,7 +12718,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Inverter Settings",
@@ -10566,7 +12734,15 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect AC Wiring",
@@ -10575,7 +12751,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Transfer Contacts",
@@ -10602,7 +12785,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Update Inverter Firmware",
@@ -10611,7 +12801,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "De-winterization",
@@ -10746,7 +12943,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -10759,7 +12957,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -10772,7 +12971,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -10785,7 +12985,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -11109,6 +13310,393 @@ var PREBUILT_PLANS = [
         "intervalGenHours": null,
         "caution": false,
         "pro": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
       }
     ]
   },
@@ -11512,7 +14100,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Spare Tire",
@@ -12014,7 +14609,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check DC Input Connections",
@@ -12023,7 +14625,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Inverter Fault History",
@@ -12032,7 +14641,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Remote Panel",
@@ -12041,7 +14657,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Run Tub Cleaning Cycle",
@@ -12062,7 +14685,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Clean Inlet Filters",
@@ -12167,7 +14797,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -12176,7 +14813,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -12185,7 +14829,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -12194,7 +14845,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Clean Slide Topper Fabric",
@@ -12251,7 +14909,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -12260,7 +14925,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Inspect Brackets, Fasteners, and End Caps",
@@ -12353,7 +15021,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Charger Profile",
@@ -12661,7 +15340,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Chassis Ground",
@@ -12670,7 +15356,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Inverter Settings",
@@ -12679,7 +15372,15 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Mounting Security",
@@ -12688,7 +15389,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Update Inverter Firmware",
@@ -12697,7 +15405,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Awning Rail and Fabric Alignment",
@@ -13060,7 +15775,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -13099,7 +15815,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -13112,7 +15829,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -13125,7 +15843,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -13138,9 +15857,421 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
       }
     ]
   },
@@ -13419,7 +16550,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Main DC Cables",
@@ -13961,7 +17103,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -13970,7 +17119,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -13979,7 +17135,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -13988,7 +17151,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Lubricate Pivot Points per Manufacturer Spec",
@@ -13997,7 +17163,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -14006,7 +17179,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -14015,7 +17195,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "De-winterization",
@@ -14393,7 +17580,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -14471,7 +17659,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -14484,7 +17673,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -14497,7 +17687,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -14510,7 +17701,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -14723,6 +17915,578 @@ var PREBUILT_PLANS = [
         "intervalGenHours": null,
         "caution": false,
         "pro": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect DC Fuse or Breaker",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check DC Input Connections",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Inverter Fault History",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect and Clean Inverter Vents",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Remote Panel",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect AC Wiring",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Chassis Ground",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Verify Inverter Settings",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Mounting Security",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Update Inverter Firmware",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       }
     ]
   },
@@ -15083,7 +18847,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "slides": "yes"
+          "slides": "yes",
+          "slidetype": "schwintek"
         },
         "isDefault": true
       },
@@ -15096,7 +18861,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "slides": "yes"
+          "slides": "yes",
+          "slidetype": "schwintek"
         },
         "isDefault": true
       },
@@ -15536,7 +19302,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Black Tank Vent",
@@ -15578,7 +19351,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect DC Fuse or Breaker",
@@ -15587,7 +19367,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check DC Input Connections",
@@ -15596,7 +19383,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Inverter Fault History",
@@ -15605,7 +19399,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Water Pressure Regulator",
@@ -15632,7 +19433,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -15641,7 +19449,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -15650,7 +19465,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -15659,7 +19481,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -15668,7 +19493,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -15677,7 +19509,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Emergency Escape Windows",
@@ -15740,7 +19579,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Charger Profile",
@@ -15914,7 +19764,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Transmission Fluid Level",
@@ -16161,7 +20018,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Inverter Settings",
@@ -16170,7 +20034,15 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect AC Wiring",
@@ -16179,7 +20051,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Transfer Contacts",
@@ -16206,7 +20085,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Update Inverter Firmware",
@@ -16215,7 +20101,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "De-winterization",
@@ -16857,7 +20750,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "propane"
         }
       },
       {
@@ -17025,7 +20919,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "propane"
         }
       },
       {
@@ -17049,7 +20944,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "propane"
         }
       },
       {
@@ -17062,6 +20958,404 @@ var PREBUILT_PLANS = [
         "pro": true,
         "needs": {
           "generator": "builtin"
+        }
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check High Altitude Carburetor Setup",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Change Built-in Gasoline Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Replace Built-in Gasoline Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 450,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Replace Gasoline Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Clean Gasoline Carburetor System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 300,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "gas"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        }
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
         }
       }
     ]
@@ -17341,7 +21635,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Main DC Cables",
@@ -17883,7 +22188,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -17892,7 +22204,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -17901,7 +22220,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -17910,7 +22236,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Lubricate Pivot Points per Manufacturer Spec",
@@ -17919,7 +22248,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -17928,7 +22264,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -17937,7 +22280,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "De-winterization",
@@ -18315,7 +22665,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -18393,7 +22744,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -18406,7 +22758,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -18419,7 +22772,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -18432,7 +22786,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -18672,6 +23027,578 @@ var PREBUILT_PLANS = [
         "intervalGenHours": null,
         "caution": false,
         "pro": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect DC Fuse or Breaker",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check DC Input Connections",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Inverter Fault History",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect and Clean Inverter Vents",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Remote Panel",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect AC Wiring",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Chassis Ground",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Verify Inverter Settings",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Mounting Security",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Update Inverter Firmware",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       }
     ]
   },
@@ -18950,7 +23877,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Main DC Cables",
@@ -19492,7 +24430,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -19501,7 +24446,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -19510,7 +24462,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -19519,7 +24478,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Lubricate Pivot Points per Manufacturer Spec",
@@ -19528,7 +24490,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -19537,7 +24506,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -19546,7 +24522,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "De-winterization",
@@ -19924,7 +24907,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -20002,7 +24986,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -20015,7 +25000,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -20028,7 +25014,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -20041,7 +25028,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -20398,6 +25386,578 @@ var PREBUILT_PLANS = [
         "intervalGenHours": null,
         "caution": false,
         "pro": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect DC Fuse or Breaker",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check DC Input Connections",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Inverter Fault History",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect and Clean Inverter Vents",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Remote Panel",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect AC Wiring",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Chassis Ground",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Verify Inverter Settings",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Mounting Security",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Update Inverter Firmware",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       }
     ]
   },
@@ -20676,7 +26236,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Main DC Cables",
@@ -21218,7 +26789,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -21227,7 +26805,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -21236,7 +26821,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -21245,7 +26837,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Lubricate Pivot Points per Manufacturer Spec",
@@ -21254,7 +26849,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -21263,7 +26865,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -21272,7 +26881,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "De-winterization",
@@ -21650,7 +27266,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -21728,7 +27345,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -21741,7 +27359,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -21754,7 +27373,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -21767,7 +27387,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -21980,6 +27601,578 @@ var PREBUILT_PLANS = [
         "intervalGenHours": null,
         "caution": false,
         "pro": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect DC Fuse or Breaker",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check DC Input Connections",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Inverter Fault History",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect and Clean Inverter Vents",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Remote Panel",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect AC Wiring",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Chassis Ground",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Verify Inverter Settings",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Mounting Security",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Update Inverter Firmware",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       }
     ]
   },
@@ -22222,7 +28415,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Main DC Cables",
@@ -22626,7 +28830,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Rinse and Clean Awning Fabric",
@@ -22635,7 +28846,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -22644,7 +28862,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -22653,7 +28878,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Lubricate Pivot Points per Manufacturer Spec",
@@ -22662,7 +28890,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -22671,7 +28906,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -22680,7 +28922,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "De-winterization",
@@ -23031,7 +29280,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -23109,7 +29359,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -23122,7 +29373,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -23135,7 +29387,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -23148,7 +29401,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -23370,6 +29624,578 @@ var PREBUILT_PLANS = [
         "intervalGenHours": null,
         "caution": false,
         "pro": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect DC Fuse or Breaker",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check DC Input Connections",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Inverter Fault History",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect and Clean Inverter Vents",
+        "category": "Inverter",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Remote Panel",
+        "category": "Inverter",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect AC Wiring",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Chassis Ground",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Verify Inverter Settings",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Inspect Mounting Security",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Update Inverter Firmware",
+        "category": "Inverter",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       }
     ]
   },
@@ -23774,7 +30600,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Spare Tire",
@@ -24276,7 +31109,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check DC Input Connections",
@@ -24285,7 +31125,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Inverter Fault History",
@@ -24294,7 +31141,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Remote Panel",
@@ -24303,7 +31157,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Run Tub Cleaning Cycle",
@@ -24324,7 +31185,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Clean Inlet Filters",
@@ -24429,7 +31297,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Travel Lock Security",
@@ -24438,7 +31313,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect End Caps and Weather Guard",
@@ -24447,7 +31329,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": false,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Check Mounting Fasteners",
@@ -24456,7 +31345,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Clean Slide Topper Fabric",
@@ -24513,7 +31409,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": [
+            "power",
+            "manual"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Test Wind Sensor Auto-Retract",
@@ -24522,7 +31425,10 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "awning": "power"
+        }
       },
       {
         "title": "Inspect Brackets, Fasteners, and End Caps",
@@ -24615,7 +31521,18 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "inverteronly",
+            "none"
+          ],
+          "converter": [
+            "smart",
+            "singlestage"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Charger Profile",
@@ -24923,7 +31840,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Chassis Ground",
@@ -24932,7 +31856,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Verify Inverter Settings",
@@ -24941,7 +31872,15 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "note": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer).",
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Mounting Security",
@@ -24950,7 +31889,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Update Inverter Firmware",
@@ -24959,7 +31905,14 @@ var PREBUILT_PLANS = [
         "intervalMiles": null,
         "intervalGenHours": null,
         "caution": true,
-        "pro": true
+        "pro": true,
+        "needs": {
+          "inverter": [
+            "invertercharger",
+            "inverteronly"
+          ]
+        },
+        "isDefault": true
       },
       {
         "title": "Inspect Awning Rail and Fabric Alignment",
@@ -25322,7 +32275,8 @@ var PREBUILT_PLANS = [
         "caution": false,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -25361,7 +32315,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -25374,7 +32329,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -25387,7 +32343,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -25400,7 +32357,8 @@ var PREBUILT_PLANS = [
         "caution": true,
         "pro": true,
         "needs": {
-          "generator": "builtin"
+          "generator": "builtin",
+          "genfuel": "gas"
         },
         "isDefault": true
       },
@@ -25457,6 +32415,417 @@ var PREBUILT_PLANS = [
         "intervalGenHours": null,
         "caution": true,
         "pro": true
+      },
+      {
+        "title": "Clean Schwintek slide tracks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Resync Schwintek slide motors",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Check slide shear pins & gear packs",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "rackpinion"
+        }
+      },
+      {
+        "title": "Inspect slide cables & tension",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "cable"
+        }
+      },
+      {
+        "title": "Test Tru-Earth leveling",
+        "category": "Leveling and Support",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.",
+        "needs": {
+          "truearth": "yes"
+        }
+      },
+      {
+        "title": "Test awning motor",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is.",
+        "needs": {
+          "awning": "power"
+        }
+      },
+      {
+        "title": "Lubricate awning arms and check spring",
+        "category": "Patio Awning",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.",
+        "needs": {
+          "awning": "manual"
+        }
+      },
+      {
+        "title": "Verify converter charge profile",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM.",
+        "needs": {
+          "converter": "smart"
+        }
+      },
+      {
+        "title": "Check converter output voltage",
+        "category": "Electrical",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it.",
+        "needs": {
+          "converter": "singlestage"
+        }
+      },
+      {
+        "title": "Check battery water levels",
+        "category": "Electrical",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": false,
+        "pro": true,
+        "note": "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.",
+        "needs": {
+          "converter": "singlestage",
+          "batteries": "flooded"
+        }
+      },
+      {
+        "title": "Check Diesel Generator Drive Parts",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Primary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Secondary Fuel Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Flush Liquid Cooling System",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Diesel Oil and Filter",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Pressure Cap",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Diesel Coolant Pump Belt",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Coolant Hoses and Thermostat",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Adjust Diesel Valve Lash",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Coolant Freeze Protection",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 500,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Service Diesel Fuel Injectors",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 1000,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Liquid Coolant Level",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 8,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "diesel"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Propane Generator Connection",
+        "category": "Generator",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Change Built-in Propane Generator Oil",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Replace Propane Spark Plug",
+        "category": "Generator",
+        "intervalMonths": null,
+        "intervalMiles": null,
+        "intervalGenHours": 150,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "generator": "builtin",
+          "genfuel": "propane"
+        },
+        "isDefault": true
+      },
+      {
+        "title": "Check Slide Fluid Level",
+        "category": "Slideouts",
+        "intervalMonths": 1,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "note": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide System for Leaks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Inspect Slide Lines and Hoses",
+        "category": "Slideouts",
+        "intervalMonths": 12,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "hydraulic"
+        }
+      },
+      {
+        "title": "Check Slide Synchronization",
+        "category": "Slideouts",
+        "intervalMonths": 6,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
+      },
+      {
+        "title": "Inspect Slide Drive Racks",
+        "category": "Slideouts",
+        "intervalMonths": 3,
+        "intervalMiles": null,
+        "intervalGenHours": null,
+        "caution": true,
+        "pro": true,
+        "needs": {
+          "slides": "yes",
+          "slidetype": "schwintek"
+        }
       }
     ]
   }

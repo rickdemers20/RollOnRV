@@ -33,6 +33,10 @@ jobs:
         run: npm test
       - name: Sync Capacitor
         run: bunx cap sync ios
+      - name: Ensure In-App Purchase capability
+        # A fresh `cap add ios` regenerates project.pbxproj without the
+        # SystemCapabilities entry; this re-adds it if absent (no-op if present).
+        run: node tools/ensure-iap-capability.js
       - name: Build (unsigned, for checking the project compiles)
         run: |
           xcodebuild -project ios/App/App.xcodeproj \

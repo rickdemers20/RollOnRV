@@ -27,9 +27,12 @@
 //      (see gateJob), then writes www/plans.js.
 //
 // Gating semantics follow www/app.js starterApplies: a job with `needs`
-// shows when the answer matches, or when the answer is missing / "Not
-// sure" and the job is the usual one for that question (`isDefault`).
-// A job with no `needs` always shows. Only ONE key per job.
+// shows when every answer in `needs` fits — an exact match, or a missing
+// / "Not sure" answer on the usual job for that question (`isDefault`).
+// A job with no `needs` always shows. Generator jobs carry two keys:
+// the generator itself plus the fuel it is written for (`genfuel`); the
+// fuel key only hides a job on an explicit mismatch, so "Not sure" (or
+// unanswered) keeps the plan's own fuel jobs.
 
 var fs = require("fs");
 var path = require("path");
@@ -266,25 +269,149 @@ var LITHIUM_BATTERY_JOBS = [
   "Check Lithium BMS Status", "Check Charge Temperature",
   "Update Smart Battery Firmware"
 ];
+// Generator jobs written for one fuel only. The rest of the Generator
+// set (exercise, annual service, fuel lines, breaker, record hours)
+// fits every fuel and stays gated on the generator alone.
+// "Adjust Gasoline or Propane Valve Lash" is deliberately in none of
+// these lists — the same job fits a gas or a propane generator.
+// The diesel coolant jobs are the liquid-cooled diesel generator's
+// own cooling system (gas and propane generators are air-cooled).
+var GAS_GENERATOR_JOBS = [
+  "Change Built-in Gasoline Generator Oil",
+  "Replace Built-in Gasoline Fuel Filter",
+  "Replace Gasoline Spark Plug",
+  "Clean Gasoline Carburetor System",
+  "Check High Altitude Carburetor Setup"
+];
+var DIESEL_GENERATOR_JOBS = [
+  "Check Diesel Generator Drive Parts",
+  "Replace Diesel Primary Fuel Filter",
+  "Replace Diesel Secondary Fuel Filter",
+  "Flush Liquid Cooling System",
+  "Change Diesel Oil and Filter",
+  "Replace Coolant Pressure Cap",
+  "Replace Diesel Coolant Pump Belt",
+  "Replace Coolant Hoses and Thermostat",
+  "Adjust Diesel Valve Lash",
+  "Check Coolant Freeze Protection",
+  "Service Diesel Fuel Injectors",
+  "Check Liquid Coolant Level"
+];
+var PROPANE_GENERATOR_JOBS = [
+  "Check Propane Generator Connection",
+  "Change Built-in Propane Generator Oil",
+  "Replace Propane Spark Plug"
+];
+// Slide jobs written for one mechanism only. The rest of the Slideouts
+// set (box and sweeps, seals, damage, alignment, fasteners, electrical)
+// fits every slide and stays gated on the slides alone. "Inspect Slide
+// Drive Racks" is in the Schwintek list: its source title is "Inspect
+// Schwintek Racks" — the racks are the Schwintek in-wall tracks, not a
+// through-frame rack-and-pinion rail.
+var SCHWINTEK_SLIDE_JOBS = [
+  "Check Slide Synchronization",
+  "Inspect Slide Drive Racks",
+  "Clean Schwintek slide tracks",
+  "Resync Schwintek slide motors"
+];
+var RACKPINION_SLIDE_JOBS = [
+  "Check slide shear pins & gear packs"
+];
+var CABLE_SLIDE_JOBS = [
+  "Inspect slide cables & tension"
+];
+var HYDRAULIC_SLIDE_JOBS = [
+  "Check Slide Fluid Level",
+  "Inspect Slide System for Leaks",
+  "Inspect Slide Lines and Hoses"
+];
+// Notes written in our own words for jobs whose title alone doesn't
+// say how (the fluid check wants the slides in; the Schwintek tracks
+// want a brush, never grease). Hand-written jobs carry their note on
+// the job itself (see hand()); this map covers source jobs.
+var JOB_NOTES = {
+  "Check Slide Fluid Level": "Check it with all slides retracted. Top up with ATF (Dexron III / Mercon V).",
+  "Verify Inverter Settings": "For an inverter/charger, the charge profile must match the house battery type — flooded, AGM, or lithium (see the House batteries answer)."
+};
+// The Inverter jobs that belong to the inverter itself. The transfer
+// switching and charger-operation jobs stay ungated — a transfer switch
+// and a charger also live on rigs with no inverter at all.
+var INVERTER_JOBS = [
+  "Verify Inverter Settings", "Update Inverter Firmware",
+  "Check Inverter Fault History", "Inspect and Clean Inverter Vents",
+  "Inspect DC Fuse or Breaker", "Check DC Input Connections",
+  "Inspect Remote Panel", "Inspect AC Wiring",
+  "Inspect Chassis Ground", "Inspect Mounting Security"
+];
 
 function has(list, title) { return list.indexOf(title) !== -1; }
 
-// ctx: { fuel: "gas" | "diesel" | null, typicalRoof, genDefault: boolean }
+// ctx: { fuel: "gas" | "diesel" | null, typicalRoof, genDefault: boolean, slideDefault }
 //   fuel is null for trailers (no engine/fuel jobs of their own).
 //   typicalRoof is the roof material the source rig for the plan has;
 //     the generic roof-seam job is the common-case variant for that roof.
 //   genDefault is false for the Class B plans and class-c-diesel, whose
 //     generator sets only load on an explicit Built-in answer.
+//   slideDefault is the slide mechanism the plan was built from
+//     ("hydraulic" for class-a-diesel, "schwintek" for the Class C
+//     plans); a mechanism job is the usual one only when it matches it.
 function gateJob(job, ctx) {
   var needs = null, isDefault = false;
   var t = job.title, c = job.category;
-  if (c === "Generator") {
+  if (t === "Test Tru-Earth leveling") {
+    // Only ever on an exact Yes — never the plan default, never on
+    // "Not sure" or unanswered. The question itself only shows when
+    // Suspension is Liquid Springs, so the answer implies the rig.
+    needs = { truearth: "yes" };
+  } else if (c === "Generator") {
     needs = { generator: "builtin" };
     isDefault = !!ctx.genDefault;
+    // Fuel-specific jobs also need the rig's generator fuel. The fuel
+    // key only hides a job on an explicit mismatch (see starterApplies
+    // in www/app.js) — "Not sure" keeps the plan's own fuel jobs.
+    if (has(GAS_GENERATOR_JOBS, t)) needs.genfuel = "gas";
+    else if (has(DIESEL_GENERATOR_JOBS, t)) needs.genfuel = "diesel";
+    else if (has(PROPANE_GENERATOR_JOBS, t)) needs.genfuel = "propane";
   } else if (c === "Slideouts") {
     needs = { slides: "yes" }; isDefault = true;
+    // Mechanism-specific slide jobs also need the rig's slide
+    // mechanism. A mechanism job is the plan's usual one only when it
+    // matches the mechanism the plan was built from (ctx.slideDefault);
+    // otherwise it only shows on an explicit answer (or "More than one
+    // type"). "Not sure" keeps the plan's own mechanism jobs.
+    var sm = null;
+    if (has(SCHWINTEK_SLIDE_JOBS, t)) sm = "schwintek";
+    else if (has(RACKPINION_SLIDE_JOBS, t)) sm = "rackpinion";
+    else if (has(CABLE_SLIDE_JOBS, t)) sm = "cable";
+    else if (has(HYDRAULIC_SLIDE_JOBS, t)) sm = "hydraulic";
+    if (sm) {
+      needs.slidetype = sm;
+      isDefault = (ctx.slideDefault === sm);
+    }
   } else if (c === "Slide Toppers") {
     needs = { slidetoppers: "yes" };
+  } else if (c === "Patio Awning") {
+    // The wind sensor and the motor only exist on a power awning, and
+    // only on an exact answer — never the default, never on "Not sure".
+    // The spring job is the manual twin. The fabric, arms, and
+    // fastener jobs fit either awning, so their need names both values
+    // and they stay the plan default — "Not sure" keeps them, and only
+    // "None" hides them.
+    if (t === "Test Wind Sensor Auto-Retract" || t === "Test awning motor") {
+      needs = { awning: "power" };
+    } else if (t === "Lubricate awning arms and check spring") {
+      needs = { awning: "manual" };
+    } else {
+      needs = { awning: ["power", "manual"] };
+      isDefault = true;
+    }
+  } else if (c === "Inverter") {
+    // Inverter jobs fit either kind of inverter, stay the plan default
+    // — "Not sure" keeps them — and hide only when there is no inverter.
+    if (has(INVERTER_JOBS, t)) {
+      needs = { inverter: ["invertercharger", "inverteronly"] };
+      isDefault = true;
+    }
   } else if (c === "Water Heater") {
     if (has(TANK_WATER_HEATER, t)) { needs = { waterHeater: "tank" }; isDefault = true; }
     else if (has(TANKLESS_WATER_HEATER, t)) { needs = { waterHeater: "tankless" }; }
@@ -315,6 +442,24 @@ function gateJob(job, ctx) {
   } else if (c === "Electrical") {
     if (t === "Verify AGM Charge Maintenance") needs = { batteries: "agm" };
     else if (has(LITHIUM_BATTERY_JOBS, t)) needs = { batteries: "lithium" };
+    else if (t === "Clean Converter Ventilation") {
+      // An inverter/charger does the charging, so there is no standalone
+      // converter to clean — and either answer can say so. The job hides
+      // when the inverter answer OR the converter answer names an
+      // inverter/charger; every other answer keeps it.
+      needs = { inverter: ["inverteronly", "none"], converter: ["smart", "singlestage"] };
+      isDefault = true;
+    } else if (t === "Verify converter charge profile") {
+      // Only on an exact smart match — a single-stage converter has no
+      // profile to verify, and an inverter/charger has no converter.
+      needs = { converter: "smart" };
+    } else if (t === "Check converter output voltage") {
+      needs = { converter: "singlestage" };
+    } else if (t === "Check battery water levels") {
+      // Both keys must fit: a single-stage converter on flooded
+      // batteries. The matcher checks every key in `needs`.
+      needs = { converter: "singlestage", batteries: "flooded" };
+    }
   } else if (c === "Roof") {
     if (has(TPO_ROOF, t)) needs = { roof: "tpo" };
     else if (has(FIBERGLASS_ROOF, t)) needs = { roof: "fiberglass" };
@@ -330,8 +475,7 @@ function gateJob(job, ctx) {
     if (has(GAS_ENGINE_JOBS, t)) { needs = { fuel: "gas" }; isDefault = true; }
     else if (t === "Inspect Turbocharger") { needs = { fuel: "diesel" }; isDefault = true; }
   }
-  // No inverter question exists, so inverter jobs stay ungated; likewise
-  // leveling, chassis, transmission (other than fuel-specific), tires
+  // Leveling, chassis, transmission (other than fuel-specific), tires
   // (other than the spare), safety, and the rest fit the plan as built.
   var out = {
     title: job.title,
@@ -342,6 +486,8 @@ function gateJob(job, ctx) {
     caution: job.caution,
     pro: job.pro
   };
+  if (job.note) out.note = job.note;
+  if (JOB_NOTES[t]) out.note = JOB_NOTES[t];
   if (needs) out.needs = needs;
   if (isDefault) out.isDefault = true;
   return out;
@@ -352,13 +498,15 @@ function gateJob(job, ctx) {
 // maintenance rhythms; caution marks fuel / cable-failure jobs; pro marks
 // jobs a shop can be hired for (matching the exports, where nearly every
 // job is hire-out eligible).
-function hand(title, category, days, caution) {
-  return {
+function hand(title, category, days, caution, note) {
+  var j = {
     title: title, category: category,
     intervalMonths: Math.max(1, Math.round(days / 30)),
     intervalMiles: null, intervalGenHours: null,
     caution: !!caution, pro: true
   };
+  if (note) j.note = note;
+  return j;
 }
 var CABOVER_JOBS = [
   hand("Inspect Cab-Over Seals and Window", "Exterior", 180),
@@ -398,6 +546,49 @@ var GARAGE_JOBS = [
   hand("Inspect Garage Fuel Station and Hoses", "Safety", 180, true),
   hand("Check Garage Fuel Station for Leaks", "Safety", 90, true)
 ];
+// Slide-mechanism jobs the exports miss: one set per mechanism, gated
+// on the slide-mechanism answer (see gateJob). Every plan gets them;
+// they only show for a rig with slides, and a mechanism job is the
+// plan's usual one only when it matches the plan's own mechanism.
+var SLIDE_MECHANISM_JOBS = [
+  hand("Clean Schwintek slide tracks", "Slideouts", 90, false,
+    "Brush or vacuum the tracks clean so the motors run true. Never grease them — grease holds grit and wrecks the tracks."),
+  hand("Resync Schwintek slide motors", "Slideouts", 180, false,
+    "Only needed if the room runs unevenly or one side lags. Run the room all the way out, then hold Extend about 5 seconds after it stops so the motors resync."),
+  hand("Check slide shear pins & gear packs", "Slideouts", 365, false,
+    "Look for sheared pins and worn gear packs — if the motor spins and the room doesn't move, a pin has sheared."),
+  hand("Inspect slide cables & tension", "Slideouts", 180, true,
+    "Look for fraying and rubbing on the cables, and check the tension at the corner nuts and the pulleys. Don't overtighten — it overloads the motor.")
+];
+// Tru-Earth Leveling is an option on Liquid Springs rigs: the leveling
+// runs through the suspension itself, same fluid and struts, no separate
+// jacks. The one extra check is the leveling itself — the height sensors
+// and accelerometer it depends on. It only shows on an exact Yes.
+var TRUEARTH_JOBS = [
+  hand("Test Tru-Earth leveling", "Leveling and Support", 180, false,
+    "Run the leveling — all four corners level and hold, no sensor faults or warnings. Check the fluid level and fittings at the same time: a leak shows up as a corner that won't hold level.")
+];
+// Awning jobs the exports miss, one per awning type. A power awning has
+// a motor and a wind sensor; a manual one has a spring-loaded roller
+// and a pull strap. The fabric and fastener care is the same either way.
+var AWNING_JOBS = [
+  hand("Test awning motor", "Patio Awning", 180, false,
+    "Extend and retract the awning and listen. Humming without moving means a stripped gearbox or a sheared drive pin; silent means check the fuse, the switch, and the control board. Check the wiring, and know where the manual override crank is."),
+  hand("Lubricate awning arms and check spring", "Patio Awning", 180, false,
+    "Lubricate the arm pivots and check the pull strap and arms for bends. Spring tension is a shop job — the torsion spring holds serious energy.")
+];
+// Converter jobs the exports miss, one per converter type. A smart
+// multi-stage converter has a charge profile to check; a single-stage
+// one holds a fixed voltage and boils water out of flooded batteries
+// on long shore-power stays.
+var CONVERTER_JOBS = [
+  hand("Verify converter charge profile", "Electrical", 365, false,
+    "Confirm the converter is set to the right charging profile for the house battery type — lithium mode switch or auto-detect for lithium, 3-stage with float for flooded or AGM."),
+  hand("Check converter output voltage", "Electrical", 365, false,
+    "Measure the voltage at the battery while on shore power. A full battery held above about 13.8V means the converter is overcharging it."),
+  hand("Check battery water levels", "Electrical", 30, false,
+    "A single-stage converter boils water off on long shore stays. Check the levels monthly while plugged in and top up with distilled water.")
+];
 
 // ---------------------------------------------------------------- build
 function main() {
@@ -422,7 +613,18 @@ function main() {
     "Inspect Topper Fabric to Assess Replacement Need"
   ], "Slide Toppers");
   var gasGeneratorSet = src.agas.filter(function (j) { return j.category === "Generator"; });
+  var dieselGeneratorSet = src.adiesel.filter(function (j) { return j.category === "Generator"; });
   var propaneGeneratorSet = src.bdiesel.filter(function (j) { return j.category === "Generator"; });
+  // Variant sets: the source jobs for each generator fuel, each slide
+  // mechanism, and the inverter — lifted from the exports that have
+  // them so every plan can carry the full set (see emit()). The
+  // generic jobs inside the generator sets share titles across fuels
+  // and dedupe on the way in; only the fuel-specific titles are new
+  // to a plan. The transfer-switch and charger-operation jobs are
+  // deliberately NOT in the inverter set — they stay ungated.
+  var hydraulicSlideSet = pick(src.adiesel, HYDRAULIC_SLIDE_JOBS, "Slideouts");
+  var schwintekSlideSet = pick(src.cgas, ["Check Slide Synchronization", "Inspect Slide Drive Racks"], "Slideouts");
+  var inverterSet = pick(src.agas, INVERTER_JOBS, "Inverter");
   var defDpfSet = pick(src.bdiesel, [
     "Check DEF Level", "Refill DEF with Certified Fluid",
     "Inspect DEF Lines and Pump", "Inspect DEF Tank and Heater",
@@ -462,6 +664,29 @@ function main() {
   function emit(id, label, rigTypes, ctx, jobs) {
     var before = stats.deduped;
     jobs = dedupe(jobs, stats);
+    // Every plan gets the slide-mechanism jobs; they only show for a
+    // rig with slides, gated on the mechanism answer (see gateJob).
+    addMissing(jobs, SLIDE_MECHANISM_JOBS, stats, "slideMechanism");
+    // And the Tru-Earth check; it only shows on an exact Yes.
+    addMissing(jobs, TRUEARTH_JOBS, stats, "truEarth");
+    // And the awning jobs; the power and manual ones only show on an
+    // exact answer, the common ones on either.
+    addMissing(jobs, AWNING_JOBS, stats, "awning");
+    // And the converter jobs; each only shows on its exact converter type.
+    addMissing(jobs, CONVERTER_JOBS, stats, "converter");
+    // Variant completeness: every plan also carries every fuel's
+    // generator jobs, every slide mechanism's jobs, and the inverter
+    // jobs. The `needs` gates decide what a rig actually sees — a plan
+    // built from a gas rig must still serve a diesel generator, a
+    // hydraulic slide, or an inverter, or the owner gets no jobs for
+    // their own type at all. "Not sure" behavior is unchanged: the
+    // gates, not the presence, decide what shows.
+    addMissing(jobs, gasGeneratorSet, stats, "gasGeneratorSet");
+    addMissing(jobs, dieselGeneratorSet, stats, "dieselGeneratorSet");
+    addMissing(jobs, propaneGeneratorSet, stats, "propaneGeneratorSet");
+    addMissing(jobs, hydraulicSlideSet, stats, "hydraulicSlideSet");
+    addMissing(jobs, schwintekSlideSet, stats, "schwintekSlideSet");
+    addMissing(jobs, inverterSet, stats, "inverterSet");
     dedupeByPlan[id] = stats.deduped - before;
     plans.push({
       id: id, label: label, rigTypes: rigTypes,
@@ -480,7 +705,7 @@ function main() {
   var adieselJobs = applyRoofMatrix(clone(src.adiesel), stats);
   addMissing(adieselJobs, defDpfSet, stats, "defDpf");
   emit("class-a-diesel", "Full Class A diesel plan", ["Class A"],
-       { fuel: "diesel", typicalRoof: "fiberglass", genDefault: true }, adieselJobs);
+       { fuel: "diesel", typicalRoof: "fiberglass", genDefault: true, slideDefault: "hydraulic" }, adieselJobs);
 
   // -- class-b-diesel: Plateau export, minus the pop-top Canvas Care jobs
   // and the Sprinter 4x4-specific chassis jobs (transfer case oil, front
@@ -518,7 +743,7 @@ function main() {
   addMissing(cgasJobs, slideTopperSet, stats, "slideToppers");
   addMissing(cgasJobs, CABOVER_JOBS, stats, "cabOver");
   emit("class-c-gas", "Full Class C gas plan", ["Class C"],
-       { fuel: "gas", typicalRoof: "tpo", genDefault: true }, cgasJobs);
+       { fuel: "gas", typicalRoof: "tpo", genDefault: true, slideDefault: "schwintek" }, cgasJobs);
 
   // -- fifth-wheel: Montana export + Water Filtration 6 from the Class A
   // gas plan + the full generator set behind the question (its export has
@@ -582,7 +807,7 @@ function main() {
   mergeReplace(cdieselJobs, plateauDiesel, stats, "sprinterDiesel");
   addMissing(cdieselJobs, propaneGeneratorSet, stats, "propaneGeneratorSet");
   emit("class-c-diesel", "Full Class C diesel plan", ["Class C"],
-       { fuel: "diesel", typicalRoof: "tpo", genDefault: false }, cdieselJobs);
+       { fuel: "diesel", typicalRoof: "tpo", genDefault: false, slideDefault: "schwintek" }, cdieselJobs);
 
   // -- teardrop (derived): travel-trailer core + rear galley hatch jobs.
   var teardropJobs = clone(ttJobs);
@@ -628,9 +853,11 @@ function main() {
     "// do not edit by hand; change the generator (or the sources) and rerun it.",
     "// Each plan: { id, label, rigTypes, jobs }. Each job: { title, category,",
     "// intervalMonths, intervalMiles, intervalGenHours, caution, pro,",
-    "// needs?, isDefault? }. `needs` holds one setup-question answer; a job",
-    "// with `needs` shows on an exact match, or when the answer is missing",
-    "// or \"Not sure\" and the job is the usual one (`isDefault`).",
+    "// needs?, isDefault?, note? }. `needs` holds setup-question answers; a job",
+    "// with `needs` shows when every answer fits — an exact match, or a",
+    "// missing / \"Not sure\" answer on the usual job (`isDefault`). The",
+    "// generator-fuel answer (`genfuel`) is the one exception: it only",
+    "// hides a job when it names a different fuel outright.",
     "var PREBUILT_PLANS = "
   ].join("\n");
   var out = header + JSON.stringify(plans, null, 2) + ";\n";

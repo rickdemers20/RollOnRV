@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "74";
+  var APP_VERSION = "75";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -1394,29 +1394,55 @@
   ];
 
   /* ---------------- rig questions (fit the jobs to the rig) --------------- */
-  /* Seventeen quick questions, asked in plain words, so the usual-jobs list
+  /* Twenty-three quick questions, asked in plain words, so the usual-jobs list
      only shows work this rig actually has. No data to import? This is
      the quick way to build the book instead. "Not sure" is always a
-     fine answer — it never hides a job. */
+     fine answer — it never hides a job. The generator-fuel question only
+     shows when the rig has a generator (built-in or portable) — a gas,
+     diesel, and propane generator each want different care — the
+     slide-mechanism question only shows when the rig has slides, and
+     the Tru-Earth question only shows on a Liquid Springs rig. The
+     awning question is asked of every rig — a manual awning and a power
+     one want different care, and no awning wants none of it. The
+     converter and inverter questions sit next to the batteries one — a
+     smart converter has a charge profile to check, a single-stage one
+     boils water out of flooded batteries, and an inverter/charger does
+     the charging, so there is no standalone converter to clean on that
+     rig. */
   var EQUIPMENT_QUESTIONS = [
     { key: "roof", label: "What kind of roof?", options: [["epdm", "Rubber (EPDM)"], ["tpo", "Rubber (TPO)"], ["fiberglass", "Fiberglass"], ["aluminum", "Aluminum"]] },
     { key: "ac", label: "Air conditioning?", options: [["acOnly", "AC only"], ["heatpump", "Heat pump"]] },
     { key: "solar", label: "Solar power?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "furnace", label: "Furnace?", options: [["gas", "Gas"], ["none", "None"]] },
     { key: "batteries", label: "House batteries?", options: [["flooded", "Flooded"], ["agm", "AGM"], ["lithium", "Lithium"]] },
+    { key: "converter", label: "Converter?", options: [["smart", "Smart multi-stage"], ["singlestage", "Single-stage"], ["invertercharger", "Inverter-charger only"]] },
+    { key: "inverter", label: "Inverter?", options: [["invertercharger", "Inverter/charger"], ["inverteronly", "Inverter only"], ["none", "None"]] },
     { key: "waterHeater", label: "Water heater?", options: [["tank", "Tank"], ["tankless", "Tankless"]] },
     { key: "fridge", label: "Fridge?", options: [["absorption", "Propane"], ["residential", "Residential"]] },
     { key: "generator", label: "Generator?", options: [["builtin", "Built-in"], ["portable", "Portable"], ["none", "None"]] },
+    { key: "genfuel", label: "Generator fuel?", options: [["gas", "Gas"], ["diesel", "Diesel"], ["propane", "Propane"]], showWhen: function (eq) { return eq.generator === "builtin" || eq.generator === "portable"; } },
     { key: "slides", label: "Slides?", options: [["yes", "Yes"], ["no", "No"]] },
+    { key: "slidetype", label: "Slide mechanism?", options: [["schwintek", "Schwintek (in-wall)"], ["rackpinion", "Rack and pinion"], ["cable", "Cable"], ["hydraulic", "Hydraulic"], ["mixed", "More than one type"]], showWhen: function (eq) { return eq.slides === "yes"; } },
     { key: "suspension", label: "Suspension?", options: [["liquidspring", "Liquid Springs"], ["standard", "Standard"]] },
+    { key: "truearth", label: "Tru-Earth Leveling?", options: [["yes", "Yes"], ["no", "No"]], showWhen: function (eq) { return eq.suspension === "liquidspring"; } },
     { key: "fuel", label: "Gas or diesel?", options: [["gas", "Gas"], ["diesel", "Diesel"]], motorized: true },
     { key: "washerdryer", label: "Washer/dryer?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "icemaker", label: "Fridge ice maker?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "dishwasher", label: "Dishwasher?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "centralvac", label: "Central vacuum?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "sparetire", label: "Spare tire?", options: [["yes", "Yes"], ["no", "No"]] },
-    { key: "slidetoppers", label: "Slide toppers?", options: [["yes", "Yes"], ["no", "No"]] }
+    { key: "slidetoppers", label: "Slide toppers?", options: [["yes", "Yes"], ["no", "No"]] },
+    { key: "awning", label: "Awning?", options: [["power", "Power"], ["manual", "Manual"], ["none", "None"]] }
   ];
+  /* Questions to show for this rig: motorized ones only on a motorhome,
+     and the generator-fuel question only when the rig has a generator. */
+  function visibleQuestions(rig, eq) {
+    return EQUIPMENT_QUESTIONS.filter(function (q) {
+      if (q.motorized && !/class [abc]/i.test(rig.type || "")) return false;
+      if (q.showWhen && !q.showWhen(eq || {})) return false;
+      return true;
+    });
+  }
   var ROOF_NOTES = {
     /* Rubber roofs come in two kinds (Nov 15: Rick — it matters).
        EPDM is the older black rubber: it chalks as it ages and
@@ -1451,7 +1477,7 @@
     }
     function draw() {
       // Gas or diesel only makes sense on a motorhome — a trailer has no engine.
-      var qs = EQUIPMENT_QUESTIONS.filter(function (q) { return !q.motorized || /class [abc]/i.test(rig.type || ""); });
+      var qs = visibleQuestions(rig, draft);
       openSheet(
         sheetHead("What does your rig have?", qs.length + " quick questions — the usual jobs will only show the ones that fit your rig. Not sure is always a fine answer.") +
         qs.map(function (q) {
@@ -1467,7 +1493,18 @@
       );
       wireClose(sheetHost);
       $all("[data-eq]").forEach(function (b) {
-        b.addEventListener("click", function () { draft[b.getAttribute("data-eq")] = b.getAttribute("data-val"); draw(); });
+        b.addEventListener("click", function () {
+          var k = b.getAttribute("data-eq");
+          draft[k] = b.getAttribute("data-val");
+          // No generator, no fuel to ask about — drop a stale fuel
+          // answer so it can't gate jobs later. Same for the slide
+          // mechanism when the rig has no slides, and for Tru-Earth
+          // when the rig is no longer on Liquid Springs.
+          if (k === "generator" && draft.generator !== "builtin" && draft.generator !== "portable") delete draft.genfuel;
+          if (k === "slides" && draft.slides !== "yes") delete draft.slidetype;
+          if (k === "suspension" && draft.suspension !== "liquidspring") delete draft.truearth;
+          draw();
+        });
       });
       $("#eq-save").addEventListener("click", function () {
         rig.equipment = draft; save(); done(); toast("The usual jobs now fit your rig.");
@@ -3323,11 +3360,29 @@
   function starterApplies(t, rig) {
     if (t.motorized && !/class [abc]/i.test(rig.type || "")) return false;
     if (!t.needs) return true;
-    var key = Object.keys(t.needs)[0];
-    var ans = ((rig && rig.equipment) || {})[key];
-    if (ans === t.needs[key]) return true;
-    if ((!ans || ans === "unsure") && t.isDefault) return true;
-    return false;
+    var eq = (rig && rig.equipment) || {};
+    // Every answer in `needs` must fit: an exact match, or a missing /
+    // "Not sure" answer on the usual job for that question (`isDefault`).
+    // A need can name more than one answer — a power or a manual awning
+    // both want the same fabric and fastener care — so a list means any
+    // of them fits. The generator-fuel answer is the one exception — it
+    // only ever hides a job when it names a different fuel outright, so
+    // "Not sure" (or unanswered) never hides a fuel job, whatever the
+    // plan. The slide-mechanism answer has its own exception: "More
+    // than one type" fits every mechanism — big rigs often mix a
+    // hydraulic full-wall slide with a Schwintek bedroom slide.
+    return Object.keys(t.needs).every(function (key) {
+      var ans = eq[key];
+      var want = t.needs[key];
+      var match = Array.isArray(want) ? want.indexOf(ans) !== -1 : ans === want;
+      if (match) return true;
+      if (key === "slidetype" && ans === "mixed") return true;
+      if (!ans || ans === "unsure") {
+        if (key === "genfuel") return true;
+        if (t.isDefault) return true;
+      }
+      return false;
+    });
   }
   function starterTasksFor(rig) {
     return STARTER_TASKS.filter(function (t) { return starterApplies(t, rig); });
@@ -3342,7 +3397,7 @@
       return EQUIPMENT_QUESTIONS.some(function (q) { var a = (rig.equipment || {})[q.key]; return a && a !== "unsure"; });
     }
     function draw() {
-      var qCount = EQUIPMENT_QUESTIONS.filter(function (q) { return !q.motorized || /class [abc]/i.test(rig.type || ""); }).length;
+      var qCount = visibleQuestions(rig, rig.equipment || {}).length;
       openSheet(
         sheetHead("The usual jobs", "Jobs most rigs need, rhythms already set. Tap Add on the ones that fit yours.") +
         '<div class="btnrow"><button class="btn ghost small" id="st-fit" type="button">' + (fitted() ? "Fitted to your rig — change answers" : "⚙️ Fit the jobs to my rig — " + qCount + " quick questions") + '</button></div>' +
@@ -3435,7 +3490,7 @@
       store.tasks.push(newTask({
         rigId: rig.id, title: j.title, category: j.category,
         intervalMonths: j.intervalMonths, intervalMiles: j.intervalMiles, intervalGenHours: j.intervalGenHours,
-        needsPro: !!j.pro, caution: !!j.caution,
+        needsPro: !!j.pro, caution: !!j.caution, note: j.note,
         nextDueDate: due.date, nextDueMileage: due.miles, nextDueGenHours: due.hours
       }));
       added++;
