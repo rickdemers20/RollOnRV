@@ -767,7 +767,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 79"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 80"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -2559,6 +2559,22 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the standalone list puts each thing under its bay", html79.indexOf("Wet bay") < html79.indexOf("Fresh water hose") && html79.indexOf("Roof box") < html79.indexOf("Leveling blocks"));
   roof79.name = "Roof box — blocks"; R.save();
   check("the print list follows a renamed bay", R.storageListHTML(rig79).includes("Roof box — blocks"));
+
+  /* ---- 80. Find it: the name field takes the keyboard on open (v80) ---- */
+  console.log("== 80. Find it keyboard focus ==");
+  R.openStorageItemSheet(null, null);
+  check("the thing sheet puts the caret in the name field", doc.activeElement && doc.activeElement.id === "st-name");
+  setVal("#st-name", "Spare water filter");
+  click(doc.querySelector("#st-save")); await sleep(20);
+  check("a thing typed with spaces keeps them", R.storageFor(R.activeRig()).items.some(function (i) { return i.name === "Spare water filter"; }));
+  check("saving jumps the list to the bay it went into", (function () {
+    var it80 = R.storageFor(R.activeRig()).items.find(function (i) { return i.name === "Spare water filter"; });
+    var g80 = doc.querySelector('[data-bay="' + it80.compartmentId + '"]');
+    return !!g80 && g80.classList.contains("flash");
+  })());
+  R.openStorageCompartmentSheet(null);
+  check("the bay sheet puts the caret in the bay name field", doc.activeElement && doc.activeElement.id === "sb-name");
+  click(doc.querySelector("[data-close]")); await sleep(20);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

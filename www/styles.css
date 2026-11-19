@@ -211,6 +211,7 @@ a.pill{ color:var(--ink); text-decoration:none; margin-left:0; }
 
 /* ---------- checklist ---------- */
 .check-group{ font-family:var(--hand); font-size:1.5rem; font-weight:700; color:var(--red); margin:1.1rem 0 .2rem; }
+.check-group.flash{ background:#fff3c4; border-radius:8px; }
 .check-group.heading-edit{ background:none; border:0; padding:0; text-align:left; width:100%; cursor:pointer; }
 .check-item{
   display:flex; align-items:flex-start; gap:.8rem; width:100%;

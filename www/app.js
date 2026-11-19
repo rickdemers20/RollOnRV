@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "79";
+  var APP_VERSION = "80";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -2292,7 +2292,7 @@
     } else {
       host.innerHTML = st.compartments.map(function (c) {
         var items = st.items.filter(function (it) { return it.compartmentId === c.id; });
-        return '<div class="check-group"><span data-open-bay="' + c.id + '" style="cursor:pointer">' + esc(c.name) + '</span>' +
+        return '<div class="check-group" data-bay="' + c.id + '"><span data-open-bay="' + c.id + '" style="cursor:pointer">' + esc(c.name) + '</span>' +
           ' <span class="muted small">· ' + items.length + (items.length === 1 ? ' thing' : ' things') + '</span></div>' +
           (items.length ? items.map(function (it) {
             return '<div class="row" data-open-stored="' + it.id + '" style="cursor:pointer"><div class="grow"><div class="title">' + esc(it.name) + '</div></div></div>';
@@ -2328,12 +2328,28 @@
       if (!item) st.items.push(draft);
       else { var i = st.items.findIndex(function (x) { return x.id === item.id; }); if (i >= 0) st.items[i] = draft; }
       save(); closeSheet(); renderStorage(); toast("Saved — it's in the " + storageCompartmentName(rig, draft.compartmentId) + ".");
+      /* Nov 19 (v80): after saving, jump the list to the bay the thing
+         went into and flash it — on the phone the keyboard covers the
+         lower bays, so without this a thing saved low down looks like
+         it vanished. */
+      var bayGroup = $('[data-bay="' + draft.compartmentId + '"]');
+      if (bayGroup) {
+        try { bayGroup.scrollIntoView({ block: "center" }); } catch (e) {}
+        bayGroup.classList.add("flash");
+        setTimeout(function () { bayGroup.classList.remove("flash"); }, 1600);
+      }
     });
     if (item) $("#st-delete").addEventListener("click", function () {
       if (!confirm("Take " + item.name + " out of the bays?")) return;
       st.items = st.items.filter(function (x) { return x.id !== item.id; });
       save(); closeSheet(); renderStorage();
     });
+    /* Nov 19 (v80): on the phone the space bar did nothing when adding
+       a thing — the name field had no caret until it was tapped, so the
+       keyboard's space went nowhere. Focus it on open (same as the
+       custom-list sheet) so the keyboard lands in the field straight
+       away, spaces and all. */
+    $("#st-name").focus();
   }
   function openStorageCompartmentSheet(compId) {
     var rig = activeRig(); if (!rig) return;
@@ -2362,6 +2378,9 @@
       st.compartments = st.compartments.filter(function (c) { return c.id !== comp.id; });
       save(); closeSheet(); renderStorage();
     });
+    /* Same as the thing sheet above (Nov 19, v80): focus the bay name
+       on open so the keyboard lands in the field straight away. */
+    $("#sb-name").focus();
   }
 
   /* ---------------- Fuel ---------------------------------------------------- */
