@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "94";
+  var APP_VERSION = "95";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -655,9 +655,11 @@
             var ctx = c.getContext("2d");
             ctx.drawImage(img, 0, 0);
             /* A little plate that looks like an auto tag — white with a
-               navy border and navy letters (Nov 19: Rick wanted the
+               red outline and red letters (Nov 19: Rick wanted the
                tag to read like a license plate, not just a colored
-               box). The border defines it on a light photo, the white
+               box, and liked it with a red outline — the app's red,
+               same as the buttons — then the letters red as well).
+               The outline defines it on a light photo, the white
                pops on a dark one. */
             var size = Math.max(18, Math.round(img.height * 0.045));
             var label = text.toUpperCase();
@@ -678,10 +680,10 @@
             ctx.closePath();
             ctx.fillStyle = "#fff";
             ctx.fill();
-            ctx.strokeStyle = "#172242";
+            ctx.strokeStyle = "#b3372c";
             ctx.lineWidth = Math.max(2, Math.round(size * 0.09));
             ctx.stroke();
-            ctx.fillStyle = "#172242";
+            ctx.fillStyle = "#b3372c";
             ctx.textBaseline = "middle";
             ctx.fillText(label, bx + padX, by + bh / 2);
             finish(c.toDataURL("image/jpeg", 0.85));
