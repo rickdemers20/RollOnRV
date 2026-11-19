@@ -786,7 +786,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 90"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 91"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1879,7 +1879,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc.querySelector("#home-guide-link").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("tapping How to use this app opens the guide screen", doc.querySelector("#screen-guide").classList.contains("active"));
-  check("the in-app guide carries all 18 steps", doc.querySelectorAll("#screen-guide .card").length === 18);
+  check("the in-app guide carries all 19 steps", doc.querySelectorAll("#screen-guide .card").length === 19);
   doc.querySelector("#guide-back-btn").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("the guide's Back button returns to Home", doc.querySelector("#screen-home").classList.contains("active"));
@@ -2908,7 +2908,31 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("switching back restores the Schedule Home", rig89.mode === "schedule" && doc.querySelector("#home-nextup-title").textContent === "Next up");
   R.showScreen("logbook"); await sleep(20);
   check("the Schedule Logbook sorts by date again", !!doc.querySelector('#logbook-pages [data-sort="due"]'));
-  check("the guide teaches both modes", doc.querySelectorAll("#screen-guide .card").length === 18 && doc.body.textContent.indexOf("Schedule or Focus") !== -1);
+  check("the guide teaches both modes", doc.querySelectorAll("#screen-guide .card").length === 19 && doc.body.textContent.indexOf("Schedule or Focus") !== -1);
+
+  /* ---- 90. Tag stamped on the rig photo ---- */
+  console.log("== 90. Tag stamped on the rig photo ==");
+  var rig90 = R.activeRig();
+  check("the rig carries a tag field, empty by default", R.newRig({}).tag === "" && (rig90.tag || "") === "");
+  check("the setup form asks for the tag", !!doc.querySelector("#su-tag"));
+  // No canvas in jsdom, so stamping settles with the clean photo — the
+  // 6s timer is the only settle path for a tagged photo here.
+  var stamped90 = await R.stampRigPhoto("data:image/jpeg;base64,/9j/FAKE", "ABC 1234");
+  check("without a canvas the clean photo stands", stamped90 === "data:image/jpeg;base64,/9j/FAKE");
+  var noTag90 = await R.stampRigPhoto("data:image/jpeg;base64,/9j/FAKE", "");
+  check("no tag, no stamp", noTag90 === "data:image/jpeg;base64,/9j/FAKE");
+  R.setRigPhoto("data:image/jpeg;base64,/9j/FAKE2");
+  check("the clean original is kept alongside the photo", R.activeRig().photoOriginal === "data:image/jpeg;base64,/9j/FAKE2" && R.activeRig().photo === "data:image/jpeg;base64,/9j/FAKE2");
+  // The rig sheet saves the tag; a changed tag re-stamps from the clean copy.
+  R.showScreen("more");
+  click(doc.querySelector("#rig-edit-btn")); await sleep(20);
+  check("the rig sheet asks for the tag", !!doc.querySelector("#rg-tag"));
+  doc.querySelector("#rg-tag").value = "ABC 1234";
+  click(doc.querySelector("#rg-save")); await sleep(50);
+  check("saving the tag stores it on the rig", R.activeRig().tag === "ABC 1234");
+  check("More shows the tag", doc.querySelector("#rig-body").textContent.indexOf("ABC 1234") !== -1);
+  check("the photo still stands after the re-stamp", !!R.activeRig().photo && R.activeRig().photoOriginal === "data:image/jpeg;base64,/9j/FAKE2");
+  check("the guide teaches the tag stamp", doc.body.textContent.indexOf("Your tag, stamped on the photo") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

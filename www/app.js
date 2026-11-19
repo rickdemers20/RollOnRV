@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "90";
+  var APP_VERSION = "91";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -582,6 +582,7 @@
     return {
       id: uid(), year: o.year || "", make: o.make || "", model: o.model || "",
       nickname: o.nickname || "", type: o.type || "Class A",
+      tag: (o.tag || "").trim(), photoOriginal: o.photoOriginal || null,
       mileage: Number(o.mileage) || 0, genHours: Number(o.genHours) || 0,
       mileageUpdatedAt: o.mileageUpdatedAt || null,
       mode: o.mode === "focus" ? "focus" : "schedule",
@@ -626,7 +627,46 @@
   }
   function setRigPhoto(dataUrl) {
     var rig = activeRig(); if (!rig) return;
-    rig.photo = dataUrl || null; save(); renderHome();
+    rig.photoOriginal = dataUrl || null;
+    if (!dataUrl || !rig.tag) { rig.photo = dataUrl || null; save(); renderHome(); return; }
+    stampRigPhoto(dataUrl, rig.tag).then(function (stamped) {
+      rig.photo = stamped; save(); renderHome();
+    });
+  }
+  /* Stamp the RV's tag (license plate) on the rig photo, small in the
+     bottom-left corner, so the picture itself says which rig it is. The
+     clean photo is kept as photoOriginal, so changing the tag re-stamps
+     from the clean copy instead of stamping over a stamp. No tag, no
+     stamp. Same never-hang promise as downscalePhoto: anything at all
+     goes wrong and the clean photo stands. */
+  function stampRigPhoto(dataUrl, tag) {
+    return new Promise(function (resolve) {
+      var done = false;
+      function finish(v) { if (!done) { done = true; resolve(v); } }
+      setTimeout(function () { finish(dataUrl); }, 6000);
+      var text = String(tag || "").trim();
+      if (!text || !dataUrl) { finish(dataUrl); return; }
+      try {
+        var img = new Image();
+        img.onload = function () {
+          try {
+            var c = document.createElement("canvas");
+            c.width = img.width; c.height = img.height;
+            var ctx = c.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            var size = Math.max(18, Math.round(img.height * 0.045));
+            ctx.font = "bold " + size + "px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+            ctx.textBaseline = "bottom";
+            ctx.shadowColor = "rgba(0,0,0,0.75)"; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
+            ctx.fillStyle = "#fff";
+            ctx.fillText(text.toUpperCase(), Math.round(img.width * 0.03), img.height - Math.round(img.height * 0.03));
+            finish(c.toDataURL("image/jpeg", 0.85));
+          } catch (e) { finish(dataUrl); }
+        };
+        img.onerror = function () { finish(dataUrl); };
+        img.src = dataUrl;
+      } catch (e) { finish(dataUrl); }
+    });
   }
   function pickRigPhoto() {
     var rig = activeRig(); if (!rig) return;
@@ -634,7 +674,8 @@
       var dataUrl = urls[0]; if (!dataUrl) return;
       downscalePhoto(dataUrl).then(function (small) {
         if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); return; }
-        rig.photo = small; save(); renderHome(); toast("That's the one — your rig's photo is on the home screen.");
+        setRigPhoto(small);
+        toast("That's the one — your rig's photo is on the home screen.");
       });
     });
   }
@@ -3009,7 +3050,8 @@
       '<div class="row"><div class="grow"><div class="title">' + esc(rigName(rig)) + '</div><div class="sub">' + esc(rig.type) + '</div></div></div>' +
       '<div class="row"><div class="grow"><div class="title">Odometer</div></div><b>' + num(rig.mileage) + ' mi</b></div>' +
       '<div class="row"><div class="grow"><div class="title">Generator hours</div></div><b>' + num(rig.genHours) + ' hrs</b></div>' +
-      '<div class="row"><div class="grow"><div class="title">Tire pressures</div></div><b>' + (rig.psiFront ? rig.psiFront + " / " + (rig.psiRear || "—") + " psi" : "Not set") + '</b></div>';
+      '<div class="row"><div class="grow"><div class="title">Tire pressures</div></div><b>' + (rig.psiFront ? rig.psiFront + " / " + (rig.psiRear || "—") + " psi" : "Not set") + '</b></div>' +
+      (rig.tag ? '<div class="row"><div class="grow"><div class="title">Tag</div></div><b>' + esc(rig.tag) + '</b></div>' : '');
     proRefreshPremiumCard();
   }
 
@@ -4616,6 +4658,7 @@
       '<option value="gas"' + (fuel === "gas" ? " selected" : "") + '>Gas</option>' +
       '<option value="diesel"' + (fuel === "diesel" ? " selected" : "") + '>Diesel</option></select></div>' +
       '<div class="field"><label for="rg-nick">Nickname</label><input id="rg-nick" value="' + esc(rig.nickname || "") + '" /></div>' +
+      '<div class="field"><label for="rg-tag">Tag — license plate (optional)</label><input id="rg-tag" value="' + esc(rig.tag || "") + '" placeholder="e.g. ABC 1234" /></div>' +
       '<div class="fieldrow"><div class="field"><label for="rg-miles">Odometer (miles)</label><input id="rg-miles" inputmode="decimal" value="' + rig.mileage + '" /></div>' +
       '<div class="field"><label for="rg-gen">Generator hours</label><input id="rg-gen" inputmode="decimal" value="' + rig.genHours + '" /></div></div>' +
       '<div class="fieldrow"><div class="field"><label for="rg-psi-f">Tire pressure — front (PSI)</label><input id="rg-psi-f" inputmode="numeric" value="' + (rig.psiFront || "") + '" /></div>' +
@@ -4630,12 +4673,15 @@
     var rgRemove = $("#rg-photo-remove");
     if (rgRemove) rgRemove.addEventListener("click", function () {
       if (rgRemove.textContent !== "Tap again to remove") { rgRemove.textContent = "Tap again to remove"; return; }
-      rig.photo = null; save(); closeSheet(); renderHome(); renderMore(); toast("Photo removed — the silhouette is back.");
+      rig.photo = null; rig.photoOriginal = null; save(); closeSheet(); renderHome(); renderMore(); toast("Photo removed — the silhouette is back.");
     });
     $("#rg-save").addEventListener("click", function () {
       rig.year = $("#rg-year").value.trim(); rig.make = $("#rg-make").value.trim();
       rig.model = $("#rg-model").value.trim(); rig.type = $("#rg-type").value;
       rig.nickname = $("#rg-nick").value.trim();
+      var newTag = $("#rg-tag").value.trim();
+      var tagChanged = newTag !== (rig.tag || "");
+      rig.tag = newTag;
       // Engine fuel lives on the rig, not in the question poll — and a
       // trailer has no engine, so a type change clears a stale answer.
       rig.equipment = rig.equipment || {};
@@ -4645,6 +4691,15 @@
       rig.mileage = Number($("#rg-miles").value) || 0; rig.genHours = Number($("#rg-gen").value) || 0;
       rig.psiFront = Number($("#rg-psi-f").value) || null; rig.psiRear = Number($("#rg-psi-r").value) || null;
       save(); closeSheet(); renderMore(); renderHome(); toast("Rig updated.");
+      /* A changed tag re-stamps the photo from the clean copy — a new
+         tag, a cleared tag, all from the same original. */
+      if (tagChanged && rig.photo) {
+        var source = rig.photoOriginal || rig.photo;
+        rig.photoOriginal = source;
+        stampRigPhoto(source, rig.tag).then(function (stamped) {
+          rig.photo = stamped; save(); renderHome(); renderMore();
+        });
+      }
     });
   }
   function openMilesSheet() {
@@ -4673,6 +4728,7 @@
       var rig = newRig({
         year: $("#su-year").value.trim(), make: $("#su-make").value.trim(), model: $("#su-model").value.trim(),
         nickname: $("#su-nick").value.trim(), type: $("#su-type").value,
+        tag: $("#su-tag").value.trim(),
         mileage: $("#su-miles").value, genHours: $("#su-gen").value,
         psiFront: $("#su-psi-f").value, psiRear: $("#su-psi-r").value,
         equipment: $("#su-fuel").value ? { fuel: $("#su-fuel").value } : {}
@@ -4895,7 +4951,7 @@
     openEquipmentSheet: openEquipmentSheet, openStarterTasksSheet: openStarterTasksSheet, openAddTaskSheet: openAddTaskSheet,
     PREBUILT_PLANS: (typeof PREBUILT_PLANS !== "undefined" ? PREBUILT_PLANS : []),
     PRO_PRODUCT_IDS: PRO_PRODUCT_IDS, PRO_PRICES: PRO_PRICES, PRO_CONFIG: PRO_CONFIG,
-    rigSilhouette: rigSilhouette, setRigPhoto: setRigPhoto,
+    rigSilhouette: rigSilhouette, setRigPhoto: setRigPhoto, stampRigPhoto: stampRigPhoto,
     photoPendingSet: function () { return !!photoPending; },
     setTheme: setTheme, currentTheme: currentTheme,
     printChecklistRun: printChecklistRun, printDueTasks: printDueTasks,
