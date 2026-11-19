@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "86";
+  var APP_VERSION = "87";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -1531,6 +1531,7 @@
     if (name === "parts") renderParts();
     if (name === "pros") renderPros();
     if (name === "storage") renderStorage();
+    if (name === "vault") renderVault();
     if (name === "fuel") renderFuel();
     if (name === "trips") renderTrips();
     if (name === "more") renderMore();
@@ -2381,6 +2382,135 @@
     /* Same as the thing sheet above (Nov 19, v80): focus the bay name
        on open so the keyboard lands in the field straight away. */
     $("#sb-name").focus();
+  }
+
+  /* ---------------- Document Vault (Pro) ---------------------------------- */
+  /* Pro only: the papers that prove the rig is yours and covered —
+     registration, insurance, warranties, manuals. A document is a name,
+     a kind, an optional expiry date, a note, and an optional photo of
+     the paper itself. The expiry is the point: anything running out
+     within 30 days sits at the top flagged, expired ones above that —
+     so nothing lapses quietly. Docs live on the rig, like the bays. */
+  var VAULT_KINDS = ["Registration", "Insurance", "Warranty", "Manual", "Other"];
+  function vaultFor(rig) {
+    if (!rig.vault || !Array.isArray(rig.vault.docs)) rig.vault = { docs: [] };
+    return rig.vault;
+  }
+  function vaultDaysUntil(iso) {
+    if (!iso) return null;
+    var ms = Date.parse(iso + "T12:00:00") - Date.parse(todayISO() + "T12:00:00");
+    if (isNaN(ms)) return null;
+    return Math.round(ms / 86400000);
+  }
+  function vaultDocStatus(doc) {
+    var days = vaultDaysUntil(doc.expires);
+    if (days === null) return { level: "none", text: "" };
+    if (days < 0) return { level: "expired", text: "Expired " + fmtDate(doc.expires) };
+    if (days === 0) return { level: "soon", text: "Expires today" };
+    if (days <= 30) return { level: "soon", text: "Expires in " + days + (days === 1 ? " day" : " days") };
+    return { level: "none", text: "Expires " + fmtDate(doc.expires) };
+  }
+  function renderVault() {
+    var rig = activeRig(); if (!rig) { showScreen("setup"); return; }
+    var docs = vaultFor(rig).docs.slice();
+    docs.sort(function (a, b) {
+      var sa = vaultDocStatus(a), sb = vaultDocStatus(b);
+      var rank = { expired: 0, soon: 1, none: 2 };
+      if (rank[sa.level] !== rank[sb.level]) return rank[sa.level] - rank[sb.level];
+      if (a.expires && b.expires) return a.expires < b.expires ? -1 : 1;
+      if (a.expires) return -1;
+      if (b.expires) return 1;
+      return a.name < b.name ? -1 : 1;
+    });
+    var host = $("#vault-list");
+    if (!docs.length) {
+      host.innerHTML = '<p class="muted">Nothing in the vault yet — add your registration, insurance, a warranty, or a manual. Give it an expiry date and the app flags it before it runs out.</p>';
+      return;
+    }
+    var attention = docs.filter(function (d) { var s = vaultDocStatus(d); return s.level === "expired" || s.level === "soon"; });
+    var rest = docs.filter(function (d) { return vaultDocStatus(d).level === "none"; });
+    function row(d) {
+      var s = vaultDocStatus(d);
+      var pill = s.level === "expired" ? '<span class="pill red">' + esc(s.text) + '</span>' : s.level === "soon" ? '<span class="pill amber">' + esc(s.text) + '</span>' : (s.text ? '<span class="pill green">' + esc(s.text) + '</span>' : "");
+      return '<div class="row" data-open-vault="' + d.id + '" style="cursor:pointer">' +
+        (d.photo ? '<img src="' + esc(d.photo) + '" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px" />' : "") +
+        '<div class="grow"><div class="title">' + esc(d.name) + '</div>' +
+        '<div class="sub">' + esc(d.kind) + (d.note ? " · " + esc(d.note) : "") + '</div></div>' + pill + '</div>';
+    }
+    host.innerHTML = (attention.length ? '<div class="check-group">Needs attention</div>' + attention.map(row).join("") : "") +
+      (rest.length ? '<div class="check-group">Everything else</div>' + rest.map(row).join("") : "") +
+      '<p class="small muted">Tap a document to change it or take it out.</p>';
+    $all("[data-open-vault]", host).forEach(function (el) {
+      el.addEventListener("click", function () { openVaultDocSheet(el.getAttribute("data-open-vault")); });
+    });
+  }
+  function openVaultDocSheet(docId) {
+    var rig = activeRig(); if (!rig) return;
+    var v = vaultFor(rig);
+    var doc = docId ? v.docs.find(function (d) { return d.id === docId; }) : null;
+    var draft = doc ? JSON.parse(JSON.stringify(doc)) : { id: uid(), name: "", kind: "Registration", expires: "", note: "", photo: null };
+    openSheet(
+      sheetHead(doc ? "One document" : "Add a document", "Name it, say what it is, and give it an expiry date if it has one.") +
+      '<div class="field"><label for="vd-name">What is it?</label><input id="vd-name" value="' + esc(draft.name) + '" placeholder="e.g. Registration" /></div>' +
+      '<div class="field"><label for="vd-kind">What kind?</label><select id="vd-kind">' + VAULT_KINDS.map(function (k) {
+        return '<option value="' + k + '"' + (k === draft.kind ? " selected" : "") + '>' + k + '</option>';
+      }).join("") + '</select></div>' +
+      '<div class="field"><label for="vd-expires">Expires (if it does)</label><input id="vd-expires" type="date" value="' + esc(draft.expires || "") + '" /></div>' +
+      '<div class="field"><label for="vd-note">Note</label><textarea id="vd-note" placeholder="e.g. In the glove box, original.">' + esc(draft.note || "") + '</textarea></div>' +
+      '<div class="field"><label>Photo of the paper</label>' +
+      (draft.photo ? '<div class="thumbs"><img src="' + esc(draft.photo) + '" alt="Document photo" /></div><div class="btnrow"><button class="btn ghost block" id="vd-photo-remove" type="button">Take the photo out</button></div>'
+        : '<div class="btnrow"><button class="btn secondary block" id="vd-photo" type="button">📷 Add a photo</button></div>') +
+      '</div>' +
+      '<div class="btnrow"><button class="btn block" id="vd-save" type="button">Save this document</button></div>' +
+      (doc ? '<div class="btnrow"><button class="btn ghost block" id="vd-delete" type="button">Take it out of the vault</button></div>' : '')
+    );
+    wireClose(sheetHost);
+    $("#vd-save").addEventListener("click", function () {
+      var name = $("#vd-name").value.trim();
+      if (!name) { toast("Give the document a name first."); return; }
+      draft.name = name; draft.kind = $("#vd-kind").value; draft.expires = $("#vd-expires").value; draft.note = $("#vd-note").value.trim();
+      if (!doc) v.docs.push(draft);
+      else { var i = v.docs.findIndex(function (x) { return x.id === doc.id; }); if (i >= 0) v.docs[i] = draft; }
+      save(); closeSheet(); renderVault(); toast("Saved — it's in the vault.");
+    });
+    if (doc) $("#vd-delete").addEventListener("click", function () {
+      if (!confirm("Take " + doc.name + " out of the vault?")) return;
+      v.docs = v.docs.filter(function (x) { return x.id !== doc.id; });
+      save(); closeSheet(); renderVault();
+    });
+    /* The photo is picked into the draft, not the stored doc — closing
+       the sheet without saving drops it, same as any other field. The
+       field is re-rendered in place so the thumb shows straight away. */
+    function bindPhotoAdd() {
+      var btn = $("#vd-photo");
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        requestPhoto(function (urls) {
+          if (!urls || !urls.length) return;
+          downscalePhoto(urls[0]).then(function (small) {
+            if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); return; }
+            draft.photo = small;
+            var field = btn.closest(".field");
+            if (field) field.innerHTML = '<label>Photo of the paper</label><div class="thumbs"><img src="' + esc(small) + '" alt="Document photo" /></div><div class="btnrow"><button class="btn ghost block" id="vd-photo-remove" type="button">Take the photo out</button></div>';
+            bindPhotoRemove();
+          });
+        });
+      });
+    }
+    function bindPhotoRemove() {
+      var rm = $("#vd-photo-remove");
+      if (!rm) return;
+      rm.addEventListener("click", function () {
+        draft.photo = null;
+        var field = rm.closest(".field");
+        if (field) field.innerHTML = '<label>Photo of the paper</label><div class="btnrow"><button class="btn secondary block" id="vd-photo" type="button">📷 Add a photo</button></div>';
+        bindPhotoAdd();
+      });
+    }
+    bindPhotoAdd(); bindPhotoRemove();
+    /* Same as the Find it sheets (Nov 19, v80): focus the name field
+       on open so the keyboard lands in it straight away. */
+    $("#vd-name").focus();
   }
 
   /* ---------------- Fuel ---------------------------------------------------- */
@@ -4288,6 +4418,12 @@
     $("#parts-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
     $("#pros-open-btn").addEventListener("click", function () { showScreen("pros"); });
     $("#storage-open-btn").addEventListener("click", function () { showScreen("storage"); });
+    /* The Vault is Pro only: a free user gets the paywall, a Pro user
+       gets the screen. */
+    $("#vault-open-btn").addEventListener("click", function () { if (isPro()) showScreen("vault"); else openProPaywall(); });
+    $("#vault-add-btn").addEventListener("click", function () { openVaultDocSheet(null); });
+    $("#vault-back-btn").addEventListener("click", function () { showScreen("more"); });
+    $("#vault-back-btn-bottom").addEventListener("click", function () { showScreen("more"); });
     $("#storage-add-btn").addEventListener("click", function () { openStorageItemSheet(null, null); });
     $("#storage-bay-btn").addEventListener("click", function () { openStorageCompartmentSheet(null); });
     $("#storage-print-btn").addEventListener("click", function () { printStorageList(); });
@@ -4415,6 +4551,7 @@
     renderStorage: renderStorage, storageFor: storageFor, storageSearch: storageSearch,
     storageStarterCompartments: storageStarterCompartments, openStorageItemSheet: openStorageItemSheet, openStorageCompartmentSheet: openStorageCompartmentSheet,
     printStorageList: printStorageList, storageListHTML: storageListHTML,
+    vaultFor: vaultFor, renderVault: renderVault, openVaultDocSheet: openVaultDocSheet, vaultDocStatus: vaultDocStatus, vaultDaysUntil: vaultDaysUntil,
     taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask, skipTask: skipTask, openTaskSheet: openTaskSheet,
     planReminders: planReminders, reminderSettings: reminderSettings, scheduleReminders: scheduleReminders, openRemindersSheet: openRemindersSheet,
     dotInfo: dotInfo, costsForYear: costsForYear, costPerMile: costPerMile,

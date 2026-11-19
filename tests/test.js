@@ -456,7 +456,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 14. night mode toggle ---- */
   console.log("== 14. night mode ==");
   check("theme defaults to light", R.currentTheme() === "light" && !doc.documentElement.hasAttribute("data-theme"));
-  check("a night button sits at the top of every screen", doc.querySelectorAll(".theme-btn").length === 12);
+  check("a night button sits at the top of every screen", doc.querySelectorAll(".theme-btn").length === 13);
   check("each night button is on its own line above the title", Array.from(doc.querySelectorAll(".theme-btn")).every((b) => b.parentElement.firstElementChild === b));
   check("the night button is never parked over a title", !/\.theme-btn\{[^}]*position:\s*absolute/.test(css));
   check("night mode button starts as Night mode", doc.querySelector(".theme-btn").textContent.includes("Night mode"));
@@ -783,7 +783,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 86"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 87"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1876,7 +1876,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc.querySelector("#home-guide-link").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("tapping How to use this app opens the guide screen", doc.querySelector("#screen-guide").classList.contains("active"));
-  check("the in-app guide carries all 15 steps", doc.querySelectorAll("#screen-guide .card").length === 15);
+  check("the in-app guide carries all 16 steps", doc.querySelectorAll("#screen-guide .card").length === 16);
   doc.querySelector("#guide-back-btn").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("the guide's Back button returns to Home", doc.querySelector("#screen-home").classList.contains("active"));
@@ -2761,6 +2761,47 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   domJ.R.proSubscribe("monthly"); await sleep(20);
   domJ.fake.readyCb(); await sleep(400);
   check("with no product loaded, subscribing says it couldn't open the purchase instead of ordering", domJ.fake.ordered === null && domJ.doc.querySelector(".pro-note").textContent.indexOf("couldn't open the purchase") !== -1);
+
+  /* ---- 86. Document Vault (Pro, v87) ---- */
+  console.log("== 86. Document Vault ==");
+  // Dates in local time, so the vault's day math matches exactly.
+  function isoInDays86(n) { var d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  var rig86 = R.activeRig();
+  R.showScreen("more");
+  check("More offers the Document Vault", !!doc.querySelector("#vault-open-btn"));
+  // Free users get the paywall, not the vault.
+  click(doc.querySelector("#vault-open-btn")); await sleep(20);
+  check("a free user tapping the Vault sees the Pro paywall", !!doc.querySelector("#pro-paywall") && !doc.querySelector("#screen-vault").classList.contains("active"));
+  // Grant Pro, then the Vault opens.
+  R.grantPremium("rollonrv_premium_monthly");
+  click(doc.querySelector("#vault-open-btn")); await sleep(20);
+  check("a Pro user opens the Vault screen", doc.querySelector("#screen-vault").classList.contains("active"));
+  check("an empty vault says so plainly", doc.querySelector("#vault-list").textContent.indexOf("Nothing in the vault yet") !== -1);
+  // Add a document through the sheet, expiring in 10 days.
+  var soon86 = isoInDays86(10);
+  click(doc.querySelector("#vault-add-btn")); await sleep(20);
+  setVal("#vd-name", "Registration");
+  doc.querySelector("#vd-kind").value = "Registration";
+  setVal("#vd-expires", soon86);
+  setVal("#vd-note", "In the glove box, original.");
+  doc.querySelector("#vd-save").click(); await sleep(20);
+  var v86 = R.vaultFor(rig86);
+  check("adding a document saves it in the vault", v86.docs.some((d) => d.name === "Registration" && d.kind === "Registration" && d.expires === soon86 && d.note === "In the glove box, original."));
+  check("a document expiring soon is flagged", doc.querySelector("#vault-list").textContent.indexOf("Expires in 10 days") !== -1);
+  check("the expiry math names expired and far-off dates right", R.vaultDocStatus({ expires: isoInDays86(-5) }).level === "expired" && R.vaultDocStatus({ expires: "" }).level === "none" && R.vaultDocStatus({ expires: isoInDays86(90) }).level === "none");
+  // Seed an expired one, one with no expiry, and one with a photo.
+  v86.docs.push({ id: "vault-expired-1", name: "Old insurance", kind: "Insurance", expires: isoInDays86(-5), note: "", photo: null });
+  v86.docs.push({ id: "vault-noexp-1", name: "Owner's manual", kind: "Manual", expires: "", note: "", photo: null });
+  v86.docs.push({ id: "vault-photo-1", name: "Roof warranty", kind: "Warranty", expires: isoInDays86(400), note: "", photo: "data:image/png;base64,iVBORw0KGgo=" });
+  R.renderVault(); await sleep(20);
+  var vaultText86 = doc.querySelector("#vault-list").textContent;
+  check("expired documents sit under Needs attention, above the rest", vaultText86.indexOf("Needs attention") !== -1 && vaultText86.indexOf("Old insurance") < vaultText86.indexOf("Owner's manual"));
+  check("a document with a photo shows its thumbnail", !!doc.querySelector("#vault-list img"));
+  // Taking a document out removes it.
+  var reg86 = v86.docs.find((d) => d.name === "Registration");
+  R.openVaultDocSheet(reg86.id); await sleep(20);
+  doc.querySelector("#vd-delete").click(); await sleep(20);
+  check("taking a document out removes it from the vault", !R.vaultFor(rig86).docs.some((d) => d.name === "Registration"));
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);
