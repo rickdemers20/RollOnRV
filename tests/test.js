@@ -787,7 +787,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 97"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 98"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -2976,6 +2976,35 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelectorAll("#tire-list [data-tire-pos]")[0]); await sleep(20);
   click(doc.querySelector("#ti-dot-help")); await sleep(10);
   check("DOT guide opens inline in the tire sheet", !doc.querySelector("#ti-dot-help-body").hidden && doc.querySelector("#ti-dot-help-body").textContent.indexOf("3221 means week 32 of 2021") !== -1);
+
+  /* ---- 93. Vault import: bring the file itself in ---- */
+  console.log("== 93. vault import ==");
+  // Nov 19: a lot of Rick's papers already live on his phone as
+  // downloads — the vault takes the file itself now, not just a photo
+  // of it. Images come in as the photo, PDFs attach as a file.
+  check("PDF by type and by name", R.vaultFileKind("registration.pdf", "application/pdf") === "pdf" && R.vaultFileKind("scan.pdf", "") === "pdf");
+  check("image by type and by name", R.vaultFileKind("card.jpg", "image/jpeg") === "image" && R.vaultFileKind("card.png", "") === "image");
+  check("other files are refused", R.vaultFileKind("notes.txt", "text/plain") === null && R.vaultFileKind("sheet.xlsx", "") === null);
+  check("the name comes from the filename", R.vaultFileName("Insurance-Card_2026.pdf") === "Insurance Card 2026");
+  check("the kind is guessed from the filename", R.vaultKindFromName("insurance card.pdf") === "Insurance" && R.vaultKindFromName("warranty.pdf") === "Warranty" && R.vaultKindFromName("random.pdf") === "Registration");
+  // The Vault screen carries the Import pill.
+  R.showScreen("vault"); R.renderVault(); await sleep(20);
+  check("Vault screen has the Import pill", !!doc.querySelector("#vault-import-btn"));
+  // A new document offers both ways in: a photo, or the file itself.
+  R.openVaultDocSheet(null); await sleep(20);
+  check("a new document offers Import a file", !!doc.querySelector("#vd-import"));
+  check("a new document offers Add a photo", !!doc.querySelector("#vd-photo"));
+  // A doc with an attached PDF renders with the file tile and name.
+  var rig93 = R.activeRig();
+  var v93 = R.vaultFor(rig93);
+  v93.docs.push({ id: "v93pdf", name: "Insurance Card", kind: "Insurance", expires: "", note: "", photo: null, file: { name: "insurance-card.pdf", type: "application/pdf", size: 184320, data: "data:application/pdf;base64,JVBERi0xLjQK" } });
+  R.renderVault(); await sleep(20);
+  check("imported file renders in the vault", doc.querySelector("#vault-list").textContent.indexOf("insurance-card.pdf") !== -1);
+  // Open it: the sheet shows the file card with a View button.
+  R.openVaultDocSheet("v93pdf"); await sleep(20);
+  check("the sheet shows the file card", doc.querySelector("#sheet-host").textContent.indexOf("insurance-card.pdf") !== -1);
+  check("the sheet offers View the file", !!doc.querySelector("#vd-file-view"));
+  check("the sheet offers taking the file out", !!doc.querySelector("#vd-attach-remove"));
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

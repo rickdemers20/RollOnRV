@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "97";
+  var APP_VERSION = "98";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -2753,14 +2753,79 @@
   /* ---------------- Document Vault (Pro) ---------------------------------- */
   /* Pro only: the papers that prove the rig is yours and covered —
      registration, insurance, warranties, manuals. A document is a name,
-     a kind, an optional expiry date, a note, and an optional photo of
-     the paper itself. The expiry is the point: anything running out
-     within 30 days sits at the top flagged, expired ones above that —
-     so nothing lapses quietly. Docs live on the rig, like the bays. */
+     a kind, an optional expiry date, a note, and one attachment: a photo
+     of the paper, or the file itself — a lot of these papers already
+     live on the phone as downloads, and photographing a PDF on a screen
+     is silly. The expiry is the point: anything running out within 30
+     days sits at the top flagged, expired ones above that — so nothing
+     lapses quietly. Docs live on the rig, like the bays. */
   var VAULT_KINDS = ["Registration", "Insurance", "Warranty", "Manual", "Other"];
   function vaultFor(rig) {
     if (!rig.vault || !Array.isArray(rig.vault.docs)) rig.vault = { docs: [] };
     return rig.vault;
+  }
+
+  /* ---------------- Vault: import a document file ------------------------- */
+  /* Nov 19: a lot of Rick's papers already live on his phone as downloads
+     (insurance cards, registration PDFs) — photographing a PDF on a
+     screen is silly. Import takes the file itself: an image comes in as
+     the photo, a PDF attaches as a file. One attachment per document.
+     The book keeps everything inside localStorage (4.5MB soft limit),
+     so a big PDF is refused with a plain message instead of silently
+     breaking the save. */
+  var VAULT_PDF_MAX_BYTES = 3000000;
+  function vaultFileKind(name, type) {
+    var t = String(type || "").toLowerCase();
+    var n = String(name || "").toLowerCase();
+    if (t.indexOf("pdf") !== -1 || /\.pdf$/.test(n)) return "pdf";
+    if (t.indexOf("image/") === 0 || /\.(jpe?g|png|webp|heic|heif|gif)$/.test(n)) return "image";
+    return null;
+  }
+  function vaultFileName(name) {
+    var base = String(name || "").split("/").pop().split("\\").pop();
+    return base.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || "Document";
+  }
+  function vaultKindFromName(name) {
+    var n = String(name || "").toLowerCase();
+    if (n.indexOf("insur") !== -1) return "Insurance";
+    if (n.indexOf("warrant") !== -1) return "Warranty";
+    if (n.indexOf("manual") !== -1) return "Manual";
+    if (n.indexOf("regist") !== -1) return "Registration";
+    return "Registration";
+  }
+  function openVaultFile(file) {
+    /* Same proven path as the print page: a plain link in a new tab.
+       Safari renders the PDF there; the app stays where it was. */
+    var a = document.createElement("a");
+    a.href = file.data; a.target = "_blank"; a.rel = "noopener";
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { a.remove(); }, 500);
+  }
+  var vaultImportTarget = null;
+  function openVaultImportInput() { var input = $("#vault-import-input"); if (input) { input.value = ""; input.click(); } }
+  /* Read a picked file and hand the attachment to `target` — or, with
+     no target, open the add-document sheet with it already attached.
+     `target` is how the in-sheet Import button attaches to its draft. */
+  function vaultImportFile(file, target) {
+    var kind = vaultFileKind(file.name, file.type);
+    if (!kind) { toast("That file won't go in the vault — images and PDFs only."); return; }
+    if (kind === "pdf" && file.size > VAULT_PDF_MAX_BYTES) { toast("That PDF is too big for the book — the vault keeps files inside the app. Try a smaller file, or take a photo of the paper instead."); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var dataUrl = String(reader.result || "");
+      if (kind === "image") {
+        downscalePhoto(dataUrl).then(function (small) {
+          if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); return; }
+          var att = { photo: small, file: null, name: vaultFileName(file.name), kind: vaultKindFromName(file.name) };
+          if (target) target(att); else openVaultDocSheet(null, att);
+        });
+      } else {
+        if (!storeHasRoom(dataUrl.length)) { toast("That PDF is too big for the book — the vault keeps files inside the app. Try a smaller file, or take a photo of the paper instead."); return; }
+        var att = { photo: null, file: { name: file.name, type: "application/pdf", size: file.size, data: dataUrl }, name: vaultFileName(file.name), kind: vaultKindFromName(file.name) };
+        if (target) target(att); else openVaultDocSheet(null, att);
+      }
+    };
+    reader.readAsDataURL(file);
   }
   function vaultDaysUntil(iso) {
     if (!iso) return null;
@@ -2790,7 +2855,7 @@
     });
     var host = $("#vault-list");
     if (!docs.length) {
-      host.innerHTML = '<p class="muted">Nothing in the vault yet — add your registration, insurance, a warranty, or a manual. Give it an expiry date and the app flags it before it runs out.</p>';
+      host.innerHTML = '<p class="muted">Nothing in the vault yet — add your registration, insurance, a warranty, or a manual. Give it an expiry date and the app flags it before it runs out. Got the paper as a download already? Use Import document and bring the file itself in.</p>';
       return;
     }
     var attention = docs.filter(function (d) { var s = vaultDocStatus(d); return s.level === "expired" || s.level === "soon"; });
@@ -2798,10 +2863,11 @@
     function row(d) {
       var s = vaultDocStatus(d);
       var pill = s.level === "expired" ? '<span class="pill red">' + esc(s.text) + '</span>' : s.level === "soon" ? '<span class="pill amber">' + esc(s.text) + '</span>' : (s.text ? '<span class="pill green">' + esc(s.text) + '</span>' : "");
-      return '<div class="row" data-open-vault="' + d.id + '" style="cursor:pointer">' +
-        (d.photo ? '<img src="' + esc(d.photo) + '" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px" />' : "") +
+      var thumb = d.photo ? '<img src="' + esc(d.photo) + '" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px" />'
+        : (d.file ? '<div style="width:56px;height:56px;border-radius:8px;background:var(--bg-page);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:1.6rem" aria-hidden="true">📄</div>' : "");
+      return '<div class="row" data-open-vault="' + d.id + '" style="cursor:pointer">' + thumb +
         '<div class="grow"><div class="title">' + esc(d.name) + '</div>' +
-        '<div class="sub">' + esc(d.kind) + (d.note ? " · " + esc(d.note) : "") + '</div></div>' + pill + '</div>';
+        '<div class="sub">' + esc(d.kind) + (d.file ? " · " + esc(d.file.name) : "") + (d.note ? " · " + esc(d.note) : "") + '</div></div>' + pill + '</div>';
     }
     host.innerHTML = (attention.length ? '<div class="check-group">Needs attention</div>' + attention.map(row).join("") : "") +
       (rest.length ? '<div class="check-group">Everything else</div>' + rest.map(row).join("") : "") +
@@ -2810,11 +2876,11 @@
       el.addEventListener("click", function () { openVaultDocSheet(el.getAttribute("data-open-vault")); });
     });
   }
-  function openVaultDocSheet(docId) {
+  function openVaultDocSheet(docId, prefill) {
     var rig = activeRig(); if (!rig) return;
     var v = vaultFor(rig);
     var doc = docId ? v.docs.find(function (d) { return d.id === docId; }) : null;
-    var draft = doc ? JSON.parse(JSON.stringify(doc)) : { id: uid(), name: "", kind: "Registration", expires: "", note: "", photo: null };
+    var draft = doc ? JSON.parse(JSON.stringify(doc)) : { id: uid(), name: (prefill && prefill.name) || "", kind: (prefill && prefill.kind) || "Registration", expires: "", note: "", photo: (prefill && prefill.photo) || null, file: (prefill && prefill.file) || null };
     openSheet(
       sheetHead(doc ? "One document" : "Add a document", "Name it, say what it is, and give it an expiry date if it has one.") +
       '<div class="field"><label for="vd-name">What is it?</label><input id="vd-name" value="' + esc(draft.name) + '" placeholder="e.g. Registration" /></div>' +
@@ -2823,10 +2889,7 @@
       }).join("") + '</select></div>' +
       '<div class="field"><label for="vd-expires">Expires (if it does)</label><input id="vd-expires" type="date" value="' + esc(draft.expires || "") + '" /></div>' +
       '<div class="field"><label for="vd-note">Note</label><textarea id="vd-note" placeholder="e.g. In the glove box, original.">' + esc(draft.note || "") + '</textarea></div>' +
-      '<div class="field"><label>Photo of the paper</label>' +
-      (draft.photo ? '<div class="thumbs"><img src="' + esc(draft.photo) + '" alt="Document photo" /></div><div class="btnrow"><button class="btn ghost block" id="vd-photo-remove" type="button">Take the photo out</button></div>'
-        : '<div class="btnrow"><button class="btn secondary block" id="vd-photo" type="button">📷 Add a photo</button></div>') +
-      '</div>' +
+      '<div class="field" id="vd-attach-field"></div>' +
       '<div class="btnrow"><button class="btn block" id="vd-save" type="button">Save this document</button></div>' +
       (doc ? '<div class="btnrow"><button class="btn ghost block" id="vd-delete" type="button">Take it out of the vault</button></div>' : '')
     );
@@ -2844,36 +2907,44 @@
       v.docs = v.docs.filter(function (x) { return x.id !== doc.id; });
       save(); closeSheet(); renderVault();
     });
-    /* The photo is picked into the draft, not the stored doc — closing
-       the sheet without saving drops it, same as any other field. The
-       field is re-rendered in place so the thumb shows straight away. */
-    function bindPhotoAdd() {
-      var btn = $("#vd-photo");
-      if (!btn) return;
-      btn.addEventListener("click", function () {
+    /* One attachment per document — a photo or a file. The field is
+       re-rendered in place as it changes, so a picked file shows
+       straight away and closing without saving drops it, same as any
+       other field. */
+    function renderAttachment() {
+      var field = $("#vd-attach-field"); if (!field) return;
+      if (draft.photo) {
+        field.innerHTML = '<label>Photo of the paper</label><div class="thumbs"><img src="' + esc(draft.photo) + '" alt="Document photo" /></div><div class="btnrow"><button class="btn ghost block" id="vd-attach-remove" type="button">Take the photo out</button></div>';
+      } else if (draft.file) {
+        var size = draft.file.size >= 1048576 ? (draft.file.size / 1048576).toFixed(1) + " MB" : Math.round(draft.file.size / 1024) + " KB";
+        field.innerHTML = '<label>The file</label><div class="row"><div style="font-size:1.6rem" aria-hidden="true">📄</div><div class="grow"><div class="title">' + esc(draft.file.name) + '</div><div class="sub">' + esc(size) + '</div></div></div>' +
+          '<div class="btnrow"><button class="btn secondary block" id="vd-file-view" type="button">View the file</button></div>' +
+          '<div class="btnrow"><button class="btn ghost block" id="vd-attach-remove" type="button">Take the file out</button></div>';
+      } else {
+        field.innerHTML = '<label>Photo of the paper, or the file itself</label><div class="btnrow"><button class="btn secondary block" id="vd-photo" type="button">📷 Add a photo</button></div>' +
+          '<div class="btnrow"><button class="btn secondary block" id="vd-import" type="button">⇪ Import a file</button></div>';
+      }
+      var add = $("#vd-photo");
+      if (add) add.addEventListener("click", function () {
         requestPhoto(function (urls) {
           if (!urls || !urls.length) return;
           downscalePhoto(urls[0]).then(function (small) {
             if (!storeHasRoom(small.length)) { toast("The book is nearly full — export a copy before adding more photos."); return; }
-            draft.photo = small;
-            var field = btn.closest(".field");
-            if (field) field.innerHTML = '<label>Photo of the paper</label><div class="thumbs"><img src="' + esc(small) + '" alt="Document photo" /></div><div class="btnrow"><button class="btn ghost block" id="vd-photo-remove" type="button">Take the photo out</button></div>';
-            bindPhotoRemove();
+            draft.photo = small; draft.file = null; renderAttachment();
           });
         });
       });
-    }
-    function bindPhotoRemove() {
-      var rm = $("#vd-photo-remove");
-      if (!rm) return;
-      rm.addEventListener("click", function () {
-        draft.photo = null;
-        var field = rm.closest(".field");
-        if (field) field.innerHTML = '<label>Photo of the paper</label><div class="btnrow"><button class="btn secondary block" id="vd-photo" type="button">📷 Add a photo</button></div>';
-        bindPhotoAdd();
+      var imp = $("#vd-import");
+      if (imp) imp.addEventListener("click", function () {
+        vaultImportTarget = function (att) { draft.photo = att.photo; draft.file = att.file; renderAttachment(); };
+        openVaultImportInput();
       });
+      var rm = $("#vd-attach-remove");
+      if (rm) rm.addEventListener("click", function () { draft.photo = null; draft.file = null; renderAttachment(); });
+      var view = $("#vd-file-view");
+      if (view) view.addEventListener("click", function () { if (draft.file) openVaultFile(draft.file); });
     }
-    bindPhotoAdd(); bindPhotoRemove();
+    renderAttachment();
     /* Same as the Find it sheets (Nov 19, v80): focus the name field
        on open so the keyboard lands in it straight away. */
     $("#vd-name").focus();
@@ -4949,6 +5020,13 @@
       printOwnershipReport();
     });
     $("#vault-add-btn").addEventListener("click", function () { openVaultDocSheet(null); });
+    $("#vault-import-btn").addEventListener("click", function () { vaultImportTarget = null; openVaultImportInput(); });
+    $("#vault-import-input").addEventListener("change", function (e) {
+      var file = e.target.files && e.target.files[0]; if (!file) return;
+      e.target.value = "";
+      var target = vaultImportTarget; vaultImportTarget = null;
+      vaultImportFile(file, target);
+    });
     $("#vault-back-btn").addEventListener("click", function () { showScreen("more"); });
     $("#vault-back-btn-bottom").addEventListener("click", function () { showScreen("more"); });
     $("#storage-add-btn").addEventListener("click", function () { openStorageItemSheet(null, null); });
@@ -5079,6 +5157,7 @@
     storageStarterCompartments: storageStarterCompartments, openStorageItemSheet: openStorageItemSheet, openStorageCompartmentSheet: openStorageCompartmentSheet,
     printStorageList: printStorageList, storageListHTML: storageListHTML,
     vaultFor: vaultFor, renderVault: renderVault, openVaultDocSheet: openVaultDocSheet, vaultDocStatus: vaultDocStatus, vaultDaysUntil: vaultDaysUntil,
+    vaultFileKind: vaultFileKind, vaultFileName: vaultFileName, vaultKindFromName: vaultKindFromName, openVaultFile: openVaultFile, vaultImportFile: vaultImportFile,
     ownershipReportHTML: ownershipReportHTML, printOwnershipReport: printOwnershipReport, ownershipReportData: ownershipReportData, ownershipReportPrintHTML: ownershipReportPrintHTML,
     taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask, skipTask: skipTask, openTaskSheet: openTaskSheet,
     planReminders: planReminders, reminderSettings: reminderSettings, scheduleReminders: scheduleReminders, openRemindersSheet: openRemindersSheet,

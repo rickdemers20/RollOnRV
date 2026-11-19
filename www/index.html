@@ -236,6 +236,7 @@
     </div>
     <div class="btnrow" style="padding:.4rem .2rem">
       <button class="btn" id="vault-add-btn">＋ Add a document</button>
+      <button class="btn" id="vault-import-btn">⇪ Import document</button>
       <button class="btn small ghost" id="vault-back-btn">‹ More</button>
     </div>
     <div id="vault-list"></div>
@@ -469,6 +470,7 @@
 <!-- sheet (modal) host -->
 <div id="sheet-host" hidden></div>
 <input type="file" id="photo-input" accept="image/*" multiple hidden />
+<input type="file" id="vault-import-input" accept="image/*,application/pdf" hidden />
 <!-- print sheet: filled in when the user prints a list; the print
      stylesheet hides the app itself, so only this page comes out -->
 <div id="print-sheet" aria-hidden="true"></div>
