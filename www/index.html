@@ -422,7 +422,13 @@
 <!-- In-app purchase store API (capacitor-plugin-cdv-purchase v13).
      Loaded as a plain script: it defines the window.CdvPurchase global.
      Harmless on the web — the native bridge is absent there and all
-     store calls are guarded. -->
+     store calls are guarded.
+     capacitor-plugin.js FIRST: it sets window.CdvPurchaseCapacitor
+     (installed: true), the marker the store uses to pick the Capacitor
+     bridge. Without it the store falls back to the Cordova bridge and
+     every call fails with "window.cordova.exec is not a function"
+     (Nov 19, build 39 retest). -->
+<script src="capacitor-plugin.js"></script>
 <script src="cdv-purchase-store.js"></script>
 <script src="plans.js"></script>
 <script src="app.js?v=74"></script>

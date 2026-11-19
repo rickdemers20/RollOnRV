@@ -11,6 +11,7 @@ const html = fs.readFileSync(path.join(ROOT, "www", "index.html"), "utf8");
 const appJs = fs.readFileSync(path.join(ROOT, "www", "app.js"), "utf8");
 const plansJs = fs.readFileSync(path.join(ROOT, "www", "plans.js"), "utf8");
 const css = fs.readFileSync(path.join(ROOT, "www", "styles.css"), "utf8");
+const capacitorPluginJs = fs.readFileSync(path.join(ROOT, "www", "capacitor-plugin.js"), "utf8");
 const sampleCsv = fs.readFileSync(path.join(__dirname, "sample-tasks.csv"), "utf8");
 
 let pass = 0, fail = 0;
@@ -33,6 +34,12 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the vault is always Document Vault, never Rig Binder", !/rig binder/i.test(wwwText));
   check("the prebuilt plans are wired into the page", html.indexOf("plans.js") !== -1);
   check("store bundle is wired into the page", html.indexOf("cdv-purchase-store.js") !== -1);
+  // Nov 19 (v84): without the Capacitor marker the store picks the
+  // Cordova bridge and every call fails with "window.cordova.exec is
+  // not a function". The marker file must exist, set installed: true,
+  // and load BEFORE the store bundle.
+  check("the Capacitor bridge marker loads before the store bundle", html.indexOf("capacitor-plugin.js") !== -1 && html.indexOf("capacitor-plugin.js") < html.indexOf("cdv-purchase-store.js"));
+  check("the Capacitor bridge marker says installed", /window\.CdvPurchaseCapacitor\s*=\s*\{\s*installed:\s*true/.test(capacitorPluginJs));
   // Nov 16 (v73): the Pro foundation ADDS store code — the old "no
   // store/paywall code" guardrail ended with it. What stays forbidden is
   // reaching past the plugin to the native store APIs directly.
@@ -767,7 +774,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 83"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 84"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
