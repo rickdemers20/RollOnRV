@@ -29,7 +29,10 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   console.log("== guardrails ==");
   const wwwText = html + appJs + css + plansJs;
   check("no 'Keeper' anywhere in the app", !/keeper/i.test(wwwText));
-  check("no Schedule Mode / Focus Mode", !/schedule mode|focus mode/i.test(wwwText));
+  // Nov 19 (v90): the mode switch is real now — "Schedule mode" and
+  // "Focus mode" are legitimate strings. The guardrail becomes a positive
+  // check: the switch exists on Home with both modes.
+  check("the mode switch offers Schedule and Focus", /data-mode="schedule"/.test(html) && /data-mode="focus"/.test(html));
   // Nov 17 (v74): "Document Vault" is the decided name of the Pro document
   // vault — "Rig Binder" is a competitor's term and never appears.
   check("the vault is always Document Vault, never Rig Binder", !/rig binder/i.test(wwwText));
@@ -783,7 +786,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 89"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 90"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1876,7 +1879,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc.querySelector("#home-guide-link").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("tapping How to use this app opens the guide screen", doc.querySelector("#screen-guide").classList.contains("active"));
-  check("the in-app guide carries all 17 steps", doc.querySelectorAll("#screen-guide .card").length === 17);
+  check("the in-app guide carries all 18 steps", doc.querySelectorAll("#screen-guide .card").length === 18);
   doc.querySelector("#guide-back-btn").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("the guide's Back button returns to Home", doc.querySelector("#screen-home").classList.contains("active"));
@@ -2847,6 +2850,65 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   var viewLink88 = doc.querySelector('a[href^="https://rickdemers.com/rollonrv-preview/print.html#"]');
   check("View & share opens the report on the print page, not a blob link", !!viewLink88 && viewLink88.getAttribute("href").indexOf("blob:") === -1);
   check("the opened page carries the report", !!viewLink88 && decodeURIComponent(viewLink88.getAttribute("href").split("#")[1]).indexOf("Ownership report") !== -1);
+
+  /* ---- 89. Focus / Schedule mode switch ---- */
+  console.log("== 89. Focus / Schedule mode switch ==");
+  function isoInDays89(n) { var d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  var rig89 = R.newRig({ type: "Class A", year: 2021, make: "Test", model: "Focus Rig" });
+  R.store().rigs.push(rig89); R.store().activeRigId = rig89.id;
+  // A rig with no mode set reads Schedule, the way every book already did.
+  check("a rig without a mode reads Schedule", R.rigMode({}) === "schedule" && R.rigMode(R.newRig({})) === "schedule");
+  check("risk runs Safety, then Damage, then Upkeep", R.riskTierFor({ category: "Brakes" }).tier === "safety" && R.riskTierFor({ category: "Roof" }).tier === "damage" && R.riskTierFor({ category: "Generator" }).tier === "upkeep");
+  // Seed three jobs across the tiers, plus a snoozed safety job.
+  R.store().tasks.push(R.newTask({ rigId: rig89.id, title: "Inspect Brake Pads and Rotors", category: "Brakes", nextDueDate: isoInDays89(-1) }));
+  R.store().tasks.push(R.newTask({ rigId: rig89.id, title: "Check roof seals", category: "Roof", nextDueDate: isoInDays89(5) }));
+  R.store().tasks.push(R.newTask({ rigId: rig89.id, title: "Exercise the generator", category: "Generator", nextDueDate: isoInDays89(30) }));
+  var snoozed89 = R.newTask({ rigId: rig89.id, title: "Check tire pressures", category: "Tires", nextDueDate: isoInDays89(-2) });
+  snoozed89.snoozedUntil = isoInDays89(3);
+  R.store().tasks.push(snoozed89);
+  var ft89 = R.focusTasks(rig89).map(function (d) { return d.task.title; });
+  check("Focus ranks safety first, then damage, then upkeep", ft89.indexOf("Inspect Brake Pads and Rotors") !== -1 && ft89.indexOf("Inspect Brake Pads and Rotors") < ft89.indexOf("Check roof seals") && ft89.indexOf("Check roof seals") < ft89.indexOf("Exercise the generator"));
+  check("a snoozed job sits out of the Focus list", ft89.indexOf("Check tire pressures") === -1);
+  var brake89 = R.focusTasks(rig89)[0];
+  check("overdue safety is worth doing now; soon damage is not", R.worthDoingNow(brake89) === true && R.worthDoingNow(R.focusTasks(rig89).find(function (d) { return d.task.title === "Check roof seals"; })) === false);
+  // The numbers prompt: never confirmed, or stale past thirty days.
+  check("numbers never confirmed need an update", R.numbersNeedUpdate(rig89) === true);
+  rig89.mileageUpdatedAt = isoInDays89(0);
+  check("numbers confirmed today are fine", R.numbersNeedUpdate(rig89) === false);
+  rig89.mileageUpdatedAt = isoInDays89(-31);
+  check("numbers confirmed 31 days ago need an update", R.numbersNeedUpdate(rig89) === true);
+  rig89.mileageUpdatedAt = null;
+  // Switch to Focus through the sheet — the plan never changes.
+  R.showScreen("home");
+  click(doc.querySelector('#home-mode-switch [data-mode="focus"]')); await sleep(20);
+  check("switching asks first, and the plan does not change", doc.body.textContent.indexOf("Your plan has not changed") !== -1);
+  click(doc.querySelector("#mode-confirm")); await sleep(20);
+  check("the rig is in Focus mode", rig89.mode === "focus");
+  var focusHome89 = doc.querySelector("#home-nextup").textContent;
+  check("Focus Home leads with the top priority", focusHome89.indexOf("Focus mode") !== -1 && focusHome89.indexOf("Inspect Brake Pads and Rotors") !== -1 && focusHome89.indexOf("Why it counts") === -1);
+  check("the priority card explains why it matters", doc.querySelector("#focus-top-card").textContent.indexOf("Brakes are the one system") !== -1);
+  check("the priority card offers more in the system and a snooze", !!doc.querySelector("#focus-more-cat") && doc.querySelector("#focus-more-cat").textContent.indexOf("More in Brakes") !== -1 && !!doc.querySelector("#focus-snooze"));
+  check("also worth doing carries a Damage tag", !!doc.querySelector(".risk-tag.damage") && doc.querySelector(".risk-tag.damage").textContent === "Damage");
+  check("stale numbers get an Update needed tag", doc.querySelector("#home-numbers").textContent.indexOf("Update needed") !== -1);
+  // Snoozing the top priority promotes the next job.
+  click(doc.querySelector("#focus-snooze")); await sleep(20);
+  check("snoozing the top priority promotes the next job", doc.querySelector("#focus-top-card").textContent.indexOf("Check roof seals") !== -1);
+  // "More in Roof" filters the Logbook to that system.
+  click(doc.querySelector("#focus-more-cat")); await sleep(20);
+  check("More in a system filters the Logbook to it", doc.querySelector("#logbook-pages").textContent.indexOf("Showing Roof") !== -1 && doc.querySelector("#logbook-pages").textContent.indexOf("Check roof seals") !== -1);
+  click(doc.querySelector("#focus-show-all")); await sleep(20);
+  var log89 = doc.querySelector("#logbook-pages").textContent;
+  check("the Focus Logbook groups by system with risk tags", log89.indexOf("Showing Roof") === -1 && log89.indexOf("Brakes") !== -1 && !!doc.querySelector("#logbook-pages .risk-tag.safety"));
+  check("the Focus Logbook flags what can't wait and marks snoozed jobs", log89.indexOf("Worth doing now") !== -1 && log89.indexOf("Snoozed until") !== -1);
+  check("the Focus Logbook has no date sort — grouping is the point", !doc.querySelector('#logbook-pages [data-sort="due"]'));
+  // Switch back to Schedule through the same sheet.
+  R.showScreen("home");
+  click(doc.querySelector('#home-mode-switch [data-mode="schedule"]')); await sleep(20);
+  click(doc.querySelector("#mode-confirm")); await sleep(20);
+  check("switching back restores the Schedule Home", rig89.mode === "schedule" && doc.querySelector("#home-nextup-title").textContent === "Next up");
+  R.showScreen("logbook"); await sleep(20);
+  check("the Schedule Logbook sorts by date again", !!doc.querySelector('#logbook-pages [data-sort="due"]'));
+  check("the guide teaches both modes", doc.querySelectorAll("#screen-guide .card").length === 18 && doc.body.textContent.indexOf("Schedule or Focus") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

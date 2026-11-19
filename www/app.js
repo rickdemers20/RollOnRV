@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "89";
+  var APP_VERSION = "90";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -583,6 +583,8 @@
       id: uid(), year: o.year || "", make: o.make || "", model: o.model || "",
       nickname: o.nickname || "", type: o.type || "Class A",
       mileage: Number(o.mileage) || 0, genHours: Number(o.genHours) || 0,
+      mileageUpdatedAt: o.mileageUpdatedAt || null,
+      mode: o.mode === "focus" ? "focus" : "schedule",
       psiFront: Number(o.psiFront) || null, psiRear: Number(o.psiRear) || null,
       photo: o.photo || null, equipment: o.equipment || {},
       createdAt: todayISO()
@@ -805,6 +807,65 @@
       return ka < kb ? -1 : ka > kb ? 1 : 0;
     });
     return open.slice(0, n || 3);
+  }
+  /* ---------------- Focus mode — what matters most, not what is due ------ */
+  /* A rig's mode lives on the rig and defaults to Schedule, so every rig
+     already in a book keeps reading the way it always did. Focus ranks by
+     risk first — Safety, then Damage, then Upkeep — and only then by how
+     soon the job is due. The plan never changes when the mode does; only
+     which jobs the book puts in front of you. */
+  var DAMAGE_CATEGORIES = ["Roof", "Slideouts", "Slide Toppers", "Patio Awning", "Exterior", "Water Heater", "Water Systems", "Water Filtration", "Waste System", "Toilet", "Leveling and Support"];
+  function rigMode(rig) {
+    return rig && rig.mode === "focus" ? "focus" : "schedule";
+  }
+  function riskTierFor(task) {
+    var c = (task && task.category) || "";
+    if (SAFETY_CATEGORIES.indexOf(c) !== -1) return { tier: "safety", label: "Safety", rank: 0 };
+    if (DAMAGE_CATEGORIES.indexOf(c) !== -1) return { tier: "damage", label: "Damage", rank: 1 };
+    return { tier: "upkeep", label: "Upkeep", rank: 2 };
+  }
+  function focusCompare(a, b) {
+    var ra = riskTierFor(a.task).rank, rb = riskTierFor(b.task).rank;
+    if (ra !== rb) return ra - rb;
+    var sr = { overdue: 0, soon: 1, ok: 2, open: 3 };
+    var sa = sr[a.status.level] != null ? sr[a.status.level] : 4;
+    var sb = sr[b.status.level] != null ? sr[b.status.level] : 4;
+    if (sa !== sb) return sa - sb;
+    var ka = (a.task.nextDueDate || "9999") + "|" + String(a.task.nextDueMileage || 999999999).padStart(9, "0");
+    var kb = (b.task.nextDueDate || "9999") + "|" + String(b.task.nextDueMileage || 999999999).padStart(9, "0");
+    return ka < kb ? -1 : ka > kb ? 1 : 0;
+  }
+  function focusTasks(rig) {
+    // A snoozed job stays out of the Focus list until its week is up —
+    // that is what the Snooze button is for. It still shows in the
+    // Logbook, marked snoozed, so it is never lost.
+    var today = todayISO();
+    return dueTasks(rig).filter(function (d) {
+      if (d.status.level === "done") return false;
+      var t = d.task;
+      if (t.snoozedUntil && t.snoozedUntil > today) return false;
+      return true;
+    }).sort(focusCompare);
+  }
+  function worthDoingNow(d) {
+    return d.status.level === "overdue" || riskTierFor(d.task).tier === "safety";
+  }
+  function focusWhy(task) {
+    var g = guidanceFor(task && task.title);
+    if (g) return g.why;
+    var tier = riskTierFor(task).tier;
+    if (tier === "safety") return "This one can hurt you or strand you — it comes before everything else.";
+    if (tier === "damage") return "Left alone, this one gets expensive — water and wear don't wait.";
+    return "Routine upkeep — keeps the rig happy and the book honest.";
+  }
+  /* The odometer and generator hours are only as good as the last time
+     they were confirmed. A reading never confirmed in the app, or older
+     than thirty days, gets an Update needed tag in Focus mode — Focus
+     decisions run off these numbers, so the book says so plainly. */
+  function numbersNeedUpdate(rig) {
+    if (!rig || !rig.mileageUpdatedAt) return true;
+    var d = daysBetween(rig.mileageUpdatedAt, todayISO());
+    return d == null || d > 30;
   }
   function completeTask(task, logData) {
     // A job logged against a task advances its next dues from the job itself.
@@ -1546,8 +1607,13 @@
     $("#home-rig-line").textContent = rigName(rig) + " · " + num(rig.mileage) + " mi · " + num(rig.genHours) + " gen hrs";
     $("#home-rig-art").innerHTML = rigArt(rig);
     $("#home-rig-photo-btn").textContent = rig.photo ? "📷 Change photo" : "📷 Add a photo of your rig";
+    renderModeSwitch(rig);
+    if (rigMode(rig) === "focus") { renderFocusHome(rig); }
+    else {
     var open = dueTasks(rig).filter(function (d) { return d.status.level !== "done"; });
     var next = nextUpTasks(rig, 3);
+    $("#home-nextup-title").textContent = "Next up";
+    $("#home-nextup-sub").textContent = "Overdue safety first, then overdue, then soonest. The rest waits in the logbook.";
     var list = $("#home-nextup");
     if (!next.length) {
       list.innerHTML = '<p class="muted">Nothing on the books — the rig is caught up.</p>';
@@ -1566,6 +1632,7 @@
     var rest = open.length - next.length;
     more.textContent = rest > 0 ? rest + " more on the books — in the Logbook." : "";
     more.onclick = rest > 0 ? function () { showScreen("logbook"); } : null;
+    }
     var toGet = partsForRig(rig.id).filter(function (p) { return !p.bought; });
     var ph = $("#home-parts");
     if (!toGet.length) {
@@ -1604,7 +1671,8 @@
     var tm = $("#home-trips-more");
     tm.textContent = tr.length > 1 ? (tr.length - 1) + " more trip" + (tr.length === 2 ? "" : "s") + " — see them all." : "Open the trips.";
     tm.onclick = function () { showScreen("trips"); };
-    $("#home-numbers").innerHTML =
+    if (rigMode(rig) === "focus") renderFocusNumbers(rig);
+    else $("#home-numbers").innerHTML =
       '<div class="row"><div class="grow"><div class="title">Odometer</div><div class="sub">Last updated in the book</div></div><b>' + num(rig.mileage) + ' mi</b></div>' +
       '<div class="row"><div class="grow"><div class="title">Generator hours</div><div class="sub">Hours on the generator</div></div><b>' + num(rig.genHours) + ' hrs</b></div>' +
       '<div class="row"><div class="grow"><div class="title">Tire pressures</div><div class="sub">Front / rear, per your placard</div></div><b>' + (rig.psiFront ? rig.psiFront + " / " + (rig.psiRear || "—") + " psi" : "Not set") + '</b></div>';
@@ -1616,6 +1684,98 @@
       '<p class="muted" style="margin:.2rem 0 0">' + (cpm ? money(cpm.perMile) + ' a mile over the last ' + num(cpm.miles) + ' miles' : 'all-in this year') + '</p>';
     renderHomeTip();
     renderHomeSearch();
+  }
+
+  /* ---------------- Focus mode — Home -------------------------------------- */
+  /* The mode switch sits on Home, where the choice lives. Tapping the mode
+     you are not in opens a confirmation sheet first — switching never
+     moves a date, adds a job, or removes one, and the sheet says so. */
+  function renderModeSwitch(rig) {
+    var host = $("#home-mode-switch"); if (!host) return;
+    var mode = rigMode(rig);
+    $all("button", host).forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-mode") === mode);
+      b.onclick = function () {
+        var to = b.getAttribute("data-mode");
+        if (to !== rigMode(rig)) openModeSwitchSheet(to);
+      };
+    });
+  }
+  function openModeSwitchSheet(toMode) {
+    var rig = activeRig(); if (!rig) return;
+    var toFocus = toMode === "focus";
+    openSheet(
+      sheetHead(toFocus ? "Switch to Focus mode" : "Switch to Schedule mode", "The same book, read a different way.") +
+      '<p>Your plan has not changed. No dates moved, and nothing was added or removed.</p>' +
+      '<p>' + (toFocus
+        ? "Focus shows a few jobs at a time — the ones that matter most first: safety, then what could cost you the coach, then the rest."
+        : "Schedule shows every job on its own date, soonest first — the whole book in order.") + '</p>' +
+      '<div class="btnrow"><button class="btn block" id="mode-confirm">Switch to ' + (toFocus ? "Focus" : "Schedule") + '</button></div>' +
+      '<div class="btnrow"><button class="btn ghost block" id="mode-cancel">Stay where I am</button></div>'
+    );
+    wireClose(sheetHost);
+    $("#mode-confirm").addEventListener("click", function () {
+      rig.mode = toMode; save(); closeSheet();
+      focusLogCategory = null;
+      renderHome(); renderLogbook();
+      toast(toFocus ? "Focus mode — what matters most first." : "Schedule mode — soonest first.");
+    });
+    $("#mode-cancel").addEventListener("click", closeSheet);
+  }
+  function renderFocusHome(rig) {
+    $("#home-nextup-title").textContent = "Your top priority";
+    $("#home-nextup-sub").textContent = "Focus mode — what matters most first. Safety, then what could cost you the coach, then the rest.";
+    var list = focusTasks(rig);
+    var host = $("#home-nextup");
+    if (!list.length) {
+      host.innerHTML = '<p class="muted">Nothing on the books — the rig is caught up.</p>';
+    } else {
+      var top = list[0];
+      var tier = riskTierFor(top.task);
+      host.innerHTML =
+        '<div class="focus-label">Focus mode</div>' +
+        '<div class="priority-card" id="focus-top-card" style="cursor:pointer">' +
+        '<div class="title">' + esc(top.task.title) + '</div>' +
+        '<div class="sub">' + esc(top.task.category) + ' · ' + esc(tier.label) + ' · ' + esc(top.status.text) + '</div>' +
+        '<p>' + esc(focusWhy(top.task)) + '</p>' +
+        '<div class="btnrow"><button class="btn small" id="focus-more-cat">More in ' + esc(top.task.category) + '</button>' +
+        '<button class="btn small ghost" id="focus-snooze">Snooze 7 days</button></div></div>' +
+        (list.length > 1 ? '<div class="group-head">Also worth doing</div>' + list.slice(1, 6).map(function (d) {
+          var t2 = riskTierFor(d.task);
+          var dot = d.status.level === "overdue" ? "red" : d.status.level === "soon" ? "amber" : "green";
+          return '<div class="row" data-task="' + d.task.id + '" style="cursor:pointer"><span class="dot ' + dot + '"></span><div class="grow"><div class="title">' + esc(d.task.title) + '</div>' +
+            '<div class="sub">' + esc(d.task.category) + ' · ' + esc(d.status.text) + '</div></div>' +
+            '<span class="risk-tag ' + t2.tier + '">' + esc(t2.label) + '</span></div>';
+        }).join("") : "");
+      $("#focus-top-card").addEventListener("click", function () { openTaskSheet(top.task.id); });
+      $("#focus-more-cat").addEventListener("click", function (e) {
+        e.stopPropagation();
+        focusLogCategory = top.task.category;
+        showScreen("logbook");
+      });
+      $("#focus-snooze").addEventListener("click", function (e) {
+        e.stopPropagation();
+        snoozeTask(top.task); save(); renderHome(); toast("Snoozed a week.");
+      });
+      $all("[data-task]", host).forEach(function (el) {
+        el.addEventListener("click", function () { openTaskSheet(el.getAttribute("data-task")); });
+      });
+    }
+    var more = $("#home-nextup-more");
+    var rest = list.length - 6;
+    more.textContent = rest > 0 ? rest + " more worth doing — in the Logbook." : (list.length > 1 ? "The rest waits in the Logbook." : "");
+    more.onclick = function () { showScreen("logbook"); };
+  }
+  function renderFocusNumbers(rig) {
+    var stale = numbersNeedUpdate(rig);
+    var tag = stale ? ' <span class="pill amber">Update needed</span>' : '';
+    $("#home-numbers").innerHTML =
+      '<div class="row" data-update-miles style="cursor:pointer"><div class="grow"><div class="title">Odometer</div><div class="sub">Last updated in the book</div></div><b>' + num(rig.mileage) + ' mi</b>' + tag + '</div>' +
+      '<div class="row" data-update-miles style="cursor:pointer"><div class="grow"><div class="title">Generator hours</div><div class="sub">Hours on the generator</div></div><b>' + num(rig.genHours) + ' hrs</b>' + tag + '</div>' +
+      '<div class="row"><div class="grow"><div class="title">Tire pressures</div><div class="sub">Front / rear, per your placard</div></div><b>' + (rig.psiFront ? rig.psiFront + " / " + (rig.psiRear || "—") + " psi" : "Not set") + '</b></div>';
+    $all("[data-update-miles]", $("#home-numbers")).forEach(function (el) {
+      el.addEventListener("click", openMilesSheet);
+    });
   }
 
   /* ---------------- Did you know? (Home only) -------------------------------- */
@@ -1647,6 +1807,7 @@
      result and its sheet opens, same as tapping it in the logbook. */
   var homeSearchQuery = "";
   var storageSearchQuery = "";
+  var focusLogCategory = null; /* "More in <category>" from the Focus priority card — null means show everything */
   function renderHomeSearch() {
     var host = $("#home-search-results");
     if (!host) return;
@@ -1719,6 +1880,38 @@
     // Tasks still on the books, grouped by status
     var open = tasks.filter(function (d) { return d.status.level !== "done"; });
     if (open.length) {
+      if (rigMode(rig) === "focus") {
+        /* Focus browse: grouped by category — safety groups first, then
+           damage, then upkeep — with a risk tag on every row and a
+           "Worth doing now" flag on the ones that can't wait. A snoozed
+           job still shows here, marked, so it is never lost. */
+        var focusOpen = open;
+        if (focusLogCategory) focusOpen = focusOpen.filter(function (d) { return (d.task.category || "Other") === focusLogCategory; });
+        var groups = {};
+        focusOpen.forEach(function (d) { var g = d.task.category || "Other"; (groups[g] = groups[g] || []).push(d); });
+        var groupNames = Object.keys(groups).sort(function (a, b) {
+          var ra = riskTierFor({ category: a }).rank, rb = riskTierFor({ category: b }).rank;
+          if (ra !== rb) return ra - rb;
+          return a < b ? -1 : a > b ? 1 : 0;
+        });
+        var focusHtml = "";
+        if (focusLogCategory) focusHtml += '<p class="muted">Showing ' + esc(focusLogCategory) + ' — <span id="focus-show-all" style="cursor:pointer;text-decoration:underline">Show everything</span></p>';
+        groupNames.forEach(function (g) {
+          var items = groups[g].slice().sort(focusCompare);
+          focusHtml += '<div class="group-head">' + esc(g) + ' · ' + items.length + '</div>';
+          items.forEach(function (d) {
+            var t = riskTierFor(d.task);
+            var dot = d.status.level === "overdue" ? "red" : d.status.level === "soon" ? "amber" : "green";
+            var snoozed = d.task.snoozedUntil && d.task.snoozedUntil > todayISO() ? ' · Snoozed until ' + esc(fmtDate(d.task.snoozedUntil)) : '';
+            focusHtml += '<div class="row" data-task="' + d.task.id + '" style="cursor:pointer"><span class="dot ' + dot + '"></span>' +
+              '<div class="grow"><div class="title">' + esc(d.task.title) + '</div>' +
+              '<div class="sub">' + esc(d.task.category) + (d.task.needsPro ? ' · 🔧 Pro' : '') + ' · ' + esc(d.status.text) + snoozed + '</div>' +
+              (worthDoingNow(d) ? '<div class="flag-now">Worth doing now</div>' : '') + '</div>' +
+              '<span class="risk-tag ' + t.tier + '">' + esc(t.label) + '</span></div>';
+          });
+        });
+        html += '<div class="page"><div class="page-head">On the books</div>' + focusHtml + "</div>";
+      } else {
       open = sortOpenTasks(open, logSort);
       var sortBtn = function (key, label) {
         return '<button class="btn small' + (logSort === key ? '' : ' ghost') + '" data-sort="' + key + '">' + label + '</button>';
@@ -1748,6 +1941,7 @@
       html += '<div class="page"><div class="page-head">On the books</div>' +
         '<div class="sortrow"><span class="muted small">Sort:</span>' + sortBtn("due", "Due soonest") + sortBtn("system", "System") + sortBtn("name", "Name") + '</div>' +
         rowsHtml + "</div>";
+      }
     }
     // Completed entries, grouped by month, ruled pages
     var byMonth = {};
@@ -1784,6 +1978,8 @@
     $all("[data-task]", host).forEach(function (el) {
       el.addEventListener("click", function () { openTaskSheet(el.getAttribute("data-task")); });
     });
+    var showAll = $("#focus-show-all", host);
+    if (showAll) showAll.addEventListener("click", function () { focusLogCategory = null; renderLogbook(); });
     $all("[data-log]", host).forEach(function (el) {
       el.addEventListener("click", function () { openLogSheet(el.getAttribute("data-log")); });
     });
@@ -4462,6 +4658,7 @@
     wireClose(sheetHost);
     $("#mi-save").addEventListener("click", function () {
       rig.mileage = Number($("#mi-miles").value) || 0; rig.genHours = Number($("#mi-gen").value) || 0;
+      rig.mileageUpdatedAt = todayISO();
       save(); closeSheet(); renderHome(); toast("Numbers updated.");
     });
   }
@@ -4703,6 +4900,7 @@
     setTheme: setTheme, currentTheme: currentTheme,
     printChecklistRun: printChecklistRun, printDueTasks: printDueTasks,
     nextUpTasks: nextUpTasks,
+    rigMode: rigMode, riskTierFor: riskTierFor, focusTasks: focusTasks, focusCompare: focusCompare, worthDoingNow: worthDoingNow, focusWhy: focusWhy, numbersNeedUpdate: numbersNeedUpdate, openModeSwitchSheet: openModeSwitchSheet,
     sortOpenTasks: sortOpenTasks,
     currentLogSort: function () { return logSort; },
     showScreen: showScreen, renderHome: renderHome, renderLogbook: renderLogbook,

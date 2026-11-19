@@ -69,6 +69,10 @@
       <button class="btn small ghost theme-btn" type="button">🌙 Night mode</button>
       <h1>The Logbook <span class="hand" id="home-year"></span></h1>
       <p id="home-rig-line"></p>
+      <div class="modeswitch" id="home-mode-switch" role="group" aria-label="How the book shows what's next">
+        <button type="button" data-mode="schedule">Schedule</button>
+        <button type="button" data-mode="focus">Focus</button>
+      </div>
       <div class="rig-art" id="home-rig-art" aria-hidden="true"></div>
       <div class="btnrow home-photo-row" style="justify-content:flex-start">
         <button class="btn small ghost" id="home-rig-photo-btn" type="button">📷 Add a photo of your rig</button>
@@ -85,9 +89,9 @@
         <button class="btn ghost" id="home-pick-checklist">All checklists</button>
       </div>
     </div>
-    <div class="card">
-      <h2>Next up <span class="hand">— three at a time</span></h2>
-      <p class="muted">Overdue safety first, then overdue, then soonest. The rest waits in the logbook.</p>
+    <div class="card" id="home-nextup-card">
+      <h2><span id="home-nextup-title">Next up</span> <span class="hand">— three at a time</span></h2>
+      <p class="muted" id="home-nextup-sub">Overdue safety first, then overdue, then soonest. The rest waits in the logbook.</p>
       <div id="home-nextup"></div>
       <p class="small muted" id="home-nextup-more" style="cursor:pointer"></p>
     </div>
@@ -438,6 +442,10 @@
     <div class="card">
       <h2><span class="hand">17.</span> Ownership report — hand the buyer the book</h2>
       <p>Pro only: <b>Ownership report</b> (More → Ownership report) is one clean page of the whole book — the rig, every job logged, the tires, the Vault papers, and what's coming due. <b>View &amp; share</b> opens it as its own page: share it, or save it as a PDF from the share sheet. <b>Print</b> sends it to the printer.</p>
+    </div>
+    <div class="card">
+      <h2><span class="hand">18.</span> Schedule or Focus — two ways to read the same book</h2>
+      <p>Home has a switch at the top: <b>Schedule</b> or <b>Focus</b>. Schedule is the book in date order — every job on its own date, soonest first. Focus is a few jobs at a time, the ones that matter most first: <b>Safety</b>, then <b>Damage</b> (the jobs that get expensive if you leave them — roof, seals, water), then <b>Upkeep</b>. Switching never moves a date or changes your plan — it only changes which jobs the book puts in front of you, and you can switch back any time. In Focus, Home shows your one top priority — why it matters, a button for more in that system, and a Snooze that sets it aside for a week — then the next few worth doing. The Logbook groups the same way, by system, with a <b>Worth doing now</b> flag on the ones that can't wait. Focus leans on your odometer and generator hours, so if the book hasn't seen them confirmed in a while it says <b>Update needed</b> — tap the numbers and save them.</p>
     </div>
   </section>
 
