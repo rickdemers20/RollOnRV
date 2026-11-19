@@ -440,7 +440,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 14. night mode toggle ---- */
   console.log("== 14. night mode ==");
   check("theme defaults to light", R.currentTheme() === "light" && !doc.documentElement.hasAttribute("data-theme"));
-  check("a night button sits at the top of every screen", doc.querySelectorAll(".theme-btn").length === 11);
+  check("a night button sits at the top of every screen", doc.querySelectorAll(".theme-btn").length === 12);
   check("each night button is on its own line above the title", Array.from(doc.querySelectorAll(".theme-btn")).every((b) => b.parentElement.firstElementChild === b));
   check("the night button is never parked over a title", !/\.theme-btn\{[^}]*position:\s*absolute/.test(css));
   check("night mode button starts as Night mode", doc.querySelector(".theme-btn").textContent.includes("Night mode"));
@@ -767,7 +767,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 77"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 78"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1846,7 +1846,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc.querySelector("#home-guide-link").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("tapping How to use this app opens the guide screen", doc.querySelector("#screen-guide").classList.contains("active"));
-  check("the in-app guide carries all 14 steps", doc.querySelectorAll("#screen-guide .card").length === 14);
+  check("the in-app guide carries all 15 steps", doc.querySelectorAll("#screen-guide .card").length === 15);
   doc.querySelector("#guide-back-btn").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("the guide's Back button returns to Home", doc.querySelector("#screen-home").classList.contains("active"));
@@ -2483,6 +2483,61 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   w = R.planJobsFor(rig, aGas77);
   check("unanswered fuel shows every fuel's jobs, nothing hidden", gasFuel77.every((t) => w.some((j) => j.title === t)) && dieselFuel77.every((t) => w.some((j) => j.title === t)) && propaneFuel77.every((t) => w.some((j) => j.title === t)));
   R.activeRig().equipment = {}; R.save();
+
+  /* ---- 78. Find it: basement bays + search (v78) ---- */
+  console.log("== 78. Find it ==");
+  // Use the live rig, not the captured one: the harness reloads the store
+  // partway through, so the early `rig` object can go stale.
+  var rig78 = R.activeRig();
+  R.showScreen("more");
+  check("More offers Find it", !!doc.querySelector("#storage-open-btn"));
+  R.showScreen("storage");
+  check("Find it opens its own screen", doc.querySelector("#screen-storage").classList.contains("active"));
+  check("Find it has a search box", !!doc.querySelector("#storage-search"));
+  var st78 = R.storageFor(rig78);
+  check("a motorhome starts with seven bays", st78.compartments.length === 7 && st78.compartments[0].name === "Driver front bay" && st78.compartments[6].name === "Wet bay");
+  check("the bays are listed, empty to start", doc.querySelector("#storage-list").textContent.includes("Driver front bay") && doc.querySelector("#storage-list").textContent.includes("Nothing in this bay yet"));
+  var ttRig78 = R.newRig({ type: "Travel trailer" });
+  check("a trailer starts with four bays", R.storageStarterCompartments(ttRig78).join("|") === "Front pass-through|Rear storage|Wet bay|Under-bed storage");
+  check("starters are a fresh copy each time", R.storageStarterCompartments(rig78) !== R.storageStarterCompartments(rig78));
+  click(doc.querySelector("#storage-add-btn")); await sleep(20);
+  setVal("#st-name", "Fresh water hose");
+  doc.querySelector("#st-save").click(); await sleep(20);
+  check("adding a thing puts it in the first bay", R.storageFor(rig78).items.some((i) => i.name === "Fresh water hose" && i.compartmentId === st78.compartments[0].id));
+  var sEl78 = doc.querySelector("#storage-search");
+  sEl78.value = "hose";
+  sEl78.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  check("search finds the thing and names its bay", doc.querySelector("#storage-list").textContent.includes("Fresh water hose") && doc.querySelector("#storage-list").textContent.includes("Driver front bay"));
+  sEl78.value = "zzz-no-such-thing";
+  sEl78.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  check("no match says so plainly", doc.querySelector("#storage-list").textContent.includes("Nothing named"));
+  sEl78.value = "";
+  sEl78.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  var hose78 = R.storageFor(rig78).items.find((i) => i.name === "Fresh water hose");
+  R.openStorageItemSheet(hose78.id); await sleep(20);
+  setVal("#st-name", "Fresh water hose");
+  doc.querySelector("#st-bay").value = st78.compartments[3].id;
+  doc.querySelector("#st-save").click(); await sleep(20);
+  check("moving a thing changes the bay search names", R.storageSearch(rig78, "hose")[0].compartment === "Passenger front bay");
+  R.openStorageCompartmentSheet(st78.compartments[3].id); await sleep(20);
+  setVal("#sb-name", "Passenger front — hoses");
+  doc.querySelector("#sb-save").click(); await sleep(20);
+  check("renaming a bay renames it in search", R.storageSearch(rig78, "hose")[0].compartment === "Passenger front — hoses");
+  var bayId78 = st78.compartments[3].id;
+  R.openStorageCompartmentSheet(bayId78); await sleep(20);
+  doc.querySelector("#sb-delete").click(); await sleep(20);
+  check("a bay that holds things stays put", R.storageFor(rig78).compartments.some((c) => c.id === bayId78));
+  R.openStorageItemSheet(hose78.id); await sleep(20);
+  doc.querySelector("#st-delete").click(); await sleep(20);
+  check("taking a thing out removes it from search", R.storageSearch(rig78, "hose").length === 0);
+  R.openStorageCompartmentSheet(bayId78); await sleep(20);
+  doc.querySelector("#sb-delete").click(); await sleep(20);
+  check("an empty bay can be taken out", !R.storageFor(rig78).compartments.some((c) => c.id === bayId78));
+  click(doc.querySelector("#storage-bay-btn")); await sleep(20);
+  setVal("#sb-name", "Roof box");
+  doc.querySelector("#sb-save").click(); await sleep(20);
+  check("adding a bay joins the list", R.storageFor(rig78).compartments.some((c) => c.name === "Roof box"));
+
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);
 })().catch((e) => { console.error("HARNESS ERROR", e); process.exit(2); });

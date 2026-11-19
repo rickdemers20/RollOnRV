@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "77";
+  var APP_VERSION = "78";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -1530,6 +1530,7 @@
     if (name === "tires") renderTires();
     if (name === "parts") renderParts();
     if (name === "pros") renderPros();
+    if (name === "storage") renderStorage();
     if (name === "fuel") renderFuel();
     if (name === "trips") renderTrips();
     if (name === "more") renderMore();
@@ -1644,6 +1645,7 @@
   /* Find a task by name or system, right from the Home screen — tap a
      result and its sheet opens, same as tapping it in the logbook. */
   var homeSearchQuery = "";
+  var storageSearchQuery = "";
   function renderHomeSearch() {
     var host = $("#home-search-results");
     if (!host) return;
@@ -2235,6 +2237,130 @@
       store.pros = store.pros.filter(function (p) { return p.id !== pro.id; });
       store.tasks.forEach(function (t) { if (t.proId === pro.id) t.proId = null; });
       save(); closeSheet(); renderPros();
+    });
+  }
+
+  /* ---------------- Find it (storage) --------------------------------------- */
+  /* Where's my stuff? The rig's basement bays, named your way, with every
+     thing in its bay — search finds it instead of opening every door.
+     Bays and things live on the rig, so they ride along if the book ever
+     holds a second rig. Free core: no cost, no warranty, no purchase
+     info here — that stays with Pro parts tracking. Starters are a
+     guess at the usual bays for the rig type; rename, add, or take out
+     any of them. A bay that still holds things can't be taken out until
+     they're moved — nothing gets lost by accident. */
+  var STORAGE_STARTERS_MOTORIZED = ["Driver front bay", "Driver mid bay", "Driver rear bay", "Passenger front bay", "Passenger mid bay", "Passenger rear bay", "Wet bay"];
+  var STORAGE_STARTERS_TRAILER = ["Front pass-through", "Rear storage", "Wet bay", "Under-bed storage"];
+  function storageStarterCompartments(rig) {
+    var t = rig ? rig.type : "Class A";
+    return (t === "Class A" || t === "Class B" || t === "Class C") ? STORAGE_STARTERS_MOTORIZED.slice() : STORAGE_STARTERS_TRAILER.slice();
+  }
+  function storageFor(rig) {
+    if (!rig.storage || !Array.isArray(rig.storage.compartments)) {
+      rig.storage = { compartments: storageStarterCompartments(rig).map(function (name) { return { id: uid(), name: name }; }), items: [] };
+    }
+    if (!Array.isArray(rig.storage.items)) rig.storage.items = [];
+    return rig.storage;
+  }
+  function storageCompartmentName(rig, compartmentId) {
+    var st = storageFor(rig);
+    var c = st.compartments.find(function (x) { return x.id === compartmentId; });
+    return c ? c.name : "";
+  }
+  function storageSearch(rig, q) {
+    var query = (q || "").trim().toLowerCase();
+    if (!query) return [];
+    var st = storageFor(rig);
+    return st.items.filter(function (it) { return it.name.toLowerCase().indexOf(query) !== -1; }).map(function (it) {
+      return { item: it, compartment: storageCompartmentName(rig, it.compartmentId) };
+    });
+  }
+  function renderStorage() {
+    var rig = activeRig(); if (!rig) { showScreen("setup"); return; }
+    var st = storageFor(rig);
+    var q = storageSearchQuery;
+    var searchBox = $("#storage-search");
+    if (searchBox && searchBox.value !== q) searchBox.value = q;
+    var host = $("#storage-list");
+    if (q) {
+      var hits = storageSearch(rig, q);
+      host.innerHTML = hits.length ? '<div class="check-group">Found in your bays</div>' + hits.map(function (h) {
+        return '<div class="row" data-open-stored="' + h.item.id + '" style="cursor:pointer"><div class="grow"><div class="title">' + esc(h.item.name) + '</div>' +
+          '<div class="sub">' + esc(h.compartment || "No bay yet") + '</div></div></div>';
+      }).join("") + '<p class="small muted">Tap a line to move it to another bay or take it out.</p>'
+        : '<p class="muted">Nothing named "' + esc(q) + '" is in your bays yet — add it with ＋ Add a thing.</p>';
+    } else {
+      host.innerHTML = st.compartments.map(function (c) {
+        var items = st.items.filter(function (it) { return it.compartmentId === c.id; });
+        return '<div class="check-group"><span data-open-bay="' + c.id + '" style="cursor:pointer">' + esc(c.name) + '</span>' +
+          ' <span class="muted small">· ' + items.length + (items.length === 1 ? ' thing' : ' things') + '</span></div>' +
+          (items.length ? items.map(function (it) {
+            return '<div class="row" data-open-stored="' + it.id + '" style="cursor:pointer"><div class="grow"><div class="title">' + esc(it.name) + '</div></div></div>';
+          }).join("") : '<p class="muted small">Nothing in this bay yet.</p>');
+      }).join("") + '<p class="small muted">Tap a bay name to rename it or take it out. Tap a thing to move it or take it out.</p>';
+    }
+    $all("[data-open-stored]", host).forEach(function (el) {
+      el.addEventListener("click", function () { openStorageItemSheet(el.getAttribute("data-open-stored")); });
+    });
+    $all("[data-open-bay]", host).forEach(function (el) {
+      el.addEventListener("click", function () { openStorageCompartmentSheet(el.getAttribute("data-open-bay")); });
+    });
+  }
+  function openStorageItemSheet(itemId, compartmentId) {
+    var rig = activeRig(); if (!rig) return;
+    var st = storageFor(rig);
+    var item = itemId ? st.items.find(function (i) { return i.id === itemId; }) : null;
+    var draft = item ? JSON.parse(JSON.stringify(item)) : { id: uid(), name: "", compartmentId: compartmentId || (st.compartments[0] && st.compartments[0].id) || null };
+    openSheet(
+      sheetHead(item ? "One thing" : "Add a thing", "Name it, pick its bay — later, search finds it.") +
+      '<div class="field"><label for="st-name">What is it?</label><input id="st-name" value="' + esc(draft.name) + '" placeholder="e.g. Fresh water hose" /></div>' +
+      '<div class="field"><label for="st-bay">Which bay?</label><select id="st-bay">' + st.compartments.map(function (c) {
+        return '<option value="' + c.id + '"' + (c.id === draft.compartmentId ? " selected" : "") + '>' + esc(c.name) + '</option>';
+      }).join("") + '</select></div>' +
+      '<div class="btnrow"><button class="btn block" id="st-save" type="button">Save this thing</button></div>' +
+      (item ? '<div class="btnrow"><button class="btn ghost block" id="st-delete" type="button">Take it out of the bays</button></div>' : '')
+    );
+    wireClose(sheetHost);
+    $("#st-save").addEventListener("click", function () {
+      var name = $("#st-name").value.trim();
+      if (!name) { toast("Give the thing a name first."); return; }
+      draft.name = name; draft.compartmentId = $("#st-bay").value;
+      if (!item) st.items.push(draft);
+      else { var i = st.items.findIndex(function (x) { return x.id === item.id; }); if (i >= 0) st.items[i] = draft; }
+      save(); closeSheet(); renderStorage(); toast("Saved — it's in the " + storageCompartmentName(rig, draft.compartmentId) + ".");
+    });
+    if (item) $("#st-delete").addEventListener("click", function () {
+      if (!confirm("Take " + item.name + " out of the bays?")) return;
+      st.items = st.items.filter(function (x) { return x.id !== item.id; });
+      save(); closeSheet(); renderStorage();
+    });
+  }
+  function openStorageCompartmentSheet(compId) {
+    var rig = activeRig(); if (!rig) return;
+    var st = storageFor(rig);
+    var comp = compId ? st.compartments.find(function (c) { return c.id === compId; }) : null;
+    var draft = comp ? JSON.parse(JSON.stringify(comp)) : { id: uid(), name: "" };
+    var held = comp ? st.items.filter(function (i) { return i.compartmentId === comp.id; }).length : 0;
+    openSheet(
+      sheetHead(comp ? "One bay" : "Add a bay", comp ? "Rename it, or take it out when it's empty." : "Name a new bay — it joins the list.") +
+      '<div class="field"><label for="sb-name">Bay name</label><input id="sb-name" value="' + esc(draft.name) + '" placeholder="e.g. Driver mid bay" /></div>' +
+      '<div class="btnrow"><button class="btn block" id="sb-save" type="button">Save this bay</button></div>' +
+      (comp ? '<div class="btnrow"><button class="btn ghost block" id="sb-delete" type="button">Take this bay out</button></div>' : '')
+    );
+    wireClose(sheetHost);
+    $("#sb-save").addEventListener("click", function () {
+      var name = $("#sb-name").value.trim();
+      if (!name) { toast("Give the bay a name first."); return; }
+      draft.name = name;
+      if (!comp) st.compartments.push(draft);
+      else { var i = st.compartments.findIndex(function (c) { return c.id === comp.id; }); if (i >= 0) st.compartments[i] = draft; }
+      save(); closeSheet(); renderStorage(); toast("Bay saved.");
+    });
+    if (comp) $("#sb-delete").addEventListener("click", function () {
+      if (held > 0) { toast("Move the " + held + (held === 1 ? " thing" : " things") + " out of this bay first."); return; }
+      if (!confirm("Take " + comp.name + " out? It holds nothing.")) return;
+      st.compartments = st.compartments.filter(function (c) { return c.id !== comp.id; });
+      save(); closeSheet(); renderStorage();
     });
   }
 
@@ -3989,6 +4115,12 @@
     $("#parts-back-btn").addEventListener("click", function () { showScreen("home"); });
     $("#parts-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
     $("#pros-open-btn").addEventListener("click", function () { showScreen("pros"); });
+    $("#storage-open-btn").addEventListener("click", function () { showScreen("storage"); });
+    $("#storage-add-btn").addEventListener("click", function () { openStorageItemSheet(null, null); });
+    $("#storage-bay-btn").addEventListener("click", function () { openStorageCompartmentSheet(null); });
+    $("#storage-search").addEventListener("input", function (e) { storageSearchQuery = e.target.value.trim().toLowerCase(); renderStorage(); });
+    $("#storage-back-btn").addEventListener("click", function () { showScreen("more"); });
+    $("#storage-back-btn-bottom").addEventListener("click", function () { showScreen("more"); });
     $("#reminders-open-btn").addEventListener("click", openRemindersSheet);
     $("#premium-open-btn").addEventListener("click", openProPaywall);
     $("#pros-add-btn").addEventListener("click", function () { openProSheet(null); });
@@ -4107,6 +4239,8 @@
     newRig: newRig, newTask: newTask, newLog: newLog, newTire: newTire, newPart: newPart,
     partsForRig: partsForRig, togglePartBought: togglePartBought, boughtPartsCostForTask: boughtPartsCostForTask,
     exportPartsCSV: exportPartsCSV, printPartsList: printPartsList, partsListHTML: partsListHTML, renderParts: renderParts, openPartSheet: openPartSheet,
+    renderStorage: renderStorage, storageFor: storageFor, storageSearch: storageSearch,
+    storageStarterCompartments: storageStarterCompartments, openStorageItemSheet: openStorageItemSheet, openStorageCompartmentSheet: openStorageCompartmentSheet,
     taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask, skipTask: skipTask, openTaskSheet: openTaskSheet,
     planReminders: planReminders, reminderSettings: reminderSettings, scheduleReminders: scheduleReminders, openRemindersSheet: openRemindersSheet,
     dotInfo: dotInfo, costsForYear: costsForYear, costPerMile: costPerMile,
