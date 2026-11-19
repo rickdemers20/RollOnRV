@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "76";
+  var APP_VERSION = "77";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -2733,6 +2733,45 @@
      never became ready left the user stuck with no error and no retry. */
   var proStoreInitialized = false;
   var proStoreReadyFired = false;
+  /* The last store error, in plain words (Nov 19 — build 32 still showed
+     "The store isn't responding" with the IAP capability in place: the
+     store was failing silently, initialize() swallowing its own errors.
+     The paywall now says WHY, so one retry tells us the real reason). */
+  var proStoreLastError = null;
+  function proStoreErrorText(err) {
+    try {
+      var S = window.CdvPurchase;
+      var code = err && err.code;
+      var name = null;
+      if (S && S.ErrorCode) {
+        for (var k in S.ErrorCode) { if (S.ErrorCode[k] === code) { name = k; break; } }
+      }
+      var msg = (err && err.message) || "";
+      var label = name || (code !== undefined && code !== null ? String(code) : "STORE");
+      return msg ? label + ": " + msg : label;
+    } catch (e) { return "STORE"; }
+  }
+  function proStoreProductStates() {
+    try {
+      var S = window.CdvPurchase;
+      if (!S || !S.store || typeof S.store.get !== "function") return "";
+      var names = { monthly: "Monthly", yearly: "Yearly", lifetime: "Lifetime" };
+      var parts = [];
+      for (var key in PRO_PRODUCT_IDS) {
+        var p = S.store.get(PRO_PRODUCT_IDS[key]);
+        parts.push(names[key] + ": " + (p ? (typeof p.state === "string" && p.state ? p.state : "found") : "not found"));
+      }
+      return parts.join(" ");
+    } catch (e) { return ""; }
+  }
+  function proStoreFailNote() {
+    var bits = ["The store isn't responding right now."];
+    if (proStoreLastError) bits.push("Store problem: " + proStoreLastError + ".");
+    var states = proStoreProductStates();
+    if (states) bits.push(states + ".");
+    bits.push("Check your connection, then try again.");
+    return bits.join(" ");
+  }
   function getPremium() {
     var s = store.settings || {};
     var p = s.premium;
@@ -2862,7 +2901,31 @@
           else proStoreNote("The store reported a problem. Please try again.");
         });
       S.store.ready(function () { proStoreReadyFired = true; proRecheckOwnership(); });
-      S.store.initialize();
+      // A global error handler: initialize/load failures never reach the
+      // transaction chain, so without this the store fails silently and
+      // ready() simply never fires. (A cancelled purchase is skipped
+      // here — the when() chain above already says so, kindly.)
+      if (typeof S.store.error === "function") {
+        S.store.error(function (err) {
+          if (err && S.ErrorCode && err.code === S.ErrorCode.PAYMENT_CANCELLED) return;
+          proStoreLastError = proStoreErrorText(err);
+          proStoreNote(proStoreFailNote());
+        });
+      }
+      // initialize() resolves with its errors — read them, don't swallow
+      // them. (Older stubs return nothing; the guard keeps them working.)
+      var initResult = S.store.initialize();
+      if (initResult && typeof initResult.then === "function") {
+        initResult.then(function (errs) {
+          if (errs && errs.length) {
+            proStoreLastError = errs.map(proStoreErrorText).join("; ");
+            proStoreNote(proStoreFailNote());
+          }
+        }, function (err) {
+          proStoreLastError = proStoreErrorText(err);
+          proStoreNote(proStoreFailNote());
+        });
+      }
       proStoreInitialized = true;
     } catch (e) { /* store unavailable — init stays unflagged, so a later
                      tap can try again instead of giving up forever */ }
@@ -2927,7 +2990,7 @@
           proStoreNote("The store couldn't open the purchase. Please try again.");
         }
       } else {
-        proStoreNote("The store isn't responding right now. Check your connection, then try again.");
+        proStoreNote(proStoreFailNote());
       }
     });
   }

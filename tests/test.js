@@ -767,7 +767,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 76"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 77"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1759,6 +1759,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     register(list) { this.registered = list; this.registerCalls++; },
     when() { return fakeChain; },
     initialize() { this.initialized = true; },
+    error(fn) { this.globalErrorFn = fn; },
+    get(id) { return (this._products || {})[id]; },
     order(id) { this.ordered = id; },
     restorePurchases() { this.restored = true; },
     ready(cb) { this.readyCb = cb; },
@@ -1781,6 +1783,11 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     fakeStore.registered[1].id === "rollonrv_premium_yearly" && fakeStore.registered[1].type === "PAID_SUBSCRIPTION" &&
     fakeStore.registered[2].id === "rollonrv_premium_lifetime" && fakeStore.registered[2].type === "NON_CONSUMABLE");
   check("init starts the store and arms the ownership re-check", fakeStore.initialized === true && typeof fakeStore.readyCb === "function");
+  // A store error names itself on the paywall instead of failing silently
+  // (Nov 19: build 32 never became ready, no error anywhere).
+  fakeStore.globalErrorFn({ code: "LOAD", message: "Failed to load in-app products metadata" });
+  check("a global store error names itself on the paywall", doc.querySelector(".pro-note").textContent.indexOf("Store problem: LOAD") !== -1);
+  check("the paywall names the products the store never returned", doc.querySelector(".pro-note").textContent.indexOf("Monthly: not found") !== -1);
   check("init has not made the store ready yet", R.proStoreState().initialized === true && R.proStoreState().ready === false);
   // v74: the store has not said ready, so subscribing must not order yet —
   // it says "Opening the store…" and waits for ready instead of hanging.
@@ -1864,7 +1871,9 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     registered: null, initialized: false,
     register(list) { this.registered = list; },
     when() { return fakeChain3; },
-    initialize() { this.initialized = true; },
+    initialize() { this.initialized = true; return Promise.resolve(this._initErrors || []); },
+    error(fn) { this.globalErrorFn = fn; },
+    get(id) { return (this._products || {})[id]; },
     order(id) { this.ordered = id; },
     restorePurchases() { this.restored = true; },
     ready(cb) { this.readyCb = cb; },
@@ -1880,8 +1889,14 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     ErrorCode: { PAYMENT_CANCELLED: "PAYMENT_CANCELLED" },
   };
   win3.Capacitor = { isNativePlatform: () => true, getPlatform: () => "ios" };
+  // The store fails its initialize here (Nov 19: build 32 never became
+  // ready, no error anywhere) — the paywall must say why, not just that
+  // the store isn't responding.
+  fakeStore3._initErrors = [{ code: "LOAD", message: "Failed to load in-app products metadata" }];
   R3.openProPaywall(); await sleep(20);
   check("a fresh native store is not ready yet", R3.proStoreState().initialized === true && R3.proStoreState().ready === false);
+  check("an initialize error names itself on the paywall", doc3.querySelector(".pro-note").textContent.indexOf("Store problem: LOAD") !== -1);
+  check("the paywall names the products the store never returned", doc3.querySelector(".pro-note").textContent.indexOf("Monthly: not found") !== -1);
   R3.proSubscribe("monthly", 300); await sleep(20);
   check("a store that never answers says Opening the store first", doc3.querySelector(".pro-note").textContent.indexOf("Opening the store") !== -1 && fakeStore3.ordered === null);
   await sleep(700);
