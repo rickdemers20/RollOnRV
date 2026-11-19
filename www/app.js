@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "78";
+  var APP_VERSION = "79";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -3459,6 +3459,46 @@
     );
   }
 
+  function printStorageList() {
+    var rig = activeRig(); if (!rig) return;
+    var st = storageFor(rig);
+    printSheet(
+      printHead("RollOnRV — Where's my stuff?", rigName(rig) + " · " + fmtDate(todayISO())) +
+      st.compartments.map(function (c) {
+        var items = st.items.filter(function (it) { return it.compartmentId === c.id; });
+        return '<div class="print-group">' + esc(c.name) + '</div>' +
+          (items.length ? items.map(function (it) {
+            return '<div class="print-item"><span class="print-box"></span><span><span class="print-label">' + esc(it.name) + '</span></span></div>';
+          }).join("") : '<p class="muted">Nothing in this bay yet.</p>');
+      }).join("") +
+      printFoot("Every bay, every thing — as named in Find it.")
+    );
+  }
+  /* The printed bay list as a page of its own: each bay a heading, every
+     thing under it with a tick box, empty bays shown too — the same list
+     the Print button makes, for reading on the phone or on paper. */
+  function storageListHTML(rig) {
+    var st = storageFor(rig);
+    function row(it) {
+      return '<div class="item"><span class="box"></span><span><b>' + esc(it.name) + '</b></span></div>';
+    }
+    return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<title>Where\'s my stuff? — ' + esc(rigName(rig)) + '</title><style>' +
+      'body{font-family:Georgia,serif;background:#fffdf4;color:#22304a;margin:0;padding:1.2rem;font-size:19px;line-height:1.45}' +
+      'h1{font-size:1.7rem;margin:.2rem 0 .1rem}h2{font-size:1.25rem;color:#b3372c;margin:1.4rem 0 .4rem}' +
+      '.meta{color:#55617a;font-size:.95rem}.item{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 0;border-bottom:1px solid #e2d8bd}' +
+      '.box{flex:none;width:1.5rem;height:1.5rem;border:2px solid #55617a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#b3372c}' +
+      '.sub{color:#55617a;font-size:.9rem}.foot{color:#55617a;font-size:.9rem;margin-top:1.4rem}' +
+      '</style></head><body>' +
+      '<h1>Where\'s my stuff?</h1><p class="meta">' + esc(rigName(rig)) + ' · ' + esc(fmtDate(todayISO())) + '</p>' +
+      st.compartments.map(function (c) {
+        var items = st.items.filter(function (it) { return it.compartmentId === c.id; });
+        return '<h2>' + esc(c.name) + '</h2>' + (items.length ? items.map(row).join("") : '<p class="sub">Nothing in this bay yet.</p>');
+      }).join("") +
+      '<p class="foot">Every bay, every thing — as named in Find it. · RollOnRV, your rig\'s logbook.</p>' +
+      '</body></html>';
+  }
+
   /* ---------------- task sheet (add / detail) ------------------------------- */
   function openTaskSheet(taskId) {
     var rig = activeRig();
@@ -4118,6 +4158,7 @@
     $("#storage-open-btn").addEventListener("click", function () { showScreen("storage"); });
     $("#storage-add-btn").addEventListener("click", function () { openStorageItemSheet(null, null); });
     $("#storage-bay-btn").addEventListener("click", function () { openStorageCompartmentSheet(null); });
+    $("#storage-print-btn").addEventListener("click", function () { printStorageList(); });
     $("#storage-search").addEventListener("input", function (e) { storageSearchQuery = e.target.value.trim().toLowerCase(); renderStorage(); });
     $("#storage-back-btn").addEventListener("click", function () { showScreen("more"); });
     $("#storage-back-btn-bottom").addEventListener("click", function () { showScreen("more"); });
@@ -4241,6 +4282,7 @@
     exportPartsCSV: exportPartsCSV, printPartsList: printPartsList, partsListHTML: partsListHTML, renderParts: renderParts, openPartSheet: openPartSheet,
     renderStorage: renderStorage, storageFor: storageFor, storageSearch: storageSearch,
     storageStarterCompartments: storageStarterCompartments, openStorageItemSheet: openStorageItemSheet, openStorageCompartmentSheet: openStorageCompartmentSheet,
+    printStorageList: printStorageList, storageListHTML: storageListHTML,
     taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask, skipTask: skipTask, openTaskSheet: openTaskSheet,
     planReminders: planReminders, reminderSettings: reminderSettings, scheduleReminders: scheduleReminders, openRemindersSheet: openRemindersSheet,
     dotInfo: dotInfo, costsForYear: costsForYear, costPerMile: costPerMile,

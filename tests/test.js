@@ -767,7 +767,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 78"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 79"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -2537,6 +2537,28 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   setVal("#sb-name", "Roof box");
   doc.querySelector("#sb-save").click(); await sleep(20);
   check("adding a bay joins the list", R.storageFor(rig78).compartments.some((c) => c.name === "Roof box"));
+
+  /* ---- 79. Find it: printable bay list (v79) ---- */
+  console.log("== 79. Find it print ==");
+  var rig79 = R.activeRig();
+  var st79 = R.storageFor(rig79);
+  var wet79 = st79.compartments.find((c) => c.name === "Wet bay");
+  var roof79 = st79.compartments.find((c) => c.name === "Roof box");
+  st79.items.push({ id: "t-hose", name: "Fresh water hose", compartmentId: wet79.id });
+  st79.items.push({ id: "t-blocks", name: "Leveling blocks", compartmentId: roof79.id });
+  R.save();
+  R.showScreen("storage");
+  check("Find it has a Print button", !!doc.querySelector("#storage-print-btn"));
+  R.printStorageList();
+  var ps79 = doc.querySelector("#print-sheet").innerHTML;
+  check("the print sheet lists every bay", st79.compartments.every((c) => ps79.includes(c.name)));
+  check("the print sheet puts each thing under its bay", ps79.indexOf("Wet bay") < ps79.indexOf("Fresh water hose") && ps79.indexOf("Roof box") < ps79.indexOf("Leveling blocks"));
+  check("the print sheet shows empty bays too", ps79.includes("Nothing in this bay yet"));
+  var html79 = R.storageListHTML(rig79);
+  check("the standalone bay list is a full page for the rig", html79.includes("<!DOCTYPE html>") && html79.includes("Where's my stuff?") && html79.includes("Wet bay"));
+  check("the standalone list puts each thing under its bay", html79.indexOf("Wet bay") < html79.indexOf("Fresh water hose") && html79.indexOf("Roof box") < html79.indexOf("Leveling blocks"));
+  roof79.name = "Roof box — blocks"; R.save();
+  check("the print list follows a renamed bay", R.storageListHTML(rig79).includes("Roof box — blocks"));
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);
