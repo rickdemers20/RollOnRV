@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "81";
+  var APP_VERSION = "82";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -2883,6 +2883,12 @@
      answered with no products". This flag is the difference: it is set
      the moment initialize()'s promise settles, either way. */
   var proStoreInitSettled = false;
+  /* The last staged store check (v82): one line naming which of the
+     three native store calls — setup, products, receipt — answered and
+     which stuck. A restart did not clear the v81 hang, so the stall is
+     deterministic; the stages say where. Null until a check has run. */
+  var proStoreDiag = null;
+  var proStoreDiagDone = false;
   /* The last store error, in plain words (Nov 19 — build 32 still showed
      "The store isn't responding" with the IAP capability in place: the
      store was failing silently, initialize() swallowing its own errors.
@@ -2924,6 +2930,7 @@
     if (!proStoreReadyFired) {
       bits.push(proStoreInitSettled ? "The store answered, but it never became ready." : "The store never answered — its setup did not finish.");
     }
+    if (proStoreDiag) bits.push(proStoreDiag);
     if (proStoreLastError) bits.push("Store problem: " + proStoreLastError + ".");
     var states = proStoreProductStates();
     if (states) bits.push(states + ".");
@@ -3090,6 +3097,66 @@
     } catch (e) { /* store unavailable — init stays unflagged, so a later
                      tap can try again instead of giving up forever */ }
   }
+  /* Race one native store call against a timeout. Resolves {ok:true}
+     when the call settles, {ok:false, timedOut:true} when the timeout
+     wins, {ok:false} when it rejects or throws. A timed-out call may
+     still finish later in the background — this only reports what had
+     answered by the deadline. */
+  function proStoreStage(fn, ms) {
+    return new Promise(function (resolve) {
+      var done = false;
+      var timer = setTimeout(function () {
+        if (!done) { done = true; resolve({ ok: false, timedOut: true }); }
+      }, ms);
+      var p;
+      try { p = fn(); } catch (e) {
+        if (!done) { done = true; clearTimeout(timer); resolve({ ok: false }); }
+        return;
+      }
+      Promise.resolve(p).then(function () {
+        if (!done) { done = true; clearTimeout(timer); resolve({ ok: true }); }
+      }, function () {
+        if (!done) { done = true; clearTimeout(timer); resolve({ ok: false }); }
+      });
+    });
+  }
+  /* Ask the native store plugin, stage by stage, which of its three
+     native store calls answers: setup (init — current purchases),
+     products (load — the product list), receipt (loadReceipts — the
+     app receipt). Each gets its own timeout; the stages run together,
+     so the whole check costs one timeout, not three. Runs once per app
+     launch — the answer does not change while the app is open. A
+     second call returns the same in-flight or finished check. */
+  var proStoreDiagPromise = null;
+  function proStoreDiagnose(timeoutMs) {
+    if (proStoreDiagDone) return Promise.resolve(proStoreDiag);
+    if (proStoreDiagPromise) return proStoreDiagPromise;
+    var ms = timeoutMs || 10000;
+    var P = null;
+    try {
+      P = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.PurchasePlugin;
+    } catch (e) { P = null; }
+    if (!P || typeof P.init !== "function" || typeof P.load !== "function" || typeof P.loadReceipts !== "function") {
+      proStoreDiag = "Store check: the store plugin isn't in the app.";
+      proStoreDiagDone = true;
+      return Promise.resolve(proStoreDiag);
+    }
+    var ids = [PRO_PRODUCT_IDS.monthly, PRO_PRODUCT_IDS.yearly, PRO_PRODUCT_IDS.lifetime];
+    proStoreDiagPromise = Promise.all([
+      proStoreStage(function () { return P.init({}); }, ms),
+      proStoreStage(function () { return P.load({ productIds: ids }); }, ms),
+      proStoreStage(function () { return P.loadReceipts(); }, ms)
+    ]).then(function (results) {
+      var names = ["setup", "products", "receipt"];
+      var parts = results.map(function (r, i) {
+        return names[i] + " " + (r.ok ? "OK" : (r.timedOut ? "stuck" : "failed"));
+      });
+      proStoreDiag = "Store check: " + parts.join(", ") + ".";
+      proStoreDiagDone = true;
+      return proStoreDiag;
+    });
+    return proStoreDiagPromise;
+  }
   /* Wait for the store's ready() callback, up to timeoutMs. Resolves true
      the moment ready has fired, false if it never does — the caller then
      says so plainly instead of leaving "Opening the store…" on screen. */
@@ -3142,6 +3209,11 @@
     // "Opening the store…" with no way out. (timeoutMs is a test hook —
     // the app always calls with the default.)
     proStoreNote("Opening the store…");
+    // The staged check runs alongside the wait: whichever native call
+    // is stuck, the fail note names it when the wait gives up. The
+    // note is built only after the check finishes, so its line is
+    // always in the message the user actually sees.
+    proStoreDiagnose(timeoutMs || 10000);
     proStoreWaitReady(timeoutMs || 15000).then(function (ok) {
       if (ok) {
         try {
@@ -3150,7 +3222,7 @@
           proStoreNote("The store couldn't open the purchase. Please try again.");
         }
       } else {
-        proStoreNote(proStoreFailNote());
+        proStoreDiagnose().then(function () { proStoreNote(proStoreFailNote()); });
       }
     });
   }
@@ -4329,7 +4401,7 @@
     getPremium: getPremium, isPro: isPro, grantPremium: grantPremium,
     proStoreAvailable: proStoreAvailable, proStoreInit: proStoreInit,
     proStoreWaitReady: proStoreWaitReady,
-    proStoreState: function () { return { initialized: proStoreInitialized, ready: proStoreReadyFired, initSettled: proStoreInitSettled }; },
+    proStoreState: function () { return { initialized: proStoreInitialized, ready: proStoreReadyFired, initSettled: proStoreInitSettled, diag: proStoreDiag }; },
     proSubscribe: proSubscribe, proRestorePurchases: proRestorePurchases,
     proPaywallHTML: proPaywallHTML, openProPaywall: openProPaywall,
     proRecheckOwnership: proRecheckOwnership, proProductIdFromReceipt: proProductIdFromReceipt,

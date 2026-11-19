@@ -767,7 +767,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 81"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 82"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -2631,6 +2631,42 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("a store that answered but never became ready says so", domB.doc.querySelector(".pro-note").textContent.indexOf("answered, but it never became ready") !== -1);
   check("the answered store still names the missing products", domB.doc.querySelector(".pro-note").textContent.indexOf("Monthly: not found") !== -1);
   check("the answered store leaves init settled", domB.R.proStoreState().initSettled === true);
+
+  /* ---- 82. the store check names the stuck stage (v82) ---- */
+  console.log("== 82. staged store diagnosis ==");
+  // Nov 19: a phone restart did not clear the v81 hang, so the stall
+  // is deterministic. The check asks the native plugin, stage by
+  // stage, which StoreKit call answers — setup, products, receipt.
+  function makeRawPlugin(behavior) {
+    return {
+      init() { return behavior.init === "hang" ? new Promise(function () {}) : Promise.resolve({}); },
+      load() { return behavior.load === "hang" ? new Promise(function () {}) : Promise.resolve({ validProducts: [], invalidProductIds: [] }); },
+      loadReceipts() { return behavior.receipts === "hang" ? new Promise(function () {}) : Promise.resolve({ receipt: {} }); },
+    };
+  }
+  // A: every stage answers — the check says so, even though the store
+  // itself never becomes ready (its initialize still hangs).
+  const domC = makeStoreDom(function () { return new Promise(function () {}); });
+  domC.win.Capacitor.Plugins = { PurchasePlugin: makeRawPlugin({}) };
+  await sleep(50);
+  domC.R.openProPaywall(); await sleep(20);
+  domC.R.proSubscribe("monthly", 300); await sleep(900);
+  check("when every stage answers, the check says setup, products and receipt OK", domC.doc.querySelector(".pro-note").textContent.indexOf("Store check: setup OK, products OK, receipt OK.") !== -1);
+  check("the all-OK check is kept on the store state", domC.R.proStoreState().diag === "Store check: setup OK, products OK, receipt OK.");
+  // B: the products stage never answers — the check names it, and the
+  // other two stages still report OK.
+  const domD = makeStoreDom(function () { return new Promise(function () {}); });
+  domD.win.Capacitor.Plugins = { PurchasePlugin: makeRawPlugin({ load: "hang" }) };
+  await sleep(50);
+  domD.R.openProPaywall(); await sleep(20);
+  domD.R.proSubscribe("monthly", 300); await sleep(900);
+  check("a stuck products stage is named, with setup and receipt OK", domD.doc.querySelector(".pro-note").textContent.indexOf("Store check: setup OK, products stuck, receipt OK.") !== -1);
+  // C: no native plugin at all — the check says the plugin isn't there.
+  const domE = makeStoreDom(function () { return new Promise(function () {}); });
+  await sleep(50);
+  domE.R.openProPaywall(); await sleep(20);
+  domE.R.proSubscribe("monthly", 300); await sleep(900);
+  check("with no native plugin, the check says the plugin isn't in the app", domE.doc.querySelector(".pro-note").textContent.indexOf("Store check: the store plugin isn't in the app.") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);
