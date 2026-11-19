@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "100";
+  var APP_VERSION = "101";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -3987,6 +3987,19 @@
     document.body.appendChild(a); a.click();
     setTimeout(function () { a.remove(); }, 500);
   }
+  /* Same pill, same hidden address, for ideas instead of bugs — Rick's
+     follow-up, same minute as the bug pill. */
+  function ideaMailto() {
+    var subject = "RollOnRV idea — build " + APP_VERSION;
+    var body = "What's your idea?\n\nWhat would it help with?\n\nBuild: " + APP_VERSION + "\n";
+    return "mailto:rick@rickdemers.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  }
+  function openIdea() {
+    var a = document.createElement("a");
+    a.href = ideaMailto();
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { a.remove(); }, 500);
+  }
 
   /* ---------------- log-a-job sheet ----------------------------------------- */
   function openLogSheet(logId, presetTaskId) {
@@ -5060,6 +5073,7 @@
     $("#reminders-open-btn").addEventListener("click", openRemindersSheet);
     $("#premium-open-btn").addEventListener("click", openProPaywall);
     $("#bug-report-btn").addEventListener("click", openBugReport);
+    $("#idea-btn").addEventListener("click", openIdea);
     $("#pros-add-btn").addEventListener("click", function () { openProSheet(null); });
     $("#pros-back-btn").addEventListener("click", function () { showScreen("home"); });
     $("#pros-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
@@ -5198,6 +5212,7 @@
     proSubscribe: proSubscribe, proRestorePurchases: proRestorePurchases,
     proPaywallHTML: proPaywallHTML, openProPaywall: openProPaywall,
     bugReportMailto: bugReportMailto, openBugReport: openBugReport,
+    ideaMailto: ideaMailto, openIdea: openIdea,
     proRecheckOwnership: proRecheckOwnership, proProductIdFromReceipt: proProductIdFromReceipt,
     plansForRig: plansForRig, planJobsFor: planJobsFor, buildPlan: buildPlan, planFirstDue: planFirstDue,
     openPlanChoiceSheet: openPlanChoiceSheet, openPlanOptionsSheet: openPlanOptionsSheet,
