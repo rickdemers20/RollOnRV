@@ -783,7 +783,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 88"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 89"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -2835,6 +2835,18 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   dom.window.print = function () {};
   R.printOwnershipReport(); await sleep(20);
   check("printing the report fills the print sheet", doc.querySelector("#print-sheet").textContent.indexOf("Ownership report") !== -1 && doc.querySelector("#print-sheet").textContent.indexOf("Engine oil & filter") !== -1);
+
+  /* ---- 88. View & share opens the report (v89 fix) ---- */
+  console.log("== 88. View & share opens the report ==");
+  // Nov 19: View & share opened the standalone report with a blob URL
+  // (downloadFile) — and in the installed app nothing opened at all.
+  // It now goes through the print page, the proven https-hash path.
+  var printHtml88 = R.ownershipReportPrintHTML(R.activeRig());
+  check("the print version carries the same book", printHtml88.indexOf("Ownership report") !== -1 && printHtml88.indexOf("Engine oil &amp; filter") !== -1 && printHtml88.indexOf("Front Left") !== -1 && printHtml88.indexOf("Old insurance") !== -1 && printHtml88.indexOf("Check roof seals") !== -1);
+  click(doc.querySelector("#report-view-btn")); await sleep(20);
+  var viewLink88 = doc.querySelector('a[href^="https://rickdemers.com/rollonrv-preview/print.html#"]');
+  check("View & share opens the report on the print page, not a blob link", !!viewLink88 && viewLink88.getAttribute("href").indexOf("blob:") === -1);
+  check("the opened page carries the report", !!viewLink88 && decodeURIComponent(viewLink88.getAttribute("href").split("#")[1]).indexOf("Ownership report") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

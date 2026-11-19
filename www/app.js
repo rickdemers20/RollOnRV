@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "88";
+  var APP_VERSION = "89";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -2574,8 +2574,7 @@
       '<p class="foot">Prepared from the RollOnRV logbook on ' + esc(fmtDate(todayISO())) + '. · RollOnRV, your rig\'s logbook.</p>' +
       '</body></html>';
   }
-  function printOwnershipReport() {
-    var rig = activeRig(); if (!rig) return;
+  function ownershipReportPrintHTML(rig) {
     var d = ownershipReportData(rig);
     function logRow(l) {
       var bits = [fmtDate(l.date)];
@@ -2599,8 +2598,7 @@
       return '<div class="print-item"><span><span class="print-label">' + esc(x.task.title) + '</span>' +
         '<span class="print-sub">' + esc(x.task.category) + ' · ' + esc(x.status.text) + '</span></span></div>';
     }
-    printSheet(
-      printHead("RollOnRV — Ownership report", rigName(rig) + " · " + fmtDate(todayISO())) +
+    return printHead("RollOnRV — Ownership report", rigName(rig) + " · " + fmtDate(todayISO())) +
       '<div class="print-group">The rig</div><p>' + esc(rigName(rig)) + ' · ' + esc(rig.type || "") + ' · ' + num(rig.mileage) + ' mi · ' + num(rig.genHours) + ' gen hrs</p>' +
       '<div class="print-group">Maintenance history</div>' +
       (d.logs.length ? d.logs.map(logRow).join("") : '<p class="muted">Nothing logged yet.</p>') +
@@ -2611,8 +2609,11 @@
       (d.docs.length ? d.docs.map(docRow).join("") : '<p class="muted">Nothing in the Vault yet.</p>') +
       '<div class="print-group">Coming due</div>' +
       (d.due.length ? d.due.map(dueRow).join("") : '<p class="muted">Nothing on the books.</p>') +
-      '<p class="muted">Prepared from the RollOnRV logbook on ' + esc(fmtDate(todayISO())) + '.</p>'
-    );
+      '<p class="muted">Prepared from the RollOnRV logbook on ' + esc(fmtDate(todayISO())) + '.</p>';
+  }
+  function printOwnershipReport() {
+    var rig = activeRig(); if (!rig) return;
+    printSheet(ownershipReportPrintHTML(rig));
   }
 
   /* ---------------- Fuel ---------------------------------------------------- */
@@ -4529,7 +4530,14 @@
     $("#report-view-btn").addEventListener("click", function () {
       if (!isPro()) { openProPaywall(); return; }
       var rig = activeRig(); if (!rig) return;
-      downloadFile("rollonrv-ownership-report.html", ownershipReportHTML(rig), "text/html;charset=utf-8");
+      /* Nov 19 (v89): this used to open the standalone report HTML with
+         downloadFile (a blob URL) — and in the installed app nothing
+         opened at all. Same lesson as the print sheet in v49/v50: a
+         blob link will not leave the app for Safari. The report goes
+         through the print page instead, the proven https-hash path —
+         the page shows the report, and Share → Save to Files as a PDF
+         is the hand-it-to-the-buyer step. */
+      openPrintPage(ownershipReportPrintHTML(rig));
       toast("Opened in a new tab — share it, or save it as a PDF.");
     });
     $("#report-print-btn").addEventListener("click", function () {
@@ -4667,7 +4675,7 @@
     storageStarterCompartments: storageStarterCompartments, openStorageItemSheet: openStorageItemSheet, openStorageCompartmentSheet: openStorageCompartmentSheet,
     printStorageList: printStorageList, storageListHTML: storageListHTML,
     vaultFor: vaultFor, renderVault: renderVault, openVaultDocSheet: openVaultDocSheet, vaultDocStatus: vaultDocStatus, vaultDaysUntil: vaultDaysUntil,
-    ownershipReportHTML: ownershipReportHTML, printOwnershipReport: printOwnershipReport, ownershipReportData: ownershipReportData,
+    ownershipReportHTML: ownershipReportHTML, printOwnershipReport: printOwnershipReport, ownershipReportData: ownershipReportData, ownershipReportPrintHTML: ownershipReportPrintHTML,
     taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask, skipTask: skipTask, openTaskSheet: openTaskSheet,
     planReminders: planReminders, reminderSettings: reminderSettings, scheduleReminders: scheduleReminders, openRemindersSheet: openRemindersSheet,
     dotInfo: dotInfo, costsForYear: costsForYear, costPerMile: costPerMile,
