@@ -75,10 +75,19 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   setVal("#su-type", "Class C"); setVal("#su-nick", "Test Rig");
   setVal("#su-miles", "30000"); setVal("#su-gen", "120");
   setVal("#su-psi-f", "80"); setVal("#su-psi-r", "75");
+  // Engine fuel lives on the rig form now, not in the question poll (Nov 19).
+  check("the rig form asks the engine fuel", !!doc.querySelector("#su-fuel") && Array.from(doc.querySelector("#su-fuel").options).map((o) => o.textContent).join("|") === "Not sure|Gas|Diesel");
+  setVal("#su-type", "Travel trailer");
+  doc.querySelector("#su-type").dispatchEvent(new window.Event("change", { bubbles: true })); await sleep(20);
+  check("a trailer hides the engine fuel field", doc.querySelector("#su-fuel-field").style.display === "none");
+  setVal("#su-type", "Class C");
+  doc.querySelector("#su-type").dispatchEvent(new window.Event("change", { bubbles: true })); await sleep(20);
+  check("a motorhome shows the engine fuel field", doc.querySelector("#su-fuel-field").style.display !== "none");
   doc.querySelector("#setup-form").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true }));
   await sleep(20);
   const rig = R.activeRig();
   check("rig created and active", rig && rig.make === "Test Make" && rig.mileage === 30000);
+  check("leaving the fuel Not sure stores no answer", rig.equipment.fuel === undefined);
   check("home screen shown after setup", doc.querySelector("#screen-home").classList.contains("active"));
   check("home shows rig numbers", doc.querySelector("#home-rig-line").textContent.includes("30,000 mi"));
 
@@ -413,6 +422,20 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("first tap on remove only arms it", doc.querySelector("#rg-photo-remove").textContent === "Tap again to remove" && !!R.activeRig().photo);
   click(doc.querySelector("#rg-photo-remove")); await sleep(20);
   check("second tap removes the photo, silhouette returns", !R.activeRig().photo && doc.querySelector("#home-rig-art").innerHTML.includes("<svg"));
+  // Engine fuel lives on the rig sheet now, not in the question poll (Nov 19).
+  R.activeRig().equipment = { fuel: "diesel" }; R.save();
+  click(doc.querySelector("#rig-edit-btn")); await sleep(20);
+  check("the rig sheet pre-fills the engine fuel", doc.querySelector("#rg-fuel").value === "diesel");
+  setVal("#rg-fuel", "gas");
+  click(doc.querySelector("#rg-save")); await sleep(20);
+  check("saving the rig sheet stores the engine fuel", R.activeRig().equipment.fuel === "gas");
+  click(doc.querySelector("#rig-edit-btn")); await sleep(20);
+  setVal("#rg-type", "Travel trailer");
+  doc.querySelector("#rg-type").dispatchEvent(new window.Event("change", { bubbles: true })); await sleep(20);
+  check("a trailer hides the engine fuel field on the rig sheet", doc.querySelector("#rg-fuel-field").style.display === "none");
+  click(doc.querySelector("#rg-save")); await sleep(20);
+  check("switching to a trailer clears the engine fuel", !R.activeRig().equipment.fuel);
+  R.activeRig().type = "Class C"; R.activeRig().equipment = {}; R.save();
 
   /* ---- 14. night mode toggle ---- */
   console.log("== 14. night mode ==");
@@ -744,7 +767,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 75"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 76"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -833,8 +856,15 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   click(doc.querySelector("#at-starters")); await sleep(20);
   check("the picker offers to fit the jobs to the rig", !!doc.querySelector("#st-fit"));
   click(doc.querySelector("#st-fit")); await sleep(20);
-  check("the questions sheet asks twenty questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 67);
-  check("every question offers Not sure", doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 20);
+  check("the questions sheet asks nineteen questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 64);
+  check("every question offers Not sure", doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 19);
+  check("the poll no longer asks the engine fuel", !doc.querySelector('[data-eq="fuel"]'));
+  // Tap a chosen answer again to un-choose it (Nov 19: Rick — "when you
+  // make a choice you're stuck with it").
+  click(doc.querySelector('[data-eq="roof"][data-val="tpo"]')); await sleep(20);
+  check("tapping a chosen answer selects it", !doc.querySelector('[data-eq="roof"][data-val="tpo"]').classList.contains("ghost"));
+  click(doc.querySelector('[data-eq="roof"][data-val="tpo"]')); await sleep(20);
+  check("tapping it again un-chooses it", doc.querySelector('[data-eq="roof"][data-val="tpo"]').classList.contains("ghost"));
   click(doc.querySelector('[data-eq="roof"][data-val="tpo"]')); await sleep(20);
   click(doc.querySelector('[data-eq="waterHeater"][data-val="tankless"]')); await sleep(20);
   click(doc.querySelector('[data-eq="fridge"][data-val="residential"]')); await sleep(20);
@@ -936,18 +966,18 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   var res = R.importTasksCSV(mini, R.activeRig().id);
   var back = R.store().tasks.find((t) => t.title === "Slide seals — replace");
   check("importing the export restores the pro flag and shop", res.imported === 1 && back && back.needsPro === true && back.proShop === "Bob's RV Service");
-  // fuel: diesel shows the diesel job, gas shows the plugs
+  // fuel: diesel shows the diesel job, gas shows the plugs (the answer
+  // now lives on the rig form, not in the question poll — Nov 19).
+  R.activeRig().equipment.fuel = "diesel"; R.save();
   R.showScreen("logbook"); await sleep(20);
   click(doc.querySelector("#log-add-task-btn")); await sleep(20);
   click(doc.querySelector("#at-starters")); await sleep(20);
-  click(doc.querySelector("#st-fit")); await sleep(20);
-  click(doc.querySelector('[data-eq="fuel"][data-val="diesel"]')); await sleep(20);
-  click(doc.querySelector("#eq-save")); await sleep(20);
   check("diesel shows the fuel filter job", doc.querySelector("#sheet-host").textContent.includes("Diesel fuel filter — change"));
   check("diesel hides the spark plugs", !doc.querySelector("#sheet-host").textContent.includes("Spark plugs — change"));
-  click(doc.querySelector("#st-fit")); await sleep(20);
-  click(doc.querySelector('[data-eq="fuel"][data-val="gas"]')); await sleep(20);
-  click(doc.querySelector("#eq-save")); await sleep(20);
+  click(doc.querySelector("[data-close]")); await sleep(20);
+  R.activeRig().equipment.fuel = "gas"; R.save();
+  click(doc.querySelector("#log-add-task-btn")); await sleep(20);
+  click(doc.querySelector("#at-starters")); await sleep(20);
   check("gas shows the spark plugs", doc.querySelector("#sheet-host").textContent.includes("Spark plugs — change"));
   check("gas hides the diesel filter", !doc.querySelector("#sheet-host").textContent.includes("Diesel fuel filter — change"));
   // the Liquid Springs job comes pre-ticked as a pro job
@@ -1158,8 +1188,10 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc2.querySelector("#su-year").value = "2021";
   doc2.querySelector("#su-make").value = "Test Make";
   doc2.querySelector("#su-model").value = "Test Model 123";
+  doc2.querySelector("#su-fuel").value = "diesel";
   doc2.querySelector("#setup-form").dispatchEvent(new win2.Event("submit", { bubbles: true, cancelable: true }));
   await sleep(50);
+  check("the setup form saves the engine fuel on the rig", R2.activeRig().equipment.fuel === "diesel");
   R2.showScreen("home"); await sleep(20);
   const input2 = doc2.querySelector("#photo-input");
   let inputClicked = false;
@@ -1261,7 +1293,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the rig questions sheet is open", !!doc.querySelector(".sheet-head") && doc.querySelector(".sheet-head h2").textContent.includes("What does your rig have"));
   var qSheet = doc.querySelector(".sheet");
   qSheet.scrollTop = 150;
-  click(doc.querySelector('[data-eq="fuel"][data-val="gas"]')); await sleep(20);
+  click(doc.querySelector('[data-eq="roof"][data-val="tpo"]')); await sleep(20);
   check("the sheet stays where you were after a choice", doc.querySelector(".sheet").scrollTop === 150);
   click(doc.querySelector('[data-close]')); await sleep(20);
 
@@ -2022,7 +2054,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const labels = Array.from(doc.querySelectorAll("#sheet-host .field label")).map((l) => l.textContent.trim());
   check("Built-in asks the fuel question, right after Generator", fuelBtns.length === 4 && labels.indexOf("Generator fuel?") === labels.indexOf("Generator?") + 1);
   check("the fuel question offers Gas, Diesel, Propane, Not sure", ["Gas", "Diesel", "Propane", "Not sure"].every((t) => fuelBtns.some((b) => b.textContent.trim() === t)));
-  check("Built-in asks twenty-one questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 71 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 21);
+  check("Built-in asks twenty questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 68 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 20);
   click(doc.querySelector('[data-eq="genfuel"][data-val="propane"]')); await sleep(20);
   click(doc.querySelector('[data-eq="generator"][data-val="portable"]')); await sleep(20);
   check("Portable keeps the fuel question", !!doc.querySelector('[data-eq="genfuel"]'));
@@ -2114,7 +2146,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const stLabels = Array.from(doc.querySelectorAll("#sheet-host .field label")).map((l) => l.textContent.trim());
   check("Yes asks the mechanism question, right after Slides", stBtns.length === 6 && stLabels.indexOf("Slide mechanism?") === stLabels.indexOf("Slides?") + 1);
   check("the mechanism question offers all five types plus Not sure", ["Schwintek (in-wall)", "Rack and pinion", "Cable", "Hydraulic", "More than one type", "Not sure"].every((t) => stBtns.some((b) => b.textContent.trim() === t)));
-  check("slides yes asks twenty-one questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 73 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 21);
+  check("slides yes asks twenty questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 70 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 20);
   click(doc.querySelector('[data-eq="slidetype"][data-val="mixed"]')); await sleep(20);
   click(doc.querySelector("#eq-save")); await sleep(20);
   check("more than one type is saved on the rig", R.activeRig().equipment.slidetype === "mixed");
@@ -2165,10 +2197,10 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const teLabels = Array.from(doc.querySelectorAll("#sheet-host .field label")).map((l) => l.textContent.trim());
   check("Liquid Springs asks the Tru-Earth question, right after Suspension", teBtns.length === 3 && teLabels.indexOf("Tru-Earth Leveling?") === teLabels.indexOf("Suspension?") + 1);
   check("the Tru-Earth question offers Yes, No, and Not sure", ["Yes", "No", "Not sure"].every((t) => teBtns.some((b) => b.textContent.trim() === t)));
-  check("Liquid Springs asks twenty-one questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 70 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 21);
+  check("Liquid Springs asks twenty questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 67 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 20);
   click(doc.querySelector('[data-eq="generator"][data-val="builtin"]')); await sleep(20);
   click(doc.querySelector('[data-eq="slides"][data-val="yes"]')); await sleep(20);
-  check("all three conditional questions together ask twenty-three", doc.querySelectorAll("#sheet-host [data-eq]").length === 80 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 23);
+  check("all three conditional questions together ask twenty-two", doc.querySelectorAll("#sheet-host [data-eq]").length === 77 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 22);
   click(doc.querySelector('[data-eq="truearth"][data-val="yes"]')); await sleep(20);
   click(doc.querySelector("#eq-save")); await sleep(20);
   check("Yes is saved on the rig", R.activeRig().equipment.truearth === "yes");
@@ -2222,7 +2254,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const awLabels = Array.from(doc.querySelectorAll("#sheet-host .field label")).map((l) => l.textContent.trim());
   check("every rig is asked the awning question, last after Slide toppers", awBtns.length === 4 && awLabels.indexOf("Awning?") === awLabels.indexOf("Slide toppers?") + 1 && awLabels.indexOf("Awning?") === awLabels.length - 1);
   check("the awning question offers Power, Manual, None, and Not sure", ["Power", "Manual", "None", "Not sure"].every((t) => awBtns.some((b) => b.textContent.trim() === t)));
-  check("no answers asks twenty questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 67 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 20);
+  check("no answers asks nineteen questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 64 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 19);
   click(doc.querySelector('[data-eq="awning"][data-val="power"]')); await sleep(20);
   click(doc.querySelector("#eq-save")); await sleep(20);
   check("power is saved on the rig", R.activeRig().equipment.awning === "power");
@@ -2301,7 +2333,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const cvLabels = Array.from(doc.querySelectorAll("#sheet-host .field label")).map((l) => l.textContent.trim());
   check("every rig is asked the converter question, before Inverter", cvBtns.length === 4 && cvLabels.indexOf("Converter?") === cvLabels.indexOf("Inverter?") - 1 && cvLabels.indexOf("Converter?") === cvLabels.indexOf("House batteries?") + 1);
   check("the converter question offers Smart, Single-stage, Inverter-charger only, and Not sure", ["Smart multi-stage", "Single-stage", "Inverter-charger only", "Not sure"].every((t) => cvBtns.some((b) => b.textContent.trim() === t)));
-  check("no answers asks twenty questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 67 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 20);
+  check("no answers asks nineteen questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 64 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 19);
   click(doc.querySelector('[data-eq="converter"][data-val="smart"]')); await sleep(20);
   click(doc.querySelector("#eq-save")); await sleep(20);
   check("smart is saved on the rig", R.activeRig().equipment.converter === "smart");
@@ -2351,7 +2383,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   const ivLabels = Array.from(doc.querySelectorAll("#sheet-host .field label")).map((l) => l.textContent.trim());
   check("every rig is asked the inverter question, after Converter", ivBtns.length === 4 && ivLabels.indexOf("Inverter?") === ivLabels.indexOf("Converter?") + 1);
   check("the inverter question offers Inverter/charger, Inverter only, None, and Not sure", ["Inverter/charger", "Inverter only", "None", "Not sure"].every((t) => ivBtns.some((b) => b.textContent.trim() === t)));
-  check("no answers asks twenty questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 67 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 20);
+  check("no answers asks nineteen questions", doc.querySelectorAll("#sheet-host [data-eq]").length === 64 && doc.querySelectorAll('#sheet-host [data-val="unsure"]').length === 19);
   click(doc.querySelector('[data-eq="inverter"][data-val="invertercharger"]')); await sleep(20);
   click(doc.querySelector("#eq-save")); await sleep(20);
   check("inverter/charger is saved on the rig", R.activeRig().equipment.inverter === "invertercharger");

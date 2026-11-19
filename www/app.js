@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "75";
+  var APP_VERSION = "76";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -1425,7 +1425,6 @@
     { key: "slidetype", label: "Slide mechanism?", options: [["schwintek", "Schwintek (in-wall)"], ["rackpinion", "Rack and pinion"], ["cable", "Cable"], ["hydraulic", "Hydraulic"], ["mixed", "More than one type"]], showWhen: function (eq) { return eq.slides === "yes"; } },
     { key: "suspension", label: "Suspension?", options: [["liquidspring", "Liquid Springs"], ["standard", "Standard"]] },
     { key: "truearth", label: "Tru-Earth Leveling?", options: [["yes", "Yes"], ["no", "No"]], showWhen: function (eq) { return eq.suspension === "liquidspring"; } },
-    { key: "fuel", label: "Gas or diesel?", options: [["gas", "Gas"], ["diesel", "Diesel"]], motorized: true },
     { key: "washerdryer", label: "Washer/dryer?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "icemaker", label: "Fridge ice maker?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "dishwasher", label: "Dishwasher?", options: [["yes", "Yes"], ["no", "No"]] },
@@ -1434,11 +1433,11 @@
     { key: "slidetoppers", label: "Slide toppers?", options: [["yes", "Yes"], ["no", "No"]] },
     { key: "awning", label: "Awning?", options: [["power", "Power"], ["manual", "Manual"], ["none", "None"]] }
   ];
-  /* Questions to show for this rig: motorized ones only on a motorhome,
-     and the generator-fuel question only when the rig has a generator. */
+  /* Questions to show for this rig: the generator-fuel question only
+     when the rig has a generator. Engine fuel (gas or diesel) lives on
+     the rig form now, not in the poll (Nov 19: Rick). */
   function visibleQuestions(rig, eq) {
     return EQUIPMENT_QUESTIONS.filter(function (q) {
-      if (q.motorized && !/class [abc]/i.test(rig.type || "")) return false;
       if (q.showWhen && !q.showWhen(eq || {})) return false;
       return true;
     });
@@ -1479,7 +1478,7 @@
       // Gas or diesel only makes sense on a motorhome — a trailer has no engine.
       var qs = visibleQuestions(rig, draft);
       openSheet(
-        sheetHead("What does your rig have?", qs.length + " quick questions — the usual jobs will only show the ones that fit your rig. Not sure is always a fine answer.") +
+        sheetHead("What does your rig have?", qs.length + " quick questions — the usual jobs will only show the ones that fit your rig. Not sure is always a fine answer. Tap a chosen answer again to un-choose it.") +
         qs.map(function (q) {
           var opts = q.options.concat([["unsure", "Not sure"]]);
           return '<div class="field"><label>' + esc(q.label) + '</label><div class="btnrow">' +
@@ -1495,7 +1494,12 @@
       $all("[data-eq]").forEach(function (b) {
         b.addEventListener("click", function () {
           var k = b.getAttribute("data-eq");
-          draft[k] = b.getAttribute("data-val");
+          var v = b.getAttribute("data-val");
+          // Tap the chosen answer again to un-choose it (Nov 19: Rick —
+          // "when you make a choice you're stuck with it"). Back to
+          // unanswered, which never hides a job, same as Not sure.
+          if (draft[k] === v) delete draft[k];
+          else draft[k] = v;
           // No generator, no fuel to ask about — drop a stale fuel
           // answer so it can't gate jobs later. Same for the slide
           // mechanism when the rig has no slides, and for Tru-Earth
@@ -3806,6 +3810,7 @@
   /* ---------------- rig sheets ---------------------------------------------- */
   function openRigSheet() {
     var rig = activeRig();
+    var fuel = (rig.equipment && rig.equipment.fuel) || "";
     openSheet(
       sheetHead("Your rig", "The numbers the book does its math from.") +
       '<div class="field"><label>Your rig\u2019s photo</label><div id="rg-photo-preview">' + rigArt(rig) + '</div>' +
@@ -3816,6 +3821,10 @@
       '<div class="fieldrow"><div class="field"><label for="rg-model">Model</label><input id="rg-model" value="' + esc(rig.model) + '" /></div>' +
       '<div class="field"><label for="rg-type">Type</label><select id="rg-type">' + ["Class A", "Class B", "Class C", "Travel trailer", "Fifth wheel", "Truck camper", "Other"].map(function (t) { return '<option' + (rig.type === t ? " selected" : "") + '>' + t + '</option>'; }).join("") + '</select></div></div>' +
       '<div class="rig-art rig-art--sm" id="rg-type-art" aria-hidden="true"></div>' +
+      '<div class="field" id="rg-fuel-field"><label for="rg-fuel">Engine — gas or diesel?</label><select id="rg-fuel">' +
+      '<option value="">Not sure</option>' +
+      '<option value="gas"' + (fuel === "gas" ? " selected" : "") + '>Gas</option>' +
+      '<option value="diesel"' + (fuel === "diesel" ? " selected" : "") + '>Diesel</option></select></div>' +
       '<div class="field"><label for="rg-nick">Nickname</label><input id="rg-nick" value="' + esc(rig.nickname || "") + '" /></div>' +
       '<div class="fieldrow"><div class="field"><label for="rg-miles">Odometer (miles)</label><input id="rg-miles" inputmode="decimal" value="' + rig.mileage + '" /></div>' +
       '<div class="field"><label for="rg-gen">Generator hours</label><input id="rg-gen" inputmode="decimal" value="' + rig.genHours + '" /></div></div>' +
@@ -3824,7 +3833,7 @@
       '<div class="btnrow"><button class="btn block" id="rg-save" type="button">Save rig</button></div>'
     );
     wireClose(sheetHost);
-    function updateRgArt() { $("#rg-type-art").innerHTML = rigSilhouette($("#rg-type").value); }
+    function updateRgArt() { $("#rg-type-art").innerHTML = rigSilhouette($("#rg-type").value); $("#rg-fuel-field").style.display = /class [abc]/i.test($("#rg-type").value) ? "" : "none"; }
     $("#rg-type").addEventListener("change", updateRgArt);
     updateRgArt();
     $("#rg-photo-change").addEventListener("click", function () { pickRigPhoto(); closeSheet(); });
@@ -3837,6 +3846,12 @@
       rig.year = $("#rg-year").value.trim(); rig.make = $("#rg-make").value.trim();
       rig.model = $("#rg-model").value.trim(); rig.type = $("#rg-type").value;
       rig.nickname = $("#rg-nick").value.trim();
+      // Engine fuel lives on the rig, not in the question poll — and a
+      // trailer has no engine, so a type change clears a stale answer.
+      rig.equipment = rig.equipment || {};
+      var f = $("#rg-fuel").value;
+      if (f && /class [abc]/i.test(rig.type)) rig.equipment.fuel = f;
+      else delete rig.equipment.fuel;
       rig.mileage = Number($("#rg-miles").value) || 0; rig.genHours = Number($("#rg-gen").value) || 0;
       rig.psiFront = Number($("#rg-psi-f").value) || null; rig.psiRear = Number($("#rg-psi-r").value) || null;
       save(); closeSheet(); renderMore(); renderHome(); toast("Rig updated.");
@@ -3868,7 +3883,8 @@
         year: $("#su-year").value.trim(), make: $("#su-make").value.trim(), model: $("#su-model").value.trim(),
         nickname: $("#su-nick").value.trim(), type: $("#su-type").value,
         mileage: $("#su-miles").value, genHours: $("#su-gen").value,
-        psiFront: $("#su-psi-f").value, psiRear: $("#su-psi-r").value
+        psiFront: $("#su-psi-f").value, psiRear: $("#su-psi-r").value,
+        equipment: $("#su-fuel").value ? { fuel: $("#su-fuel").value } : {}
       });
       if (!rig.year && !rig.make && !rig.model) { toast("Tell the book what rig this is — year, make, or model."); return; }
       store.rigs.push(rig); store.activeRigId = rig.id;
@@ -3881,8 +3897,11 @@
       // anything else. Starting empty is one tap away on the same sheet.
       openPlanChoiceSheet(rig, { afterSetup: true });
     });
-    $("#su-type").addEventListener("change", function () { $("#setup-type-art").innerHTML = rigSilhouette($("#su-type").value); });
+    // Engine fuel only makes sense on a motorhome — a trailer has no engine.
+    function updateSuFuel() { $("#su-fuel-field").style.display = /class [abc]/i.test($("#su-type").value) ? "" : "none"; }
+    $("#su-type").addEventListener("change", function () { $("#setup-type-art").innerHTML = rigSilhouette($("#su-type").value); updateSuFuel(); });
     $("#setup-type-art").innerHTML = rigSilhouette($("#su-type").value);
+    updateSuFuel();
     $("#setup-import-btn").addEventListener("click", function () { $("#csv-file-input").click(); });
     $("#home-start-checklist").addEventListener("click", function () { showScreen("checklists"); openChecklistRun("pretrip"); });
     $("#home-rig-art").addEventListener("click", pickRigPhoto);
