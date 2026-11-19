@@ -786,7 +786,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 95"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 96"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1604,20 +1604,23 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 61. Did you know? tips on Home ---- */
   console.log("== 61. home tips card ==");
   // Nov 16: Rick — a few hundred tips on the front page only, in our
-  // own words; Next tip walks the list, Dismiss hides it till tomorrow.
-  check("two hundred tips", R.TIPS.length === 200);
-  check("tips are all different", new Set(R.TIPS.map(function (t) { return t.trim().toLowerCase(); })).size === 200);
+  // own words; Nov 19: mixed up at random, not in order.
+  check("two hundred twenty-four tips", R.TIPS.length === 224);
+  check("tips are all different", new Set(R.TIPS.map(function (t) { return t.trim().toLowerCase(); })).size === 224);
   check("tips are all short plain lines", R.TIPS.every(function (t) { return typeof t === "string" && t.trim().length > 10 && t.length <= 400; }));
+  check("twelve health tips for drivers", R.TIPS.some(function (t) { return t.indexOf("dehydrated driver") !== -1; }) && R.TIPS.some(function (t) { return t.indexOf("twenty-minute nap") !== -1; }));
+  check("twelve safe driving tips", R.TIPS.some(function (t) { return t.indexOf("following distance") !== -1; }) && R.TIPS.some(function (t) { return t.indexOf("low clearances") !== -1; }));
   R.showScreen("home"); R.renderHome(); await sleep(20);
   const tipCard = doc.querySelector("#home-tip-card");
   check("tips card shows on Home", tipCard && !tipCard.hidden);
   const firstTip = doc.querySelector("#home-tip-text").textContent;
-  check("first tip is tip one", firstTip === R.TIPS[0]);
+  check("first tip is a tip from the list", R.TIPS.indexOf(firstTip) !== -1);
   click(doc.querySelector("#home-tip-next")); await sleep(20);
-  check("Next tip moves to the next tip", doc.querySelector("#home-tip-text").textContent === R.TIPS[1]);
-  R.store().settings.tipIndex = 199; R.renderHome(); await sleep(20);
+  const secondTip = doc.querySelector("#home-tip-text").textContent;
+  check("Next tip picks a different tip, at random", secondTip !== firstTip && R.TIPS.indexOf(secondTip) !== -1);
   click(doc.querySelector("#home-tip-next")); await sleep(20);
-  check("Next tip wraps back to the start", doc.querySelector("#home-tip-text").textContent === R.TIPS[0]);
+  const thirdTip = doc.querySelector("#home-tip-text").textContent;
+  check("another Next tip mixes it up again", thirdTip !== secondTip && R.TIPS.indexOf(thirdTip) !== -1);
   click(doc.querySelector("#home-tip-dismiss")); await sleep(20);
   check("Dismiss hides the card", doc.querySelector("#home-tip-card").hidden);
   R.renderHome(); await sleep(20);

@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "95";
+  var APP_VERSION = "96";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -214,7 +214,31 @@
     "Cook in the rig more often than eating out \u2014 a few home-cooked meals on a trip add up to real money saved.",
     "Look for campgrounds with a weekly rate if you're staying more than a few nights \u2014 a week is often cheaper than seven single nights.",
     "Travel in the off-season when you can \u2014 the same park is often cheaper and quieter outside the busy months.",
-    "Set a daily spending limit before a trip and check it each night so a small splurge doesn't quietly become a big bill."
+    "Set a daily spending limit before a trip and check it each night so a small splurge doesn't quietly become a big bill.",
+    "Keep a water bottle in the cab and sip through the day instead of holding off to skip bathroom stops. Thirst means you are already dehydrated, and a dehydrated driver reacts slower and tires faster.",
+    "Stop every two hours or so, even if you do not need fuel. Get out, walk a lap around the rig, and stretch your shoulders, back, and legs. Sitting still for hours stiffens everything up and dulls your focus.",
+    "If your eyes get heavy, pull over somewhere safe and take a twenty-minute nap. Coffee and loud music only borrow alertness, only sleep pays it back.",
+    "A big greasy meal makes you sleepy behind the wheel. Eat light on driving days and save the heavy meal for after you have parked.",
+    "Pack snacks that travel well and do not spike your blood sugar, nuts, cheese, jerky, hard-boiled eggs. Chips and candy give you a rush, then a crash right when you need to stay sharp.",
+    "Keep the same bedtime on the road as at home, even when the campground is new. A regular sleep schedule is the best defense against drowsy driving.",
+    "Walk the campground loop morning and evening. It is the easiest exercise on the road, and it beats sitting in the rig all day.",
+    "Wear sunglasses and sunscreen even through the windshield. Hours of glare wear your eyes out and leave you with a headache by dinner.",
+    "Adjust the seat so your knees are slightly bent and your back is supported before you roll. A bad driving position turns into back pain by the second hour.",
+    "Use fuel stops as stretch stops. A few squats, a shoulder roll, and a walk to the far pump keep the blood moving and the stiffness down.",
+    "Take your regular medicines on schedule, even on travel days. A new time zone or a long drive is the easiest way to miss a dose.",
+    "Keep driving days short when you can, a few hours, arrive early, and save your energy for the evening. Long days behind the wheel wear you out more than you feel at the time.",
+    "Walk around the rig before you roll, tires, lights, mirrors, slides in, awning in, steps up. A two-minute walk-around catches what a mirror never will.",
+    "Check your mirrors and adjust them before you pull out, not after you are rolling. On a Class A, the blind spots are bigger than you think.",
+    "Leave twice the following distance you would in a car. A loaded coach needs far more room to stop, and tailgating leaves you nowhere to go.",
+    "Slow down before a curve, not in it. A tall coach leans, and braking mid-turn is how rollovers start.",
+    "Watch for low clearances, bridges, gas station canopies, tree limbs. Know your rig's height and write it on a card on the dash.",
+    "In high wind, slow down and grip the wheel with both hands. A gust hitting a tall flat side can shove the whole coach a lane over.",
+    "Never back up without a spotter or a walk-around first. If you are alone, get out and look, a few steps now beats a repair bill later.",
+    "Keep your headlights on during the day on the highway. A big rig is easier to judge when its lights are on.",
+    "If the rig starts to sway, ease off the gas and hold the wheel steady, do not brake hard or jerk it. Let it settle, then slow down.",
+    "Plan fuel stops for the size of your rig. Not every station has room to swing a 36-foot coach, and getting boxed in is no fun.",
+    "If you catch yourself yawning, blinking hard, or missing exits, park at the next safe spot. Pushing through drowsiness is how good drivers end up in ditches.",
+    "Know your weight. A coach loaded over its rating handles worse, brakes worse, and blows tires. Weigh it loaded at a truck scale once a year.",
   ];
 
   /* Per-job guidance on the job sheet (v72, Nov 16: Rick — every
@@ -1846,20 +1870,31 @@
   }
 
   /* ---------------- Did you know? (Home only) -------------------------------- */
-  /* One tip at a time, in our own words. Next tip walks the list in order
-     and wraps; Dismiss hides the card till tomorrow. */
+  /* One tip at a time, in our own words. The first tip and every Next
+     tip are picked at random (Nov 19: Rick wanted them mixed up, not
+     in order); Dismiss hides the card till tomorrow. */
   function tipIndex() {
     var i = (store.settings && store.settings.tipIndex) || 0;
     return TIPS.length ? ((i % TIPS.length) + TIPS.length) % TIPS.length : 0;
+  }
+  function randomTipIndex(except) {
+    if (TIPS.length <= 1) return 0;
+    var i;
+    do { i = Math.floor(Math.random() * TIPS.length); } while (i === except);
+    return i;
   }
   function renderHomeTip() {
     var card = $("#home-tip-card"); if (!card) return;
     if ((store.settings && store.settings.tipsDismissed) === todayISO()) { card.hidden = true; return; }
     card.hidden = false;
+    if (!store.settings || typeof store.settings.tipIndex !== "number") {
+      store.settings = store.settings || {};
+      store.settings.tipIndex = randomTipIndex(-1); save();
+    }
     $("#home-tip-text").textContent = TIPS[tipIndex()];
     $("#home-tip-next").onclick = function () {
       store.settings = store.settings || {};
-      store.settings.tipIndex = tipIndex() + 1; save();
+      store.settings.tipIndex = randomTipIndex(tipIndex()); save();
       $("#home-tip-text").textContent = TIPS[tipIndex()];
     };
     $("#home-tip-dismiss").onclick = function () {
