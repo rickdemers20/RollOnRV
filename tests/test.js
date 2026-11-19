@@ -783,7 +783,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 87"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 88"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1876,7 +1876,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   doc.querySelector("#home-guide-link").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("tapping How to use this app opens the guide screen", doc.querySelector("#screen-guide").classList.contains("active"));
-  check("the in-app guide carries all 16 steps", doc.querySelectorAll("#screen-guide .card").length === 16);
+  check("the in-app guide carries all 17 steps", doc.querySelectorAll("#screen-guide .card").length === 17);
   doc.querySelector("#guide-back-btn").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await sleep(20);
   check("the guide's Back button returns to Home", doc.querySelector("#screen-home").classList.contains("active"));
@@ -2802,6 +2802,39 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   R.openVaultDocSheet(reg86.id); await sleep(20);
   doc.querySelector("#vd-delete").click(); await sleep(20);
   check("taking a document out removes it from the vault", !R.vaultFor(rig86).docs.some((d) => d.name === "Registration"));
+
+  /* ---- 87. Ownership report (Pro, v88) ---- */
+  console.log("== 87. Ownership report ==");
+  function isoInDays87(n) { var d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  var rig87 = R.activeRig();
+  R.showScreen("more");
+  check("More offers the Ownership report", !!doc.querySelector("#report-view-btn") && !!doc.querySelector("#report-print-btn"));
+  // Back to free first (section 86 left the main dom Pro): the report
+  // is Pro only, so a free user gets the paywall.
+  R.store().settings.premium = { status: "free", productId: null, since: null };
+  R.save();
+  click(doc.querySelector("#report-view-btn")); await sleep(20);
+  check("a free user tapping the report sees the Pro paywall", !!doc.querySelector("#pro-paywall"));
+  // Grant Pro, seed the book, and read the report.
+  R.grantPremium("rollonrv_premium_monthly");
+  R.store().logs.push(R.newLog({ rigId: rig87.id, title: "Engine oil & filter", date: "2026-11-15", mileage: 24451, genHours: 210, cost: 35, note: "Drain the oil" }));
+  R.store().tires.push(R.newTire({ rigId: rig87.id, position: "Front Left", dotCode: "3720" }));
+  R.store().tasks.push(R.newTask({ rigId: rig87.id, title: "Check roof seals", category: "Roof", nextDueDate: isoInDays87(5) }));
+  var html87 = R.ownershipReportHTML(rig87);
+  check("the report names the rig and the date", html87.indexOf("Ownership report") !== -1 && html87.indexOf("Test Make") !== -1 && html87.indexOf("Test Model 123") !== -1);
+  check("the report lists a logged job with its cost", html87.indexOf("Engine oil &amp; filter") !== -1 && html87.indexOf("$35.00") !== -1);
+  check("the report lists a tire with its DOT code", html87.indexOf("Front Left") !== -1 && html87.indexOf("3720") !== -1);
+  check("the report lists the Vault papers", html87.indexOf("Old insurance") !== -1 && html87.indexOf("Owner&#39;s manual") !== -1);
+  check("the report lists what's coming due", html87.indexOf("Check roof seals") !== -1);
+  // An empty book says so plainly, section by section.
+  var fresh87 = R.newRig({ type: "Class A", year: 2021, make: "Newmar", model: "Bay Star 3626" });
+  var empty87 = R.ownershipReportHTML(fresh87);
+  check("an empty book's report says so plainly", empty87.indexOf("Nothing logged yet") !== -1 && empty87.indexOf("No tire dates recorded yet") !== -1 && empty87.indexOf("Nothing in the Vault yet") !== -1);
+  // The print path fills the print sheet. (JSDOM has no window.print,
+  // so stub it — the sheet content is what the check reads.)
+  dom.window.print = function () {};
+  R.printOwnershipReport(); await sleep(20);
+  check("printing the report fills the print sheet", doc.querySelector("#print-sheet").textContent.indexOf("Ownership report") !== -1 && doc.querySelector("#print-sheet").textContent.indexOf("Engine oil & filter") !== -1);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

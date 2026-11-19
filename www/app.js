@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "87";
+  var APP_VERSION = "88";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -2513,6 +2513,108 @@
     $("#vd-name").focus();
   }
 
+  /* ---------------- Ownership report (Pro) -------------------------------- */
+  /* One clean page of the whole book, ready to hand a buyer when the
+     rig sells: the rig, every job logged, the tires, the Vault papers,
+     and what's coming due. Pro only. Two ways out: View & share opens
+     the report as its own page in a new tab (Share → Save to Files as
+     a PDF), Print sends it to the print sheet. Photos stay in the app
+     — the report lists what was done, not the pictures. */
+  function ownershipReportData(rig) {
+    var logs = store.logs.filter(function (l) { return l.rigId === rig.id; }).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    var tires = (store.tires || []).filter(function (t) { return t.rigId === rig.id; });
+    var docs = vaultFor(rig).docs.slice();
+    var due = dueTasks(rig).filter(function (d) { return d.status.level !== "done"; });
+    var spent = logs.reduce(function (s, l) { return s + (Number(l.cost) || 0); }, 0) +
+      (store.parts || []).filter(function (p) { return p.rigId === rig.id && p.bought; }).reduce(function (s, p) { return s + (Number(p.boughtCost) || 0); }, 0);
+    return { logs: logs, tires: tires, docs: docs, due: due, spent: spent };
+  }
+  function ownershipReportHTML(rig) {
+    var d = ownershipReportData(rig);
+    function logRow(l) {
+      var bits = [fmtDate(l.date)];
+      if (l.mileage) bits.push(num(l.mileage) + " mi");
+      if (l.cost) bits.push(money(l.cost));
+      return '<div class="item"><span><b>' + esc(l.title) + '</b>' +
+        '<br><span class="sub">' + esc(bits.join(" · ")) + (l.note ? ' — ' + esc(l.note) : '') + '</span></span></div>';
+    }
+    function tireRow(t) {
+      var info = dotInfo(t.dotCode);
+      var age = info.ok ? info.ageText + (info.flag === "good" ? "" : " — " + info.flagText) : info.text;
+      return '<div class="item"><span><b>' + esc(t.position || "Tire") + '</b>' +
+        '<br><span class="sub">DOT ' + esc(t.dotCode || "—") + ' · ' + esc(age) + '</span></span></div>';
+    }
+    function docRow(doc) {
+      var s = vaultDocStatus(doc);
+      return '<div class="item"><span><b>' + esc(doc.name) + '</b>' +
+        '<br><span class="sub">' + esc(doc.kind) + ' · ' + (doc.expires ? esc(fmtDate(doc.expires)) + (s.level !== "none" ? " — " + esc(s.text) : "") : "No expiry date") + '</span></span></div>';
+    }
+    function dueRow(x) {
+      return '<div class="item"><span><b>' + esc(x.task.title) + '</b>' +
+        '<br><span class="sub">' + esc(x.task.category) + ' · ' + esc(x.status.text) + '</span></span></div>';
+    }
+    return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<title>Ownership report — ' + esc(rigName(rig)) + '</title><style>' +
+      'body{font-family:Georgia,serif;background:#fffdf4;color:#22304a;margin:0;padding:1.2rem;font-size:19px;line-height:1.45}' +
+      'h1{font-size:1.7rem;margin:.2rem 0 .1rem}h2{font-size:1.25rem;color:#b3372c;margin:1.4rem 0 .4rem}' +
+      '.meta{color:#55617a;font-size:.95rem}.item{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 0;border-bottom:1px solid #e2d8bd}' +
+      '.sub{color:#55617a;font-size:.9rem}.foot{color:#55617a;font-size:.9rem;margin-top:1.4rem}' +
+      '</style></head><body>' +
+      '<h1>Ownership report</h1><p class="meta">' + esc(rigName(rig)) + ' · ' + esc(fmtDate(todayISO())) + '</p>' +
+      '<h2>The rig</h2><p>' + esc(rigName(rig)) + ' · ' + esc(rig.type || "") + ' · ' + num(rig.mileage) + ' mi · ' + num(rig.genHours) + ' gen hrs</p>' +
+      '<h2>Maintenance history</h2>' +
+      (d.logs.length ? d.logs.map(logRow).join("") : '<p class="sub">Nothing logged yet — the book starts when the first job is logged.</p>') +
+      '<p class="sub">Total spent on maintenance: ' + esc(money(d.spent)) + '</p>' +
+      '<h2>Tires</h2>' +
+      (d.tires.length ? d.tires.map(tireRow).join("") : '<p class="sub">No tire dates recorded yet.</p>') +
+      '<h2>Documents in the Vault</h2>' +
+      (d.docs.length ? d.docs.map(docRow).join("") : '<p class="sub">Nothing in the Vault yet.</p>') +
+      '<h2>Coming due</h2>' +
+      (d.due.length ? d.due.map(dueRow).join("") : '<p class="sub">Nothing on the books.</p>') +
+      '<p class="foot">Prepared from the RollOnRV logbook on ' + esc(fmtDate(todayISO())) + '. · RollOnRV, your rig\'s logbook.</p>' +
+      '</body></html>';
+  }
+  function printOwnershipReport() {
+    var rig = activeRig(); if (!rig) return;
+    var d = ownershipReportData(rig);
+    function logRow(l) {
+      var bits = [fmtDate(l.date)];
+      if (l.mileage) bits.push(num(l.mileage) + " mi");
+      if (l.cost) bits.push(money(l.cost));
+      return '<div class="print-item"><span><span class="print-label">' + esc(l.title) + '</span>' +
+        '<span class="print-sub">' + esc(bits.join(" · ")) + (l.note ? ' — ' + esc(l.note) : '') + '</span></span></div>';
+    }
+    function tireRow(t) {
+      var info = dotInfo(t.dotCode);
+      var age = info.ok ? info.ageText + (info.flag === "good" ? "" : " — " + info.flagText) : info.text;
+      return '<div class="print-item"><span><span class="print-label">' + esc(t.position || "Tire") + '</span>' +
+        '<span class="print-sub">DOT ' + esc(t.dotCode || "—") + ' · ' + esc(age) + '</span></span></div>';
+    }
+    function docRow(doc) {
+      var s = vaultDocStatus(doc);
+      return '<div class="print-item"><span><span class="print-label">' + esc(doc.name) + '</span>' +
+        '<span class="print-sub">' + esc(doc.kind) + ' · ' + (doc.expires ? esc(fmtDate(doc.expires)) + (s.level !== "none" ? " — " + esc(s.text) : "") : "No expiry date") + '</span></span></div>';
+    }
+    function dueRow(x) {
+      return '<div class="print-item"><span><span class="print-label">' + esc(x.task.title) + '</span>' +
+        '<span class="print-sub">' + esc(x.task.category) + ' · ' + esc(x.status.text) + '</span></span></div>';
+    }
+    printSheet(
+      printHead("RollOnRV — Ownership report", rigName(rig) + " · " + fmtDate(todayISO())) +
+      '<div class="print-group">The rig</div><p>' + esc(rigName(rig)) + ' · ' + esc(rig.type || "") + ' · ' + num(rig.mileage) + ' mi · ' + num(rig.genHours) + ' gen hrs</p>' +
+      '<div class="print-group">Maintenance history</div>' +
+      (d.logs.length ? d.logs.map(logRow).join("") : '<p class="muted">Nothing logged yet.</p>') +
+      '<p class="muted">Total spent on maintenance: ' + esc(money(d.spent)) + '</p>' +
+      '<div class="print-group">Tires</div>' +
+      (d.tires.length ? d.tires.map(tireRow).join("") : '<p class="muted">No tire dates recorded yet.</p>') +
+      '<div class="print-group">Documents in the Vault</div>' +
+      (d.docs.length ? d.docs.map(docRow).join("") : '<p class="muted">Nothing in the Vault yet.</p>') +
+      '<div class="print-group">Coming due</div>' +
+      (d.due.length ? d.due.map(dueRow).join("") : '<p class="muted">Nothing on the books.</p>') +
+      '<p class="muted">Prepared from the RollOnRV logbook on ' + esc(fmtDate(todayISO())) + '.</p>'
+    );
+  }
+
   /* ---------------- Fuel ---------------------------------------------------- */
   /* A fill-up is a date, an odometer, gallons, and what you paid — the
      price a gallon and the MPG work themselves out. Fill the tank each
@@ -4421,6 +4523,19 @@
     /* The Vault is Pro only: a free user gets the paywall, a Pro user
        gets the screen. */
     $("#vault-open-btn").addEventListener("click", function () { if (isPro()) showScreen("vault"); else openProPaywall(); });
+    /* The report is Pro only too: a free user gets the paywall. View &
+       share opens the report as its own page — Share → Save to Files
+       as a PDF is the hand-it-to-the-buyer path. */
+    $("#report-view-btn").addEventListener("click", function () {
+      if (!isPro()) { openProPaywall(); return; }
+      var rig = activeRig(); if (!rig) return;
+      downloadFile("rollonrv-ownership-report.html", ownershipReportHTML(rig), "text/html;charset=utf-8");
+      toast("Opened in a new tab — share it, or save it as a PDF.");
+    });
+    $("#report-print-btn").addEventListener("click", function () {
+      if (!isPro()) { openProPaywall(); return; }
+      printOwnershipReport();
+    });
     $("#vault-add-btn").addEventListener("click", function () { openVaultDocSheet(null); });
     $("#vault-back-btn").addEventListener("click", function () { showScreen("more"); });
     $("#vault-back-btn-bottom").addEventListener("click", function () { showScreen("more"); });
@@ -4552,6 +4667,7 @@
     storageStarterCompartments: storageStarterCompartments, openStorageItemSheet: openStorageItemSheet, openStorageCompartmentSheet: openStorageCompartmentSheet,
     printStorageList: printStorageList, storageListHTML: storageListHTML,
     vaultFor: vaultFor, renderVault: renderVault, openVaultDocSheet: openVaultDocSheet, vaultDocStatus: vaultDocStatus, vaultDaysUntil: vaultDaysUntil,
+    ownershipReportHTML: ownershipReportHTML, printOwnershipReport: printOwnershipReport, ownershipReportData: ownershipReportData,
     taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask, skipTask: skipTask, openTaskSheet: openTaskSheet,
     planReminders: planReminders, reminderSettings: reminderSettings, scheduleReminders: scheduleReminders, openRemindersSheet: openRemindersSheet,
     dotInfo: dotInfo, costsForYear: costsForYear, costPerMile: costPerMile,
