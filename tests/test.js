@@ -787,7 +787,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   /* ---- 27. the build number shows in More ---- */
   console.log("== 27. build number ==");
   R.showScreen("more"); await sleep(20);
-  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 99"));
+  check("More shows which build is on the phone", doc.querySelector("#about-version").textContent.includes("build 100"));
   check("About carries the copyright line", doc.querySelector("#screen-more").textContent.includes("© 2026 Rick Demers"));
 
   /* ---- 28. the "Your own items" heading is yours too ---- */
@@ -1752,6 +1752,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("three Pro products, right prices", R.PRO_PRODUCT_IDS.monthly === "rollonrv_premium_monthly" && R.PRO_PRODUCT_IDS.yearly === "rollonrv_premium_yearly" && R.PRO_PRODUCT_IDS.lifetime === "rollonrv_premium_lifetime" && R.PRO_PRICES.monthly === "$4.99/mo" && R.PRO_PRICES.yearly === "$39.99/yr" && R.PRO_PRICES.lifetime === "$79.99");
   const pwFree = R.proPaywallHTML();
   check("paywall names every Pro feature plainly", ["Ownership report", "Document Vault", "Parts &amp; warranty tracking", "More than one rig", "Backup"].every(function (f) { return pwFree.indexOf(f) !== -1; }));
+  check("paywall leads with the everyday Pro stuff, report last", pwFree.indexOf("Document Vault") < pwFree.indexOf("Ownership report") && pwFree.indexOf("the report is ready") !== -1);
   check("paywall shows the three prices", pwFree.indexOf("$4.99") !== -1 && pwFree.indexOf("$39.99") !== -1 && pwFree.indexOf("$79.99") !== -1);
   check("paywall carries the grandfathered-rate line", pwFree.indexOf("Subscribe now and your rate never goes up") !== -1);
   check("paywall has a Restore Purchases button", pwFree.indexOf("Restore Purchases") !== -1);
@@ -3005,6 +3006,22 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
   check("the sheet shows the file card", doc.querySelector("#sheet-host").textContent.indexOf("insurance-card.pdf") !== -1);
   check("the sheet offers View the file", !!doc.querySelector("#vd-file-view"));
   check("the sheet offers taking the file out", !!doc.querySelector("#vd-attach-remove"));
+  // The file viewer rides the proven print page — a data: URL anchor
+  // never leaves WKWebView (Nov 19: View the file opened nothing).
+  var viewer93 = R.vaultFileViewerHTML({ name: "a.pdf", data: "data:application/pdf;base64,XYZ" });
+  check("the file viewer embeds the PDF", viewer93.indexOf('<embed src="data:application/pdf;base64,XYZ"') !== -1);
+  check("the file viewer names the file", viewer93.indexOf("a.pdf") !== -1);
+
+  /* ---- 94. Report a bug pill ---- */
+  console.log("== 94. report a bug ==");
+  // Nov 19, Rick's idea: a pill in More that opens a prefilled email.
+  // The address never shows on screen — only in the mail link.
+  R.showScreen("more"); await sleep(20);
+  var bugBtn94 = doc.querySelector("#bug-report-btn");
+  check("More has the Report a bug pill", !!bugBtn94);
+  check("the pill shows no email address", bugBtn94.textContent.indexOf("@") === -1 && bugBtn94.textContent.toLowerCase().indexOf("rick") === -1);
+  check("the mail link carries the build number", decodeURIComponent(R.bugReportMailto()).indexOf("build 100") !== -1);
+  check("the mail link is a mailto", R.bugReportMailto().indexOf("mailto:") === 0);
 
   console.log("\n" + pass + " passed, " + fail + " failed");
   process.exit(fail ? 1 : 0);

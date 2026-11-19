@@ -8,7 +8,7 @@
 
   /* Build number — bump it on every release. It shows in More, under
      About, so a glance tells which build is on the phone. */
-  var APP_VERSION = "99";
+  var APP_VERSION = "100";
 
   /* 200 original tips for the Home 'Did you know?' card (Nov 16:
      Rick — a few hundred tips, in our own words; facts are general
@@ -2793,13 +2793,17 @@
     if (n.indexOf("regist") !== -1) return "Registration";
     return "Registration";
   }
+  function vaultFileViewerHTML(file) {
+    return '<h1 style="font-family:Georgia,serif">' + esc(file.name) + '</h1>' +
+      '<embed src="' + file.data + '" type="application/pdf" style="width:100%;height:80vh;border:1px solid #ccc;border-radius:8px" />';
+  }
   function openVaultFile(file) {
-    /* Same proven path as the print page: a plain link in a new tab.
-       Safari renders the PDF there; the app stays where it was. */
-    var a = document.createElement("a");
-    a.href = file.data; a.target = "_blank"; a.rel = "noopener";
-    document.body.appendChild(a); a.click();
-    setTimeout(function () { a.remove(); }, 500);
+    /* The data: URL anchor trick does not leave WKWebView (Nov 19:
+       Rick tapped View the file and nothing opened — same lesson as
+       the blob links in v49/v50). The file travels as an embed on the
+       print page instead — the proven https path to real Safari, which
+       renders the PDF inline. */
+    openPrintPage(vaultFileViewerHTML(file));
   }
   var vaultImportTarget = null;
   function openVaultImportInput() { var input = $("#vault-import-input"); if (input) { input.value = ""; input.click(); } }
@@ -3929,13 +3933,13 @@
   function proPaywallHTML() {
     var pro = isPro();
     var p = getPremium();
-    var html = sheetHead("RollOnRV Pro", "The free core is the whole book, and it stays free. Pro opens the extras behind the door.") +
+    var html = sheetHead("RollOnRV Pro", "Pro looks after the rig while you own it — and hands you the report when you sell.") +
       '<div id="pro-paywall">' +
-      '<p class="small"><b>Ownership report.</b> One clean PDF of the whole book, ready to hand a buyer when you sell the rig.</p>' +
       '<p class="small"><b>Document Vault.</b> Your document vault — registration, insurance, warranties, manuals — with expiry alerts so nothing lapses quietly.</p>' +
       '<p class="small"><b>Parts &amp; warranty tracking.</b> Every part you bought, what it cost, and when its warranty runs out.</p>' +
       '<p class="small"><b>More than one rig.</b> A book for each rig you own, in the same app.</p>' +
       '<p class="small"><b>Backup.</b> A copy of your book, safe if the phone is lost or replaced.</p>' +
+      '<p class="small"><b>Ownership report.</b> And when the day comes to sell, the report is ready — one clean PDF of the whole book to hand the buyer.</p>' +
       '<p class="small"><b>Subscribe now and your rate never goes up.</b> Early subscribers keep their rate — if the price goes up later for new subscribers, yours stays where it is.</p>';
     if (pro) {
       html += '<p class="small"><b>Pro is active' +
@@ -3964,6 +3968,24 @@
     var y = $("#pro-buy-yearly"); if (y) y.addEventListener("click", function () { proSubscribe("yearly"); });
     var l = $("#pro-buy-lifetime"); if (l) l.addEventListener("click", function () { proSubscribe("lifetime"); });
     var r = $("#pro-restore"); if (r) r.addEventListener("click", proRestorePurchases);
+  }
+
+  /* ---------------- Report a bug ------------------------------------------ */
+  /* Nov 19, Rick's idea: a pill in More that opens a prefilled email.
+     The address never shows anywhere on screen — it lives only in the
+     mail link the phone opens, so the mail app addresses the draft and
+     the user just writes what went wrong. The build number rides in
+     the subject so a report always says which build it came from. */
+  function bugReportMailto() {
+    var subject = "RollOnRV bug — build " + APP_VERSION;
+    var body = "What happened?\n\nWhat were you doing when it happened?\n\nBuild: " + APP_VERSION + "\n";
+    return "mailto:rick@rickdemers.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  }
+  function openBugReport() {
+    var a = document.createElement("a");
+    a.href = bugReportMailto();
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { a.remove(); }, 500);
   }
 
   /* ---------------- log-a-job sheet ----------------------------------------- */
@@ -5037,6 +5059,7 @@
     $("#storage-back-btn-bottom").addEventListener("click", function () { showScreen("more"); });
     $("#reminders-open-btn").addEventListener("click", openRemindersSheet);
     $("#premium-open-btn").addEventListener("click", openProPaywall);
+    $("#bug-report-btn").addEventListener("click", openBugReport);
     $("#pros-add-btn").addEventListener("click", function () { openProSheet(null); });
     $("#pros-back-btn").addEventListener("click", function () { showScreen("home"); });
     $("#pros-back-btn-bottom").addEventListener("click", function () { showScreen("home"); });
@@ -5157,7 +5180,7 @@
     storageStarterCompartments: storageStarterCompartments, openStorageItemSheet: openStorageItemSheet, openStorageCompartmentSheet: openStorageCompartmentSheet,
     printStorageList: printStorageList, storageListHTML: storageListHTML,
     vaultFor: vaultFor, renderVault: renderVault, openVaultDocSheet: openVaultDocSheet, vaultDocStatus: vaultDocStatus, vaultDaysUntil: vaultDaysUntil,
-    vaultFileKind: vaultFileKind, vaultFileName: vaultFileName, vaultKindFromName: vaultKindFromName, openVaultFile: openVaultFile, vaultImportFile: vaultImportFile,
+    vaultFileKind: vaultFileKind, vaultFileName: vaultFileName, vaultKindFromName: vaultKindFromName, openVaultFile: openVaultFile, vaultImportFile: vaultImportFile, vaultFileViewerHTML: vaultFileViewerHTML,
     ownershipReportHTML: ownershipReportHTML, printOwnershipReport: printOwnershipReport, ownershipReportData: ownershipReportData, ownershipReportPrintHTML: ownershipReportPrintHTML,
     taskStatus: taskStatus, dueTasks: dueTasks, completeTask: completeTask, snoozeTask: snoozeTask, skipTask: skipTask, openTaskSheet: openTaskSheet,
     planReminders: planReminders, reminderSettings: reminderSettings, scheduleReminders: scheduleReminders, openRemindersSheet: openRemindersSheet,
@@ -5174,6 +5197,7 @@
     proStoreState: function () { return { initialized: proStoreInitialized, ready: proStoreReadyFired, initSettled: proStoreInitSettled, diag: proStoreDiag }; },
     proSubscribe: proSubscribe, proRestorePurchases: proRestorePurchases,
     proPaywallHTML: proPaywallHTML, openProPaywall: openProPaywall,
+    bugReportMailto: bugReportMailto, openBugReport: openBugReport,
     proRecheckOwnership: proRecheckOwnership, proProductIdFromReceipt: proProductIdFromReceipt,
     plansForRig: plansForRig, planJobsFor: planJobsFor, buildPlan: buildPlan, planFirstDue: planFirstDue,
     openPlanChoiceSheet: openPlanChoiceSheet, openPlanOptionsSheet: openPlanOptionsSheet,
